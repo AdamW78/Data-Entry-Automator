@@ -1,6 +1,7 @@
 package formats;
 
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import data.Experiment;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 public class RawOutputStyle extends OutputStyle {
     public RawOutputStyle() {
@@ -8,7 +9,7 @@ public class RawOutputStyle extends OutputStyle {
     }
 
     @Override
-    public void generateOutputSheets(XSSFWorkbook workbook) {
+    public void generateOutputSheets(XSSFSheet[] sheets, Experiment experiment) {
         // TODO: Implement
     }
 }
