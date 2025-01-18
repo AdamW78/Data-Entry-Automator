@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.awdevelopment.smithlab'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.poi:poi-ooxml:5.4.0'
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+base {
+    archivesName = "Smith Lab Spreadsheet Formatter"
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes "Main-class": "edu.virginia.sde.hw3.Main"
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+
+javadoc {
+    options.memberLevel = JavadocMemberLevel.PUBLIC
+    options.encoding = 'UTF-8'
+}
