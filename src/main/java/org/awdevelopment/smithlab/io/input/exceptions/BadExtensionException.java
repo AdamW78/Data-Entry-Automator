@@ -1,4 +1,4 @@
-package org.awdevelopment.smithlab.io.input;
+package org.awdevelopment.smithlab.io.input.exceptions;
 
 public class BadExtensionException extends IllegalArgumentException {
 
