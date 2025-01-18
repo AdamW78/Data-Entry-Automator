@@ -1,6 +1,6 @@
 package formats;
 
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class BothOutputStyle extends OutputStyle {
 
@@ -14,13 +14,9 @@ public class BothOutputStyle extends OutputStyle {
     }
 
     @Override
-    public XSSFSheet[] generateOutputSheets() {
-        XSSFSheet[] prismSheets = prismOutputStyle.generateOutputSheets();
-        XSSFSheet[] otherSheets = otherOutputStyle.generateOutputSheets();
-        XSSFSheet[] bothSheets = new XSSFSheet[prismSheets.length + otherSheets.length];
-        System.arraycopy(prismSheets, 0, bothSheets, 0, prismSheets.length);
-        System.arraycopy(otherSheets, 0, bothSheets, prismSheets.length, otherSheets.length);
-        return bothSheets;
+    public void generateOutputSheets(XSSFWorkbook workbook) {
+        prismOutputStyle.generateOutputSheets(workbook);
+        otherOutputStyle.generateOutputSheets(workbook);
     }
 
 }

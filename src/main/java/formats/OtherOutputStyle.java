@@ -1,6 +1,6 @@
 package formats;
 
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class OtherOutputStyle extends OutputStyle {
 
@@ -9,8 +9,7 @@ public class OtherOutputStyle extends OutputStyle {
     }
 
     @Override
-    public XSSFSheet[] generateOutputSheets() {
+    public void generateOutputSheets(XSSFWorkbook workbook) {
         // TODO: implement
-        return null;
     }
 }

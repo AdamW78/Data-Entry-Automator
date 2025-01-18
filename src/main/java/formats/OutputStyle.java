@@ -1,6 +1,6 @@
 package formats;
 
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public abstract class OutputStyle {
 
@@ -14,5 +14,5 @@ public abstract class OutputStyle {
         return outputType;
     }
 
-    public abstract XSSFSheet[] generateOutputSheets();
+    public abstract void generateOutputSheets(XSSFWorkbook workbook);
 }
