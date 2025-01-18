@@ -1,4 +1,4 @@
-package io.output;
+package org.awdevelopment.smithlab.io.output;
 
 import java.io.IOException;
 

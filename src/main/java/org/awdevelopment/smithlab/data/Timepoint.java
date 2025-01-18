@@ -1,4 +1,4 @@
-package data;
+package org.awdevelopment.smithlab.data;
 
 public class Timepoint {
     int sampleNumber;

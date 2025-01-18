@@ -1,7 +1,7 @@
-package io.input;
+package org.awdevelopment.smithlab.io.input;
 
-import data.Experiment;
-import io.Headers;
+import org.awdevelopment.smithlab.data.Experiment;
+import org.awdevelopment.smithlab.io.Headers;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -20,7 +20,8 @@ public record XlsxInputReader(File xlsxFile) {
     public Experiment readExperimentData() {
         XSSFSheet sheet = getWorkbook().getSheetAt(INPUT_SHEET_INDEX);
         Headers headers = readHeaders(sheet);
-
+        System.out.println("Headers: " + headers);
+        return new Experiment();
     }
 
     private XSSFWorkbook getWorkbook() {

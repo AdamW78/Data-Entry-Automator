@@ -27,7 +27,7 @@ base {
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
-        attributes "Main-class": "edu.virginia.sde.hw3.Main"
+        attributes "Main-class": "org.awdevelopment.smithlab.Main"
     }
 
     from {

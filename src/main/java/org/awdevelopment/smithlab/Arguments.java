@@ -1,4 +1,6 @@
-import formats.OutputType;
+package org.awdevelopment.smithlab;
+
+import org.awdevelopment.smithlab.formats.OutputType;
 
 import java.io.File;
 import java.util.Scanner;
@@ -27,10 +29,12 @@ public class Arguments {
                 case "--output-type", "-t" -> {
                     checkIfHasNextArgument(args, i);
                     outputType = OutputType.valueOf(args[i + 1].toUpperCase());
+                    i++;
                 }
                 case "--mode", "-m" -> {
                     checkIfHasNextArgument(args, i);
                     mode = Mode.valueOf(args[i + 1].toUpperCase());
+                    i++;
                 }
                 case "--different", "-d" -> writeToDifferentFile = true;
                 case "--output", "-o" -> {
@@ -38,12 +42,14 @@ public class Arguments {
                     outputFileName = args[i + 1];
                     checkOutputFileName();
                     suppliedOutputFileName = true;
+                    i++;
                 }
                 case "--input", "-i" -> {
                     checkIfHasNextArgument(args, i);
                     String inputFileName = checkInputFileName(args[i + 1]);
                     this.inputFile = new File(inputFileName);
                     checkInputFileExists(inputFileName);
+                    i++;
                 }
                 default -> throw new IllegalArgumentException("Invalid argument: " + args[i]);
             }

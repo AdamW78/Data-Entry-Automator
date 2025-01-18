@@ -1,2 +1,3 @@
 rootProject.name = 'Smith Lab Spreadsheet Formatter'
+include 'test_input'
 

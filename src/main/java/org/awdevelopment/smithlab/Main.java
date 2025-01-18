@@ -1,7 +1,9 @@
-import data.Experiment;
-import formats.OutputType;
-import io.input.XlsxInputReader;
-import io.output.OutputGenerator;
+package org.awdevelopment.smithlab;
+
+import org.awdevelopment.smithlab.data.Experiment;
+import org.awdevelopment.smithlab.formats.OutputType;
+import org.awdevelopment.smithlab.io.input.XlsxInputReader;
+import org.awdevelopment.smithlab.io.output.OutputGenerator;
 
 import java.io.File;
 
@@ -15,12 +17,11 @@ public class Main {
         String outputFileName = arguments.getOutputFileName();
         OutputType outputType = arguments.getOutputType();
         if (mode == Mode.GENERATE_EMPTY_INPUT_SHEET) {
-            return;
         } else if (mode == Mode.GENERATE_OUTPUT_SHEETS) {
             XlsxInputReader reader = new XlsxInputReader(inputFile);
             Experiment experiment = reader.readExperimentData();
             OutputGenerator outputGenerator = new OutputGenerator(outputType, writeToDifferentFile, outputFileName, inputFile);
-            outputGenerator.generateOutput();
+            outputGenerator.generateOutput(experiment);
         }
     }
 

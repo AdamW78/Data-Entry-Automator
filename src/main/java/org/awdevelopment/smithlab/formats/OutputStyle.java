@@ -1,6 +1,6 @@
-package formats;
+package org.awdevelopment.smithlab.formats;
 
-import data.Experiment;
+import org.awdevelopment.smithlab.data.Experiment;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 public abstract class OutputStyle {

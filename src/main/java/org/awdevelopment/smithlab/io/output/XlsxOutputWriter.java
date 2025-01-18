@@ -1,7 +1,9 @@
-package io.output;
+package org.awdevelopment.smithlab.io.output;
 
-import formats.OutputStyle;
+import org.awdevelopment.smithlab.data.Experiment;
+import org.awdevelopment.smithlab.formats.OutputStyle;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
@@ -16,10 +18,21 @@ public class XlsxOutputWriter {
         this.outputStyle = outputStyle;
     }
 
-    public void writeOutput(String outputFileName) throws OutputException {
+    private int getNumberOfSheets() {
+        return switch (outputStyle.getOutputType()) {
+            case PRISM, RAW, OTHER -> 1;
+            case BOTH -> 2;
+        };
+    }
+
+    public void writeOutput(String outputFileName, Experiment experiment) throws OutputException {
         File outputFile = new File(outputFileName);
         try (XSSFWorkbook workbook = new XSSFWorkbook(outputFile)) {
-            outputStyle.generateOutputSheets(workbook);
+            XSSFSheet[] sheets = new XSSFSheet[getNumberOfSheets()];
+            for (int i = 0; i < sheets.length; i++) {
+                sheets[i] = workbook.createSheet();
+            }
+            outputStyle.generateOutputSheets(sheets, experiment);
             writeWorkbookToFile(outputFile, workbook);
         } catch (IOException | InvalidFormatException e) {
             throw new OutputException(outputFileName, e);
