@@ -1,9 +1,6 @@
 package org.awdevelopment.smithlab.io.output;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.CellCopyPolicy;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.awdevelopment.smithlab.data.Experiment;
@@ -35,26 +32,64 @@ public class XlsxOutputWriter {
     public void writeOutput(String outputFileName, Experiment experiment) throws OutputException {
         File outputFile = new File(outputFileName);
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-            int existingSheets = getNumberOfSheets();
-            try (XSSFWorkbook inputWorkbook = new XSSFWorkbook(inputFile)) {
-                existingSheets += inputWorkbook.getNumberOfSheets();
-                XSSFSheet[] sheets = new XSSFSheet[existingSheets];
-                for (int i = 0; i < sheets.length; i++) {
-                    sheets[i] = workbook.createSheet();
-                }
-                for (int i = 0; i < inputWorkbook.getNumberOfSheets(); i++) {
-                    XSSFSheet inputSheet = inputWorkbook.getSheetAt(i);
-                    XSSFSheet outputSheet = sheets[i];
-                    copySheet(inputSheet, outputSheet);
-                    workbook.setSheetName(i, inputWorkbook.getSheetName(i));
-                }
-                outputStyle.generateOutputSheets(sheets, experiment);
-                writeWorkbookToFile(outputFile, workbook);
-            } catch (IOException | InvalidFormatException e) {
-                throw new OutputException(outputFileName, e);
-            }
+            if (writeToDifferentFile && outputFile.exists()) copySheets(outputFile, workbook);
+            copySheets(inputFile, workbook);
+            for (int i = 0; i < getNumberOfSheets(); i++) workbook.createSheet();
+            XSSFSheet[] sheets = new XSSFSheet[workbook.getNumberOfSheets()];
+            for (int i = 0; i < workbook.getNumberOfSheets(); i++) sheets[i] = workbook.getSheetAt(i);
+            renameGeneratedOutputSheets(sheets);
+            outputStyle.generateOutputSheets(sheets, experiment);
+            writeWorkbookToFile(outputFile, workbook);
         } catch (IOException e) {
             throw new OutputException(outputFileName, e);
+        }
+    }
+
+    private void renameGeneratedOutputSheets(XSSFSheet[] sheets) {
+        int lastSheetIndex = sheets.length - 1;
+        switch (outputStyle.getOutputType()) {
+            case PRISM -> setSheetName(sheets[lastSheetIndex].getWorkbook(), sheets[lastSheetIndex], "PRISM");
+            case RAW -> setSheetName(sheets[lastSheetIndex].getWorkbook(), sheets[lastSheetIndex], "RAW");
+            case BOTH -> {
+                setSheetName(sheets[lastSheetIndex - 1].getWorkbook(), sheets[lastSheetIndex - 1], "PRISM");
+                setSheetName(sheets[lastSheetIndex].getWorkbook(), sheets[lastSheetIndex], "OTHER");
+            }
+            case OTHER -> setSheetName(sheets[lastSheetIndex].getWorkbook(), sheets[lastSheetIndex], "OTHER");
+        }
+    }
+
+    private void copySheets(File inputFile, XSSFWorkbook outputWorkbook) throws OutputException {
+        try (XSSFWorkbook inputWorkbook = new XSSFWorkbook(inputFile)) {
+            for (int i = 0; i < inputWorkbook.getNumberOfSheets(); i++) {
+                XSSFSheet inputSheet = inputWorkbook.getSheetAt(i);
+                XSSFSheet outputSheet = outputWorkbook.createSheet();
+                copySheet(inputSheet, outputSheet);
+                setSheetName(outputWorkbook, outputSheet, inputSheet.getSheetName());
+            }
+        } catch (IOException | InvalidFormatException e) {
+            throw new OutputException(inputFile.getPath(), e);
+        }
+    }
+
+
+    private static void setSheetName(XSSFWorkbook workbook, XSSFSheet sheet, String name) {
+        int sheetIndex = workbook.getSheetIndex(sheet);
+        int k = 0;
+        while (true) {
+            try {
+                if (k == 0) {
+                    workbook.setSheetName(sheetIndex, name);
+                } else {
+                    workbook.setSheetName(sheetIndex, name + " (" + k + ")");
+                }
+                break;
+            } catch (IllegalArgumentException e) {
+                if (e.getMessage().contains("The workbook already contains a sheet of this name")) {
+                    k++;
+                } else {
+                    throw e;
+                }
+            }
         }
     }
 
@@ -62,6 +97,9 @@ public class XlsxOutputWriter {
         XSSFRangeCopier xssfRangeCopier = new XSSFRangeCopier(source, destination);
         int lastRow = source.getLastRowNum();
         int lastCol = 0;
+        if (lastRow == -1) {
+            return;
+        }
         for (int i = 0; i < lastRow; i++) {
             XSSFRow row = source.getRow(i);
             if (row != null) {
