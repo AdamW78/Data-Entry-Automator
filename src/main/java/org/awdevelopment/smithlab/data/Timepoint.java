@@ -1,16 +1,8 @@
 package org.awdevelopment.smithlab.data;
 
-public class Timepoint {
+import org.apache.poi.xssf.usermodel.XSSFCell;
 
-    private short dayNumber;
-    private int colonies;
-    private Dilution dilution;
-
-    public Timepoint(short dayNumber, int colonies, Dilution dilution) {
-        this.dayNumber = dayNumber;
-        this.colonies = colonies;
-        this.dilution = dilution;
-    }
+public record Timepoint(short dayNumber, int colonies, Dilution dilution, XSSFCell originalCell) {
 
     private int getFactor(Dilution dilution) {
         return switch (dilution) {
@@ -18,18 +10,6 @@ public class Timepoint {
             case Dilution.x100 -> 100;
             case Dilution.x1000 -> 1000;
         };
-    }
-
-    public short getDayNumber() {
-        return dayNumber;
-    }
-
-    public int getColonies() {
-        return colonies;
-    }
-
-    public Dilution getDilution() {
-        return dilution;
     }
 
     public int getActualValue() {

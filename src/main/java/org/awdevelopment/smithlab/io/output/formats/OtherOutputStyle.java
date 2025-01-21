@@ -1,4 +1,4 @@
-package org.awdevelopment.smithlab.formats;
+package org.awdevelopment.smithlab.io.output.formats;
 
 import org.awdevelopment.smithlab.data.Experiment;
 import org.apache.poi.xssf.usermodel.XSSFSheet;

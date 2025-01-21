@@ -1,4 +1,4 @@
-package org.awdevelopment.smithlab.io.input.exceptions;
+package org.awdevelopment.smithlab.io.exceptions;
 
 public class InvalidBaselineValueException extends RuntimeException {
     public InvalidBaselineValueException(String value, int row, int column) {

@@ -2,18 +2,20 @@ plugins {
     id 'java'
 }
 
-group = 'org.awdevelopment.smithlab'
-version = '1.0'
+group = project.group
+version = project.version
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation 'org.apache.poi:poi-ooxml:5.4.0'
-    testImplementation platform('org.junit:junit-bom:5.11.4')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation "org.apache.poi:poi-ooxml:${project.poi_version}"
+    implementation "org.apache.logging.log4j:log4j-core:${project.log4j_version}"
+    implementation "org.apache.logging.log4j:log4j-api:${project.log4j_version}"
+    testImplementation platform("org.junit:junit-bom:${project.junit_version}")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
 test {
@@ -21,13 +23,13 @@ test {
 }
 
 base {
-    archivesName = "Smith Lab Spreadsheet Formatter"
+    archivesName = project.name
 }
 
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
-        attributes "Main-class": "org.awdevelopment.smithlab.Main"
+        attributes "Main-class": "${project.main_class}"
     }
 
     from {

@@ -1,4 +1,4 @@
-package org.awdevelopment.smithlab.io.input.exceptions;
+package org.awdevelopment.smithlab.io.exceptions;
 
 public class InvalidConditionValueException extends RuntimeException {
     public InvalidConditionValueException(String value, int row, int column) {

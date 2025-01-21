@@ -1,4 +1,4 @@
-package org.awdevelopment.smithlab.io.input.exceptions;
+package org.awdevelopment.smithlab.io.exceptions;
 
 public class InvalidSampleNumberException extends RuntimeException {
     public InvalidSampleNumberException(String value, int row, int column) {

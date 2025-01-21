@@ -1,4 +1,4 @@
-package org.awdevelopment.smithlab.io.input.exceptions;
+package org.awdevelopment.smithlab.io.exceptions;
 
 public class InvalidColoniesNumberException extends RuntimeException {
     public InvalidColoniesNumberException(String value, int row, int column) {

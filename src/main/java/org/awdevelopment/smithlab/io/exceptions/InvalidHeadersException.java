@@ -1,4 +1,4 @@
-package org.awdevelopment.smithlab.io.input.exceptions;
+package org.awdevelopment.smithlab.io.exceptions;
 
 public class InvalidHeadersException extends RuntimeException {
     public InvalidHeadersException() {

@@ -1,4 +1,4 @@
-package org.awdevelopment.smithlab.io.input.exceptions;
+package org.awdevelopment.smithlab.io.exceptions;
 
 public class InvalidDayNumberException extends RuntimeException {
     public InvalidDayNumberException(Exception e, double dayNumber) {

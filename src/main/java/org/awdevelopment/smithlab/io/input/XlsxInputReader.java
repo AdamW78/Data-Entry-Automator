@@ -3,6 +3,7 @@ package org.awdevelopment.smithlab.io.input;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.awdevelopment.smithlab.config.Config;
 import org.awdevelopment.smithlab.data.*;
 import org.awdevelopment.smithlab.io.Header;
 import org.awdevelopment.smithlab.io.HeaderType;
@@ -10,7 +11,7 @@ import org.awdevelopment.smithlab.io.Headers;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.awdevelopment.smithlab.io.input.exceptions.*;
+import org.awdevelopment.smithlab.io.exceptions.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,14 +21,15 @@ import java.util.Optional;
 public class XlsxInputReader {
 
     private final File xlsxFile;
-    private static final boolean VERBOSE = true;
+    private final boolean verbose;
     private static final int INPUT_SHEET_INDEX = 0;
     private static final double DELTA = 0.0000001;
     private final HashSet<Strain> strains;
     private final HashSet<Condition> conditions;
 
-    public XlsxInputReader(File xlsxFile) {
-        this.xlsxFile = xlsxFile;
+    public XlsxInputReader(Config config) {
+        this.xlsxFile = config.inputFile();
+        this.verbose = config.verbose();
         strains = new HashSet<>();
         conditions = new HashSet<>();
     }
@@ -41,6 +43,7 @@ public class XlsxInputReader {
         Optional<Strain> strainOptional = Optional.empty();
         HashSet<Timepoint> timepoints = new HashSet<>();
         int sampleNumber = -1, baseline = -1;
+        XSSFCell baselineCell = null;
         for (int i = 0; i < row.getLastCellNum(); i++) {
             XSSFCell curCell = row.getCell(i);
             Optional<Header> headerOptional = headers.getHeader(i);
@@ -48,10 +51,15 @@ public class XlsxInputReader {
                 Header header = headerOptional.get();
                 switch (header.type()) {
                     case HeaderType.SAMPLE_NUMBER -> sampleNumber = readSampleNumber(curCell);
-                    case HeaderType.BASELINE -> baseline = readBaseline(curCell);
+                    case HeaderType.BASELINE -> {
+                        baseline = readBaseline(curCell);
+                        baselineCell = curCell;
+                    }
                     case HeaderType.CONDITION -> conditionOptional = Optional.of(readCondition(curCell));
                     case HeaderType.STRAIN -> strainOptional = Optional.of(readStrain(curCell));
-                    case HeaderType.UNKNOWN -> System.out.println("Skipping cell \"" + curCell.getRawValue() + "\" with unknown header: \"" + header.name()+  "\"");
+                    case HeaderType.UNKNOWN -> {
+                        if (verbose) System.out.println("Skipping cell \"" + curCell.getRawValue() + "\" with unknown header: \"" + header.name()+  "\"");
+                    }
                 }
             }
             Optional<Day> dayOptional = headers.getDay(i);
@@ -61,43 +69,44 @@ public class XlsxInputReader {
                     int colIndex = curCell.getColumnIndex();
                     XSSFCell neighborCell = curCell.getRow().getCell(colIndex + 1);
                     try {
-                        Timepoint timepoint = new Timepoint(day.day(), readColonies(curCell), readDilution(neighborCell));
+                        Timepoint timepoint = new Timepoint(day.day(), readColonies(curCell), readDilution(neighborCell), curCell);
                         timepoints.add(timepoint);
                     } catch (InvalidColoniesNumberException | InvalidDilutionValueException e) {
-                        System.out.println("Warning: " + e.getMessage() + " Skipping...");
+                        if (verbose) System.out.println("Warning: " + e.getMessage() + " Skipping...");
                     }
                 }
             }
         }
         if (sampleNumber == -1) {
-            System.out.println("Warning: Row number "+row.getRowNum()+" missing valid sample number! Skipping...");
+            if (verbose) System.out.println("Warning: Row number "+row.getRowNum()+" missing valid sample number! Skipping...");
             return Optional.empty();
         } else if (conditionOptional.isEmpty() && strainOptional.isEmpty()) {
-            System.out.println("Warning: Row number "+row.getRowNum()+" missing at least one condition/strain label! Skipping...");
+            if (verbose) System.out.println("Warning: Row number "+row.getRowNum()+" missing at least one condition/strain label! Skipping...");
             return Optional.empty();
         } else if (timepoints.isEmpty()) {
-            System.out.println("Warning: Row number" + row.getRowNum() + " missing at least one valid timepoint! Skipping...");
+            if (verbose) System.out.println("Warning: Row number" + row.getRowNum() + " missing at least one valid timepoint! Skipping...");
             return Optional.empty();
         }
         if (baseline == -1) {
             Timepoint curFirstTimepoint = timepoints.iterator().next();
             for (Timepoint timepoint : timepoints) {
-                if (curFirstTimepoint.getDayNumber() > timepoint.getDayNumber()) {
+                if (curFirstTimepoint.dayNumber() > timepoint.dayNumber()) {
                     curFirstTimepoint = timepoint;
                 }
             }
-            baseline = curFirstTimepoint.getColonies();
+            baseline = curFirstTimepoint.colonies();
+            baselineCell = curFirstTimepoint.originalCell();
         }
         Sample sample;
-        if (conditionOptional.isEmpty()) sample = new Sample(sampleNumber, baseline, strainOptional.get(), timepoints);
-        else if (strainOptional.isEmpty()) sample = new Sample(sampleNumber, baseline, conditionOptional.get(), timepoints);
-        else sample = new Sample(sampleNumber, baseline, strainOptional.get(), conditionOptional.get(), timepoints);
+        if (conditionOptional.isEmpty()) sample = new Sample(sampleNumber, baseline, baselineCell, strainOptional.get(), timepoints);
+        else if (strainOptional.isEmpty()) sample = new Sample(sampleNumber, baseline, baselineCell, conditionOptional.get(), timepoints);
+        else sample = new Sample(sampleNumber, baseline, baselineCell, strainOptional.get(), conditionOptional.get(), timepoints);
         if (conditionOptional.isPresent() && strainOptional.isPresent()) {
             conditionOptional.get().addSample(sample);
             conditionOptional.get().addStrain(strainOptional.get());
             strainOptional.get().addSample(sample);
             strainOptional.get().addCondition(conditionOptional.get());
-            if (VERBOSE) {
+            if (verbose) {
                 System.out.println("Added sample number: " + sampleNumber + " to condition " +
                         conditionOptional.get().getName() + " and strain " + strainOptional.get().getName());
                 System.out.println("Baseline: " + baseline);
@@ -105,7 +114,7 @@ public class XlsxInputReader {
             }
         } else if (conditionOptional.isPresent()) {
             conditionOptional.get().addSample(sample);
-            if (VERBOSE) {
+            if (verbose) {
                 System.out.println("Added sample number: " + sampleNumber + " to condition " +
                         conditionOptional.get().getName());
                 System.out.println("Baseline: " + baseline);
@@ -113,7 +122,7 @@ public class XlsxInputReader {
             }
         } else {
             strainOptional.get().addSample(sample);
-            if (VERBOSE) {
+            if (verbose) {
                 System.out.println("Added sample number: " + sampleNumber + " to strain " +
                         strainOptional.get().getName());
                 System.out.println("Baseline: " + baseline);
@@ -215,11 +224,14 @@ public class XlsxInputReader {
         XSSFSheet sheet = getWorkbook().getSheetAt(INPUT_SHEET_INDEX);
         Headers headers = readHeaders(sheet);
         Experiment experiment = new Experiment();
-        System.out.println(headers);
+        if (verbose) {
+            System.out.println("Successfully read in the following headers: ");
+            System.out.println(headers);
+        }
         for (int i = 2; i <= sheet.getLastRowNum(); i++) {
             Optional<Sample> sampleOptional = readSampleFromRow(headers, sheet.getRow(i));
             if(sampleOptional.isPresent()) {
-                System.out.println("Got sample from row zero-indexed: "+i);
+                if (verbose) System.out.println("Got sample from row zero-indexed: "+i);
                 Sample sample = sampleOptional.get();
                 experiment.addSample(sample);
             }

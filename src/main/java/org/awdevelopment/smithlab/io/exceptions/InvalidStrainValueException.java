@@ -1,4 +1,4 @@
-package org.awdevelopment.smithlab.io.input.exceptions;
+package org.awdevelopment.smithlab.io.exceptions;
 
 public class InvalidStrainValueException extends RuntimeException {
     public InvalidStrainValueException(String value, int row, int column) {

@@ -4,8 +4,8 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.awdevelopment.smithlab.io.Headers;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.awdevelopment.smithlab.io.input.exceptions.InvalidDayNumberException;
-import org.awdevelopment.smithlab.io.input.exceptions.InvalidHeadersException;
+import org.awdevelopment.smithlab.io.exceptions.InvalidDayNumberException;
+import org.awdevelopment.smithlab.io.exceptions.InvalidHeadersException;
 
 
 public class XlsxHeaderReader {
