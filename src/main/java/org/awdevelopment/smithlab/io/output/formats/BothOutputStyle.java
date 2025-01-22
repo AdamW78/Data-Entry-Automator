@@ -8,13 +8,11 @@ public class BothOutputStyle extends OutputStyle {
 
     private final PrismOutputStyle prismOutputStyle;
     private final OtherOutputStyle otherOutputStyle;
-    private final SortOption prismOutputSorting;
 
-    public BothOutputStyle(SortOption prismOutputSorting) {
-        super(OutputType.BOTH);
-        prismOutputStyle = new PrismOutputStyle(prismOutputSorting);
-        otherOutputStyle = new OtherOutputStyle();
-        this.prismOutputSorting = prismOutputSorting;
+    public BothOutputStyle(SortOption sortOption, short numberOfReplicates) {
+        super(OutputType.BOTH, sortOption);
+        prismOutputStyle = new PrismOutputStyle(sortOption);
+        otherOutputStyle = new OtherOutputStyle(sortOption, numberOfReplicates);
     }
 
     @Override

@@ -69,7 +69,7 @@ public class XlsxInputReader {
                     int colIndex = curCell.getColumnIndex();
                     XSSFCell neighborCell = curCell.getRow().getCell(colIndex + 1);
                     try {
-                        Timepoint timepoint = new Timepoint(day.day(), readColonies(curCell), readDilution(neighborCell), curCell);
+                        Timepoint timepoint = new Timepoint(day.day(), readColonies(curCell), readDilution(neighborCell), curCell, neighborCell);
                         timepoints.add(timepoint);
                     } catch (InvalidColoniesNumberException | InvalidDilutionValueException e) {
                         if (verbose) System.out.println("Warning: " + e.getMessage() + " Skipping...");

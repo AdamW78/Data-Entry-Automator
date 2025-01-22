@@ -54,13 +54,13 @@ public class Experiment {
 
     public Sample getSampleByAlphabeticalOrder(int sampleNumber) {
         return samples.stream()
-                .sorted(Comparator.comparing(Sample::getPrismName))
+                .sorted(Comparator.comparing(Sample::getOutputName))
                 .toArray(Sample[]::new)[sampleNumber];
     }
 
     public Sample getSampleByReverseAlphabeticalOrder(int sampleNumber) {
         return samples.stream()
-                .sorted(Comparator.comparing(Sample::getPrismName).reversed())
+                .sorted(Comparator.comparing(Sample::getOutputName).reversed())
                 .toArray(Sample[]::new)[sampleNumber];
     }
 

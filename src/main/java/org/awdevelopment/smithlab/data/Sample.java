@@ -74,7 +74,7 @@ public class Sample {
         }
     }
 
-    public String getPrismName() {
+    public String getOutputName() {
         if (hasStrain() && hasCondition()) {
             return strain.getName() + " + " + condition.getName();
         } else if (hasStrain()) {

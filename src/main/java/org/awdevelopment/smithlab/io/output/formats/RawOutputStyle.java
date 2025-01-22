@@ -1,11 +1,12 @@
 package org.awdevelopment.smithlab.io.output.formats;
 
+import org.awdevelopment.smithlab.config.SortOption;
 import org.awdevelopment.smithlab.data.Experiment;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 public class RawOutputStyle extends OutputStyle {
-    public RawOutputStyle() {
-        super(OutputType.RAW);
+    public RawOutputStyle(SortOption sortOption) {
+        super(OutputType.RAW, sortOption);
     }
 
     @Override

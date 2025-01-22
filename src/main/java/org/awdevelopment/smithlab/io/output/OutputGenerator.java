@@ -21,13 +21,13 @@ public class OutputGenerator {
                 outputStyle = new PrismOutputStyle(config.sortOption());
                 break;
             case OTHER:
-                outputStyle = new OtherOutputStyle();
+                outputStyle = new OtherOutputStyle(config.sortOption(), config.numberOfReplicates());
                 break;
             case RAW:
-                outputStyle = new RawOutputStyle();
+                outputStyle = new RawOutputStyle(config.sortOption());
                 break;
             case BOTH:
-                outputStyle = new BothOutputStyle(config.sortOption());
+                outputStyle = new BothOutputStyle(config.sortOption(), config.numberOfReplicates());
                 break;
             default:
                 throw new IllegalArgumentException("Invalid output type: " + config.outputType());

@@ -14,8 +14,10 @@ public class Config {
     private final ConfigEntry<Boolean> writeToDifferentFile;
     private final ConfigEntry<SortOption> sortOption;
     private final ConfigEntry<Boolean> verbose;
+    private final ConfigEntry<Short> numberOfReplicates;
 
     public Config() {
+        this.numberOfReplicates = new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, (short) -1);
         this.inputFile = new ConfigEntry<>(ConfigOption.INPUT_FILE, null);
         this.mode = new ConfigEntry<>(ConfigOption.MODE, Mode.GENERATE_OUTPUT_SHEETS);
         this.outputFile = new ConfigEntry<>(ConfigOption.OUTPUT_FILE, null);
@@ -32,7 +34,8 @@ public class Config {
         this.outputType = new ConfigEntry<>(ConfigOption.OUTPUT_TYPE, arguments.getOutputType());
         this.writeToDifferentFile = new ConfigEntry<>(ConfigOption.WRITE_TO_DIFFERENT_FILE, arguments.writeToDifferentFile());
         this.verbose = new ConfigEntry<>(ConfigOption.VERBOSE, arguments.isVerbose());
-        this.sortOption = new ConfigEntry<>(ConfigOption.PRISM_OUTPUT_SORTING, arguments.getPrismOutputSorting());
+        this.sortOption = new ConfigEntry<>(ConfigOption.PRISM_OUTPUT_SORTING, arguments.getOutputSorting());
+        this.numberOfReplicates = new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, arguments.getReplicateNumber());
     }
 
     public File inputFile() {
@@ -55,9 +58,9 @@ public class Config {
         return writeToDifferentFile.value();
     }
 
-    public SortOption sortOption() {
-        return sortOption.value();
-    }
+    public short numberOfReplicates() { return numberOfReplicates.value(); }
+
+    public SortOption sortOption() { return sortOption.value(); }
 
     public boolean verbose() {
         return verbose.value();

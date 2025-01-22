@@ -2,7 +2,7 @@ package org.awdevelopment.smithlab.data;
 
 import org.apache.poi.xssf.usermodel.XSSFCell;
 
-public record Timepoint(short dayNumber, int colonies, Dilution dilution, XSSFCell originalCell) {
+public record Timepoint(short dayNumber, int colonies, Dilution dilution, XSSFCell originalCell, XSSFCell dilutionCell) {
 
     private int getFactor(Dilution dilution) {
         return switch (dilution) {
@@ -18,6 +18,6 @@ public record Timepoint(short dayNumber, int colonies, Dilution dilution, XSSFCe
 
     @Override
     public String toString() {
-        return "[Day: " + dayNumber + ", Colonies: " + colonies + ", Dilution: " + dilution + "]";
+        return "[Day: " + dayNumber + ", Colonies: " + colonies + ", Dilution: " + dilution + ", Cell: " + originalCell.getAddress() + "]";
     }
 }
