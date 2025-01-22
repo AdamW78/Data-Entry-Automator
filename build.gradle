@@ -1,12 +1,30 @@
 plugins {
     id 'java'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'org.beryx.jlink' version '3.1.1'
 }
 
+
+javafx {
+    version = '21.0.6'
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
+jlink {
+    launcher {
+        name = 'DataEntryAutomation'
+    }
+}
 group = project.group
 version = project.version
 
 repositories {
     mavenCentral()
+}
+
+application {
+    mainModule = project.main_module
+    mainClass = project.main_class
 }
 
 dependencies {
@@ -30,10 +48,6 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes "Main-class": "${project.main_class}"
-    }
-
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
