@@ -14,6 +14,10 @@ public class OutputGenerator {
     private final String outputFileName;
     private final boolean writeToDifferentFile;
     private final File inputFile;
+    private final String emptyInputSheetName;
+    private final boolean verbose;
+    private final short numReplicates;
+    private final
 
     public OutputGenerator(Config config) {
         switch (config.outputType()) {
@@ -36,6 +40,9 @@ public class OutputGenerator {
         else this.outputFileName = config.inputFile().getName();
         this.writeToDifferentFile = config.writeToDifferentFile();
         this.inputFile = config.inputFile();
+        this.emptyInputSheetName = config.emptyInputSheetName();
+        this.verbose = config.verbose();
+        this.numReplicates = config.numberOfReplicates();
     }
     public void generateOutput(Experiment experiment) {
         XlsxOutputWriter writer = new XlsxOutputWriter(outputStyle, writeToDifferentFile, inputFile);
@@ -44,5 +51,10 @@ public class OutputGenerator {
         } catch (OutputException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public void generateEmptyInputSheet() {
+        XlsxEmptyInputSheetWriter writer = new XlsxEmptyInputSheetWriter(emptyInputSheetName, verbose, numReplicates);
+        writer.writeEmptyInputSheet();
     }
 }

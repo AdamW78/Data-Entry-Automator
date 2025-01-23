@@ -58,7 +58,7 @@ public class Arguments {
                 }
                 case "--mode", "-m" -> {
                     checkIfHasNextArgument(args, i);
-                    mode = Mode.valueOf(args[i + 1].toUpperCase());
+                    mode = getModeFromArgument(args[i + 1]);
                     i++;
                 }
                 case "--different", "-d" -> writeToDifferentFile = true;
@@ -122,6 +122,18 @@ public class Arguments {
                 writeToDifferentFile = true;
             }
         }
+    }
+
+    private Mode getModeFromArgument(String arg) {
+        return switch (arg.toUpperCase().replaceAll("-", "").replaceAll("_", "")) {
+            case "GENERATEOUTPUTSHEETS", "OUTPUTSHEETS", "OUTPUTSHEET", "OUTPUT" -> Mode.GENERATE_OUTPUT_SHEETS;
+            case "GENERATEEMPTYINPUTSHEET", "INPUTSHEETS", "INPUTSHEET", "INPUT" -> Mode.GENERATE_EMPTY_INPUT_SHEET;
+            default -> {
+                System.out.println("Warning: Invalid mode: " + arg);
+                System.out.println("Using default mode: " + mode);
+                yield mode;
+            }
+        };
     }
 
     private void checkReplicateNumber(String[] args, int i) {
@@ -263,5 +275,9 @@ public class Arguments {
 
     public SortOption getOutputSorting() {
         return outputSorting;
+    }
+
+    public String getEmptyInputSheetName() {
+        return "Empty Input Sheet.xlsx";
     }
 }
