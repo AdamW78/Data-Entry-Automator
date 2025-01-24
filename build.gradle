@@ -13,6 +13,31 @@ javafx {
 jlink {
     launcher {
         name = 'DataEntryAutomation'
+        forceMerge('log4j-api')
+        jpackage {
+            imageName = 'Data Entry Automator'
+            skipInstaller = true
+            outputDir = "${layout.buildDirectory.get().asFile}"
+            vendor = "Adam Wojciak"
+            appVersion = project.version
+            icon = "${projectDir}/icons/icon"
+            options = ['--strip-debug', '--no-header-files', '--no-man-pages']
+            if (org.gradle.internal.os.OperatingSystem.current().windows) {
+                targetPlatformName = "windows"
+                icon += ".ico"
+                outputDir += "/windows"
+            }
+            if (org.gradle.internal.os.OperatingSystem.current().linux) {
+                targetPlatformName = "linux"
+                icon += ".svg"
+                outputDir += "/linux"
+            }
+            if (org.gradle.internal.os.OperatingSystem.current().macOsX) {
+                targetPlatformName = "mac"
+                icon += ".icns"
+                outputDir += "/macOS"
+            }
+        }
     }
 }
 group = project.group
