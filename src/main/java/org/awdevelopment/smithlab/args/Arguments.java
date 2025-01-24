@@ -34,7 +34,7 @@ public class Arguments {
         } catch (HelpException | NoSuchArgumentException | NoInputFileException e) {
             System.exit(0);
         } catch (InputFileNotFoundException | InvalidReplicateNumberException e) {
-            System.out.println(e.getMessage());
+            System.out.println(e.getMessage() + " Exiting...");
             System.exit(0);
         }
     }
