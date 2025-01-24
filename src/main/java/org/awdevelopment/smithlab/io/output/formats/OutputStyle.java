@@ -21,7 +21,7 @@ public abstract class OutputStyle {
         return outputType;
     }
 
-    public void generateLabels(XSSFSheet[] sheets, Experiment experiment) {
+    public void generateLabels(XSSFSheet[] sheets, Experiment experiment) throws NoStrainOrConditionException {
         XSSFSheet sheet = sheets[sheets.length - 1];
         XSSFRow row = sheet.createRow(0);
         XSSFCell cell = row.createCell(0);
@@ -40,5 +40,5 @@ public abstract class OutputStyle {
         return cell.getAddress().formatAsString();
     }
 
-    public abstract void generateOutputSheets(XSSFSheet[] sheets, Experiment experiment);
+    public abstract void generateOutputSheets(XSSFSheet[] sheets, Experiment experiment) throws NoStrainOrConditionException;
 }

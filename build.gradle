@@ -13,7 +13,6 @@ javafx {
 jlink {
     launcher {
         name = 'DataEntryAutomation'
-        forceMerge('log4j-api')
         jpackage {
             imageName = 'Data Entry Automator'
             skipInstaller = true
@@ -26,6 +25,7 @@ jlink {
                 targetPlatformName = "windows"
                 icon += ".ico"
                 outputDir += "/windows"
+                imageOptions += ['--win-console']
             }
             if (org.gradle.internal.os.OperatingSystem.current().linux) {
                 targetPlatformName = "linux"

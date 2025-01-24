@@ -3,6 +3,7 @@ package org.awdevelopment.smithlab.io.output.formats;
 import org.awdevelopment.smithlab.config.SortOption;
 import org.awdevelopment.smithlab.data.Experiment;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.awdevelopment.smithlab.io.exceptions.NoStrainOrConditionException;
 
 public class BothOutputStyle extends OutputStyle {
 
@@ -16,7 +17,7 @@ public class BothOutputStyle extends OutputStyle {
     }
 
     @Override
-    public void generateOutputSheets(XSSFSheet[] sheets, Experiment experiment) {
+    public void generateOutputSheets(XSSFSheet[] sheets, Experiment experiment) throws NoStrainOrConditionException {
         XSSFSheet[] sheetsPrism = new XSSFSheet[1];
         sheetsPrism[0] = sheets[sheets.length - 2];
         XSSFSheet[] sheetsOther = new XSSFSheet[1];

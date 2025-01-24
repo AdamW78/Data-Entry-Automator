@@ -8,6 +8,7 @@ import org.awdevelopment.smithlab.config.SortOption;
 import org.awdevelopment.smithlab.data.Experiment;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.awdevelopment.smithlab.data.Sample;
+import org.awdevelopment.smithlab.io.exceptions.NoStrainOrConditionException;
 
 public class PrismOutputStyle extends OutputStyle {
 
@@ -17,7 +18,7 @@ public class PrismOutputStyle extends OutputStyle {
 
 
     @Override
-    public void generateOutputSheets(XSSFSheet[] sheets, Experiment experiment) {
+    public void generateOutputSheets(XSSFSheet[] sheets, Experiment experiment) throws NoStrainOrConditionException {
         generateLabels(sheets, experiment);
         generatePrismOutput(sheets[sheets.length - 1], experiment);
     }

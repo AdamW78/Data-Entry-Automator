@@ -33,7 +33,7 @@ public class Arguments {
             readArguments(args);
         } catch (HelpException | NoSuchArgumentException | NoInputFileException e) {
             System.exit(0);
-        } catch (InputFileNotFoundException | InvalidReplicateNumberException e) {
+        } catch (InputFileNotFoundException | InvalidReplicateNumberException | NoReplicatesProvidedException e) {
             System.out.println(e.getMessage() + " Exiting...");
             System.exit(0);
         }

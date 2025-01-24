@@ -4,7 +4,7 @@
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/build/image" />
     <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Smith Lab Spreadsheet Formatter [jlink]" run_configuration_type="GradleRunConfiguration" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Data Entry Automator [jlink]" run_configuration_type="GradleRunConfiguration" />
     </method>
   </configuration>
 </component>

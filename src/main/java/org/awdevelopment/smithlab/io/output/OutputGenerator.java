@@ -1,12 +1,12 @@
 package org.awdevelopment.smithlab.io.output;
 
+import org.apache.logging.log4j.Logger;
 import org.awdevelopment.smithlab.config.Config;
 import org.awdevelopment.smithlab.data.Experiment;
 import org.awdevelopment.smithlab.io.exceptions.OutputException;
 import org.awdevelopment.smithlab.io.output.formats.*;
 
 import java.io.File;
-import java.io.IOException;
 
 public class OutputGenerator {
 
@@ -14,8 +14,10 @@ public class OutputGenerator {
     private final String outputFileName;
     private final boolean writeToDifferentFile;
     private final File inputFile;
+    private final Logger LOGGER;
 
-    public OutputGenerator(Config config) {
+    public OutputGenerator(Config config, Logger logger) {
+        LOGGER = logger;
         switch (config.outputType()) {
             case PRISM:
                 outputStyle = new PrismOutputStyle(config.sortOption());
@@ -30,7 +32,10 @@ public class OutputGenerator {
                 outputStyle = new BothOutputStyle(config.sortOption(), config.numberOfReplicates());
                 break;
             default:
-                throw new IllegalArgumentException("Invalid output type: " + config.outputType());
+                // This is redundant because the compiler thinks that outputStyle is not initialized
+                outputStyle = null;
+                logger.atError().log("Output type not recognized");
+                System.exit(0);
         }
         if (config.writeToDifferentFile()) this.outputFileName = config.outputFile();
         else this.outputFileName = config.inputFile().getName();
@@ -42,7 +47,11 @@ public class OutputGenerator {
         try {
             writer.writeOutput(outputFileName, experiment);
         } catch (OutputException e) {
-            System.out.println(e.getMessage());
+            String logMessage = "Error writing output: " + e.getMessage() + " Exiting...";
+            LOGGER.atError().log(logMessage);
         }
+    }
+
+    public void generateEmptyInputSheet() {
     }
 }
