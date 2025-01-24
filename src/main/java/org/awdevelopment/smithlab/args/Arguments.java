@@ -33,12 +33,15 @@ public class Arguments {
             readArguments(args);
         } catch (HelpException | NoSuchArgumentException | NoInputFileException e) {
             System.exit(0);
+        } catch (InputFileNotFoundException | InvalidReplicateNumberException e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
         }
     }
 
     protected Arguments() {}
 
-    protected void readArguments(String[] args) throws NoInputFileException {
+    protected void readArguments(String[] args) throws NoInputFileException, InputFileNotFoundException {
         boolean suppliedOutputFileName = false;
         if (args[0].equals("-h") || args[0].equals("--help") || args.length < 2) {
             printUsage();
@@ -48,7 +51,7 @@ public class Arguments {
         }
     }
 
-    private void parseArguments(String[] args, boolean suppliedOutputFileName) {
+    private void parseArguments(String[] args, boolean suppliedOutputFileName) throws InputFileNotFoundException {
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "--output-type", "-t" -> {
@@ -115,7 +118,7 @@ public class Arguments {
             }
         }
         if (suppliedOutputFileName && !writeToDifferentFile) {
-            if (inputFile.getPath() != outputFileName) {
+            if (!inputFile.getPath().equals(outputFileName)) {
                 System.out.println("Warning: Output file name provided but --different/-d flag not set. Will overwrite input file.");
                 System.out.println("This behavior may change in the future.");
                 System.out.println("To avoid this warning, use the --different/-d flag.");
@@ -217,9 +220,9 @@ public class Arguments {
         return inputFileName;
     }
 
-    private void checkInputFileExists(String inputFileName) {
+    private void checkInputFileExists(String inputFileName) throws InputFileNotFoundException {
         if (!inputFile.exists()) {
-            throw new IllegalArgumentException("File not found: " + inputFileName + " does not exist.");
+            throw new InputFileNotFoundException(inputFileName);
         }
     }
 
