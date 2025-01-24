@@ -15,6 +15,8 @@ public class Config {
     private final ConfigEntry<SortOption> sortOption;
     private final ConfigEntry<Boolean> verbose;
     private final ConfigEntry<Short> numberOfReplicates;
+    private final ConfigEntry<String> emptyInputSheetName;
+
 
     public Config() {
         this.numberOfReplicates = new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, (short) -1);
@@ -25,6 +27,7 @@ public class Config {
         this.writeToDifferentFile = new ConfigEntry<>(ConfigOption.WRITE_TO_DIFFERENT_FILE, null);
         this.verbose = new ConfigEntry<>(ConfigOption.VERBOSE, false);
         this.sortOption = new ConfigEntry<>(ConfigOption.PRISM_OUTPUT_SORTING, SortOption.SAMPLE_NUMBER);
+        this.emptyInputSheetName = new ConfigEntry<>(ConfigOption.EMPTY_INPUT_SHEET_NAME, null);
     }
 
     public Config(Arguments arguments) {
@@ -36,6 +39,7 @@ public class Config {
         this.verbose = new ConfigEntry<>(ConfigOption.VERBOSE, arguments.isVerbose());
         this.sortOption = new ConfigEntry<>(ConfigOption.PRISM_OUTPUT_SORTING, arguments.getOutputSorting());
         this.numberOfReplicates = new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, arguments.getReplicateNumber());
+        this.emptyInputSheetName = new ConfigEntry<>(ConfigOption.EMPTY_INPUT_SHEET_NAME, arguments.getEmptyInputSheetName());
     }
 
     public File inputFile() {
@@ -65,5 +69,7 @@ public class Config {
     public boolean verbose() {
         return verbose.value();
     }
+
+    public String emptyInputSheetName() { return emptyInputSheetName.value(); }
 
 }
