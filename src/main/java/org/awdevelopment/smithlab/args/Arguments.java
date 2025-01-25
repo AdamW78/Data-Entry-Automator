@@ -1,5 +1,6 @@
 package org.awdevelopment.smithlab.args;
 
+import org.apache.logging.log4j.Logger;
 import org.awdevelopment.smithlab.args.exceptions.*;
 import org.awdevelopment.smithlab.config.Mode;
 import org.awdevelopment.smithlab.config.SortOption;
@@ -11,6 +12,8 @@ import java.util.Scanner;
 import static org.awdevelopment.smithlab.args.exceptions.InvalidReplicateNumberException.InvalidReplicateNumberReason.*;
 
 public class Arguments {
+
+    private final Logger LOGGER;
 
     private static final OutputType DEFAULT_OUTPUT_TYPE = OutputType.BOTH;
     private static final String DEFAULT_OUTPUT_FILE_NAME = "Spreadsheet Formatter Output.xlsx";
@@ -28,18 +31,22 @@ public class Arguments {
     private SortOption outputSorting = DEFAULT_OUTPUT_SORTING;
     private short replicateNumber = -1;
 
-    public Arguments(String[] args) {
+    public Arguments(String[] args, Logger logger) {
+        this.LOGGER = logger;
         try {
             readArguments(args);
         } catch (HelpException | NoSuchArgumentException | NoInputFileException e) {
             System.exit(0);
         } catch (InputFileNotFoundException | InvalidReplicateNumberException | NoReplicatesProvidedException e) {
-            System.out.println(e.getMessage() + " Exiting...");
+            String logMessage = e.getMessage() + " Exiting...";
+            LOGGER.atError().log(logMessage);
             System.exit(0);
         }
     }
 
-    protected Arguments() {}
+    protected Arguments(Logger logger) {
+        this.LOGGER = logger;
+    }
 
     protected void readArguments(String[] args) throws NoInputFileException, InputFileNotFoundException {
         boolean suppliedOutputFileName = false;
@@ -106,22 +113,25 @@ public class Arguments {
             throw new NoInputFileException(args);
         }
         if (writeToDifferentFile && !suppliedOutputFileName) {
-            System.out.println("Warning: Output file name not provided. Using default file name: " + outputFileName);
+            String logMessage = "Warning: Output file name not provided. Using default file name: " + outputFileName;
+            LOGGER.atWarn().log(logMessage);
         }
         if (replicateNumber == -1) {
             if (outputType == OutputType.BOTH || outputType == OutputType.OTHER) {
                 throw new NoReplicatesProvidedException(outputType);
             } else if (verbose) {
-                System.out.println("WARNING: No replicate number provided. " +
-                        "This should not matter for your currently-selected output type, \""+outputType+"\"," +
-                        " but may be important for other output types (e.g. BOTH, OTHER).");
+                String logMessage = "No replicate number provided. " +
+                        "This should not matter for your currently-selected output type, \"" + outputType + "\"," +
+                        " but may be important for other output types (e.g. BOTH, OTHER).";
+                LOGGER.atWarn().log(logMessage);
             }
         }
         if (suppliedOutputFileName && !writeToDifferentFile) {
             if (!inputFile.getPath().equals(outputFileName)) {
-                System.out.println("Warning: Output file name provided but --different/-d flag not set. Will overwrite input file.");
-                System.out.println("This behavior may change in the future.");
-                System.out.println("To avoid this warning, use the --different/-d flag.");
+                String[] logMessage = {"Warning: Output file name provided but --different/-d flag not set.",
+                        "The Data Entry Automator will write output to file with name \""+ outputFileName+"\". This behavior may change in the future.",
+                        "To avoid this warning, use the --different/-d flag."};
+                for (String message : logMessage) LOGGER.atWarn().log(message);
                 writeToDifferentFile = true;
             }
         }
@@ -132,8 +142,9 @@ public class Arguments {
             case "GENERATEOUTPUTSHEETS", "OUTPUTSHEETS", "OUTPUTSHEET", "OUTPUT" -> Mode.GENERATE_OUTPUT_SHEETS;
             case "GENERATEEMPTYINPUTSHEET", "INPUTSHEETS", "INPUTSHEET", "INPUT" -> Mode.GENERATE_EMPTY_INPUT_SHEET;
             default -> {
-                System.out.println("Warning: Invalid mode: " + arg);
-                System.out.println("Using default mode: " + mode);
+                String[] logMessages = { "Warning: Invalid mode: " + arg,
+                        "Using default mode: " + mode };
+                for (String message : logMessages) LOGGER.atWarn().log(message);
                 yield mode;
             }
         };
@@ -159,32 +170,49 @@ public class Arguments {
             case "SAMPLE, SAMPLE_NUMBER", "SAMPLE-NUMBER","SAMPLENUMBER","DEFAULT" -> outputSorting = SortOption.SAMPLE_NUMBER;
             case "NONE" -> outputSorting = SortOption.NONE;
             default -> {
-                if (verbose) {
-                        System.out.println("Warning: Invalid output sorting option: " + args[i + 1]);
-                        System.out.println("Using default output sorting option: " + outputSorting);
-                }
+                String[] logMessages = { "Warning: Invalid output sorting option: " + args[i + 1],
+                        "Using default output sorting option: " + outputSorting };
+                for (String message : logMessages) LOGGER.atWarn().log(message);
             }
         }
     }
 
     private void checkIfHasNextArgument(String[] args, int i) {
         if (i + 1 >= args.length) {
-            throw new IllegalArgumentException("Missing argument after " + args[i]);
+            String logMessage = "Error: No argument provided for " + args[i];
+            LOGGER.atError().log(logMessage);
+            System.exit(0);
         }
+    }
+
+    private String checkFileExtension(String fileName) {
+        if (!fileName.endsWith(".xlsx")) {
+            String[] logMessages = { "Warning: File name does not end with .xlsx: " + fileName,
+                    "Appending .xlsx to the end of the file name." };
+            for (String message : logMessages) LOGGER.atWarn().log(message);
+            fileName += ".xlsx";
+        }
+        return fileName;
+    }
+
+    private String checkFileName(String fileName) {
+        if (fileName.isBlank()) {
+            throw new FileNameException(fileName, FileNameException.FileNameExceptionType.EMPTY);
+        } else
+        if (fileName.startsWith("-")) {
+            throw new FileNameException(fileName, FileNameException.FileNameExceptionType.INVALID_DASH);
+        }
+        return checkFileExtension(fileName);
     }
 
     private void checkOutputFileName() {
         if (outputFileName.startsWith("-")) {
             throw new IllegalArgumentException("Invalid output file name: " + outputFileName);
-        } else if (!outputFileName.endsWith(".xlsx")) {
-            System.out.println("Warning: Output file name does not end with .xlsx: " + outputFileName);
-            System.out.println("Appending .xlsx to the end of the file name.");
-            outputFileName += ".xlsx";
         }
+        outputFileName = checkFileExtension(outputFileName);
         if (fileExists(outputFileName)) {
             outputFileName = handleExistingOutputFile(outputFileName);
         }
-
     }
 
     private boolean fileExists(String fileName) {
@@ -194,29 +222,26 @@ public class Arguments {
 
     private String handleExistingOutputFile(String outputFileName) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Warning: Output file already exists: " + outputFileName);
-        System.out.print("Do you want to add sheets to the file? (y/N): ");
+        String logMessage = "Output file already exists: " + outputFileName;
+        LOGGER.atWarn().log(logMessage);
+        System.out.print("Do you want to add sheets to the already existing file \"" + outputFileName + "\"? (y/N): ");
         String response = scanner.nextLine().strip();
-        if (response.equalsIgnoreCase("y")) System.out.println("Adding sheets...");
-        else {
-            outputFileName = askForNewOutputFileName();
-        }
+        if (response.equalsIgnoreCase("y")
+                || response.equalsIgnoreCase("yes")) LOGGER.atInfo().log("Adding sheets...");
+        else outputFileName = askForNewOutputFileName();
         return outputFileName;
     }
 
     private String askForNewOutputFileName() {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Leave blank to exit.");
         System.out.println("Enter a new output file name (ending with .xlsx): ");
         String newOutputFileName = scanner.nextLine().strip();
         if (newOutputFileName.isBlank()) {
-            System.out.println("Blank file name entered. Please enter a valid file name.");
-            return askForNewOutputFileName();
+            LOGGER.atInfo().log("Blank file name entered. Exiting...");
+            System.exit(0);
         }
-        if (!newOutputFileName.endsWith(".xlsx")) {
-            System.out.println("Warning: Output file name does not end with .xlsx: " + newOutputFileName);
-            System.out.println("Appending .xlsx to the end of the file name.");
-            newOutputFileName += ".xlsx";
-        }
+        newOutputFileName = checkFileExtension(newOutputFileName);
         if (fileExists(newOutputFileName)) {
             newOutputFileName = handleExistingOutputFile(newOutputFileName);
         }
@@ -224,12 +249,7 @@ public class Arguments {
     }
 
     private String checkInputFileName(String inputFileName) {
-       if (!inputFileName.endsWith(".xlsx")) {
-            System.out.println("Warning: Input file name does not end with .xlsx: " + inputFileName);
-            System.out.println("Appending .xlsx to the end of the file name.");
-            inputFileName += ".xlsx";
-        }
-        return inputFileName;
+       return checkFileName(inputFileName);
     }
 
     private void checkInputFileExists(String inputFileName) throws InputFileNotFoundException {
