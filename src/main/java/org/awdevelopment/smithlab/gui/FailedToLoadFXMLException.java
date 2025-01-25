@@ -6,7 +6,7 @@ public class FailedToLoadFXMLException extends RuntimeException {
         super(message);
     }
 
-  public FailedToLoadFXMLException(FXMLResources fxmlResource) {
+  public FailedToLoadFXMLException(FXMLResourceType fxmlResource) {
         switch (fxmlResource) {
             case GENERATE_EMPTY_INPUT_SHEET ->
                     throw new FailedToLoadFXMLException("Failed to load .fxml file \"generate_empty_input_sheet.fxml\"");
