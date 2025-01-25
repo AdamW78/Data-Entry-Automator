@@ -10,7 +10,7 @@ import org.awdevelopment.smithlab.io.exceptions.NoStrainOrConditionException;
 public abstract class OutputStyle {
 
     private final OutputType outputType;
-    protected SortOption sortOption;
+    protected final SortOption sortOption;
 
     protected OutputStyle(OutputType outputType, SortOption sortOption) {
         this.outputType = outputType;

@@ -9,35 +9,31 @@ public class Config {
 
     private final ConfigEntry<File> inputFile;
     private final ConfigEntry<Mode> mode;
-    private final ConfigEntry<String> outputFile;
+    private final ConfigEntry<String> outputFilename;
     private final ConfigEntry<OutputType> outputType;
     private final ConfigEntry<Boolean> writeToDifferentFile;
     private final ConfigEntry<SortOption> sortOption;
-    private final ConfigEntry<Boolean> verbose;
     private final ConfigEntry<Short> numberOfReplicates;
     private final ConfigEntry<String> emptyInputSheetName;
 
-
     public Config() {
-        this.numberOfReplicates = new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, (short) -1);
-        this.inputFile = new ConfigEntry<>(ConfigOption.INPUT_FILE, null);
-        this.mode = new ConfigEntry<>(ConfigOption.MODE, Mode.GENERATE_OUTPUT_SHEETS);
-        this.outputFile = new ConfigEntry<>(ConfigOption.OUTPUT_FILE, null);
-        this.outputType = new ConfigEntry<>(ConfigOption.OUTPUT_TYPE, OutputType.BOTH);
-        this.writeToDifferentFile = new ConfigEntry<>(ConfigOption.WRITE_TO_DIFFERENT_FILE, null);
-        this.verbose = new ConfigEntry<>(ConfigOption.VERBOSE, false);
-        this.sortOption = new ConfigEntry<>(ConfigOption.PRISM_OUTPUT_SORTING, SortOption.SAMPLE_NUMBER);
-        this.emptyInputSheetName = new ConfigEntry<>(ConfigOption.EMPTY_INPUT_SHEET_NAME, null);
+        this.numberOfReplicates = new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, ConfigDefault.NUMBER_OF_REPLICATES);
+        this.inputFile = new ConfigEntry<>(ConfigOption.INPUT_FILE, ConfigDefault.INPUT_FILE);
+        this.mode = new ConfigEntry<>(ConfigOption.MODE, ConfigDefault.MODE);
+        this.outputFilename = new ConfigEntry<>(ConfigOption.OUTPUT_FILE, ConfigDefault.OUTPUT_FILENAME);
+        this.outputType = new ConfigEntry<>(ConfigOption.OUTPUT_TYPE, ConfigDefault.OUTPUT_TYPE);
+        this.writeToDifferentFile = new ConfigEntry<>(ConfigOption.WRITE_TO_DIFFERENT_FILE, ConfigDefault.WRITE_TO_DIFFERENT_FILE);
+        this.sortOption = new ConfigEntry<>(ConfigOption.SORT_OPTION, ConfigDefault.SORT_OPTION);
+        this.emptyInputSheetName = new ConfigEntry<>(ConfigOption.EMPTY_INPUT_SHEET_NAME, ConfigDefault.EMPTY_INPUT_SHEET_NAME);
     }
 
     public Config(Arguments arguments) {
         this.inputFile = new ConfigEntry<>(ConfigOption.INPUT_FILE, arguments.getInputFile());
         this.mode = new ConfigEntry<>(ConfigOption.MODE, arguments.getMode());
-        this.outputFile = new ConfigEntry<>(ConfigOption.OUTPUT_FILE, arguments.getOutputFileName());
+        this.outputFilename = new ConfigEntry<>(ConfigOption.OUTPUT_FILE, arguments.getOutputFileName());
         this.outputType = new ConfigEntry<>(ConfigOption.OUTPUT_TYPE, arguments.getOutputType());
         this.writeToDifferentFile = new ConfigEntry<>(ConfigOption.WRITE_TO_DIFFERENT_FILE, arguments.writeToDifferentFile());
-        this.verbose = new ConfigEntry<>(ConfigOption.VERBOSE, arguments.isVerbose());
-        this.sortOption = new ConfigEntry<>(ConfigOption.PRISM_OUTPUT_SORTING, arguments.getOutputSorting());
+        this.sortOption = new ConfigEntry<>(ConfigOption.SORT_OPTION, arguments.getOutputSorting());
         this.numberOfReplicates = new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, arguments.getReplicateNumber());
         this.emptyInputSheetName = new ConfigEntry<>(ConfigOption.EMPTY_INPUT_SHEET_NAME, arguments.getEmptyInputSheetName());
     }
@@ -50,8 +46,8 @@ public class Config {
         return mode.value();
     }
 
-    public String outputFile() {
-        return outputFile.value();
+    public String outputFilename() {
+        return outputFilename.value();
     }
 
     public OutputType outputType() {
@@ -65,10 +61,6 @@ public class Config {
     public short numberOfReplicates() { return numberOfReplicates.value(); }
 
     public SortOption sortOption() { return sortOption.value(); }
-
-    public boolean verbose() {
-        return verbose.value();
-    }
 
     public String emptyInputSheetName() { return emptyInputSheetName.value(); }
 

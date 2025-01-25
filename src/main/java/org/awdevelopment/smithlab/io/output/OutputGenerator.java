@@ -39,8 +39,8 @@ public class OutputGenerator {
                 logger.atError().log("Output type not recognized");
                 System.exit(0);
         }
-        if (config.writeToDifferentFile()) this.outputFileName = config.outputFile();
-        else this.outputFileName = config.inputFile().getName();
+        if (config.writeToDifferentFile()) this.outputFileName = config.outputFilename();
+        else this.outputFileName = config.inputFile().getPath();
         this.writeToDifferentFile = config.writeToDifferentFile();
         this.inputFile = config.inputFile();
         this.emptyInputSheetName = config.emptyInputSheetName();

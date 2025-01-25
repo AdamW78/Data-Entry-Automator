@@ -2,6 +2,7 @@ package org.awdevelopment.smithlab.io.exceptions;
 
 import java.io.IOException;
 
+@SuppressWarnings("SameParameterValue")
 public class OutputException extends IOException {
     protected OutputException(String message) {
         super(message);

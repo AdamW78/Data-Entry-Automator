@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Clean, Build, Package, Run (CLI) (macOS)" type="CompoundRunConfigurationType">
+    <toRun name="Data Entry Automator [clean build]" type="GradleRunConfiguration" />
+    <toRun name="Data Entry Automator [jpackage]" type="GradleRunConfiguration" />
+    <toRun name="Run Packaged Application (macOS) (CLI)" type="ShConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>

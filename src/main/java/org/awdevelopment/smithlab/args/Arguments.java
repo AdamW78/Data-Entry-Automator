@@ -2,6 +2,7 @@ package org.awdevelopment.smithlab.args;
 
 import org.apache.logging.log4j.Logger;
 import org.awdevelopment.smithlab.args.exceptions.*;
+import org.awdevelopment.smithlab.config.ConfigDefault;
 import org.awdevelopment.smithlab.config.Mode;
 import org.awdevelopment.smithlab.config.SortOption;
 import org.awdevelopment.smithlab.io.output.formats.OutputType;
@@ -15,21 +16,14 @@ public class Arguments {
 
     private final Logger LOGGER;
 
-    private static final OutputType DEFAULT_OUTPUT_TYPE = OutputType.BOTH;
-    private static final String DEFAULT_OUTPUT_FILE_NAME = "Spreadsheet Formatter Output.xlsx";
-    private static final Mode DEFAULT_MODE = Mode.GENERATE_OUTPUT_SHEETS;
-    private static final boolean DEFAULT_WRITE_TO_DIFFERENT_FILE = false;
-    private static final boolean DEFAULT_VERBOSE_VALUE = false;
-    private static final SortOption DEFAULT_OUTPUT_SORTING = SortOption.SAMPLE_NUMBER;
-
-    private OutputType outputType = DEFAULT_OUTPUT_TYPE;
-    private Mode mode = DEFAULT_MODE;
-    private boolean writeToDifferentFile = DEFAULT_WRITE_TO_DIFFERENT_FILE;
-    private boolean verbose = DEFAULT_VERBOSE_VALUE;
-    private String outputFileName = DEFAULT_OUTPUT_FILE_NAME;
-    private File inputFile = null;
-    private SortOption outputSorting = DEFAULT_OUTPUT_SORTING;
-    private short replicateNumber = -1;
+    private OutputType outputType = ConfigDefault.OUTPUT_TYPE;
+    private Mode mode = ConfigDefault.MODE;
+    private boolean writeToDifferentFile = ConfigDefault.WRITE_TO_DIFFERENT_FILE;
+    private String outputFileName = ConfigDefault.OUTPUT_FILENAME;
+    private File inputFile = ConfigDefault.INPUT_FILE;
+    private SortOption outputSorting = ConfigDefault.SORT_OPTION;
+    private short replicateNumber = ConfigDefault.NUMBER_OF_REPLICATES;
+    private String emptyInputSheetName = ConfigDefault.EMPTY_INPUT_SHEET_NAME;
 
     public Arguments(String[] args, Logger logger) {
         this.LOGGER = logger;
@@ -75,6 +69,7 @@ public class Arguments {
                 case "--output", "-o" -> {
                     checkIfHasNextArgument(args, i);
                     outputFileName = args[i + 1];
+                    emptyInputSheetName = outputFileName;
                     checkOutputFileName();
                     suppliedOutputFileName = true;
                     i++;
@@ -97,13 +92,13 @@ public class Arguments {
                     this.replicateNumber = Short.parseShort(args[i + 1]);
                     i++;
                 }
-                case "--verbose", "-v" -> verbose = true;
                 case "-h", "--help" -> {
                     printUsage();
                     throw new HelpException();
                 }
                 default -> {
-                    System.out.println("Invalid argument: " + args[i]);
+                    String logMessage = "Invalid argument: " + args[i];
+                    LOGGER.atError().log(logMessage);
                     printUsage();
                     throw new NoSuchArgumentException(args[i]);
                 }
@@ -112,14 +107,19 @@ public class Arguments {
         if (inputFile == null) {
             throw new NoInputFileException(args);
         }
-        if (writeToDifferentFile && !suppliedOutputFileName) {
-            String logMessage = "Warning: Output file name not provided. Using default file name: " + outputFileName;
-            LOGGER.atWarn().log(logMessage);
+        if (writeToDifferentFile) {
+            if (!suppliedOutputFileName) {
+                String logMessage = "Output file name not provided. Using default file name: " + outputFileName;
+                LOGGER.atWarn().log(logMessage);
+            } else if (outputFileName.equals(inputFile.getPath())) {
+                writeToDifferentFile = false;
+                LOGGER.atWarn().log("Output file name is the same as the input file name.");
+            }
         }
         if (replicateNumber == -1) {
             if (outputType == OutputType.BOTH || outputType == OutputType.OTHER) {
                 throw new NoReplicatesProvidedException(outputType);
-            } else if (verbose) {
+            } else {
                 String logMessage = "No replicate number provided. " +
                         "This should not matter for your currently-selected output type, \"" + outputType + "\"," +
                         " but may be important for other output types (e.g. BOTH, OTHER).";
@@ -176,6 +176,7 @@ public class Arguments {
             }
         }
     }
+
 
     private void checkIfHasNextArgument(String[] args, int i) {
         if (i + 1 >= args.length) {
@@ -282,8 +283,6 @@ public class Arguments {
         return replicateNumber;
     }
 
-    public boolean isVerbose() { return verbose; }
-
     private void printUsage() {
         System.out.println("Usage: java -jar SpreadsheetFormatter.jar [options]");
         System.out.println("Options:");
@@ -292,7 +291,6 @@ public class Arguments {
         System.out.println("  -m, --mode <mode>        Mode (GENERATE_OUTPUT_SHEETS, GENERATE_STATE_SHEETS, GENERATE_STATE_TRANSITION_SHEETS)");
         System.out.println("  -d, --different          Write to a different file");
         System.out.println("  -o, --output <file>      Output file name");
-        System.out.println("  -v, --verbose            Verbose output");
         System.out.println("  -h, --help               Print this help message");
     }
 
@@ -300,7 +298,5 @@ public class Arguments {
         return outputSorting;
     }
 
-    public String getEmptyInputSheetName() {
-        return "Empty Input Sheet.xlsx";
-    }
+    public String getEmptyInputSheetName() { return emptyInputSheetName; }
 }

@@ -63,16 +63,7 @@ public class XlsxInputReader {
                     }
                 }
             }
-            Optional<Day> dayOptional = headers.getDay(i);
-            if (dayOptional.isPresent()) {
-                Day day = dayOptional.get();
-                if (day.dayColumnIndex() == 0) {
-                    int colIndex = curCell.getColumnIndex();
-                    XSSFCell neighborCell = curCell.getRow().getCell(colIndex + 1);
-                    Timepoint timepoint = new Timepoint(day.day(), readColonies(curCell), readDilution(neighborCell), curCell, neighborCell);
-                    timepoints.add(timepoint);
-                }
-            }
+            readTimepoint(headers, i, curCell, timepoints);
         }
         if (sampleNumber == -1) {
             String logMessage = "Row number "+row.getRowNum()+" missing valid sample number! Skipping...";
@@ -109,7 +100,7 @@ public class XlsxInputReader {
             conditionOptional.get().addSample(sample);
             conditionOptional.get().addStrain(strainOptional.get());
             strainOptional.get().addSample(sample);
-            strainOptional.get().addCondition(conditionOptional.get());
+            strainOptional.get().setCondition(conditionOptional.get());
             String[] logMessages = { "Added sample number: " + sampleNumber + " to condition " +
                         conditionOptional.get().getName() + " and strain " + strainOptional.get().getName(),
                         "Baseline: " + baseline,
@@ -131,6 +122,24 @@ public class XlsxInputReader {
             for (String logMessage : logMessages) LOGGER.atDebug().log(logMessage);
         }
         return Optional.of(sample);
+    }
+
+    private void readTimepoint(Headers headers, int i, XSSFCell curCell, HashSet<Timepoint> timepoints) {
+        Optional<Day> dayOptional = headers.getDay(i);
+        if (dayOptional.isPresent()) {
+            Day day = dayOptional.get();
+            if (day.dayColumnIndex() == 0) {
+                int colIndex = curCell.getColumnIndex();
+                XSSFCell neighborCell = curCell.getRow().getCell(colIndex + 1);
+                try {
+                    Timepoint timepoint = new Timepoint(day.day(), readColonies(curCell), readDilution(neighborCell), curCell, neighborCell);
+                    timepoints.add(timepoint);
+                } catch (InvalidColoniesNumberException | InvalidDilutionValueException e) {
+                    String logMessage = e.getMessage();
+                    LOGGER.atWarn().log(logMessage);
+                }
+            }
+        }
     }
 
     private int readSampleNumber(XSSFCell cell) throws InvalidSampleNumberException {

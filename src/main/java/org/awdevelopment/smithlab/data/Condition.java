@@ -1,27 +1,22 @@
 package org.awdevelopment.smithlab.data;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 public class Condition {
 
     private final String name;
-    private Optional<Set<Strain>> strains;
-    private Set<Sample> samples;
+    private final Set<Strain> strains;
+    private final Set<Sample> samples;
 
     public Condition(String name) {
         this.name = name;
-        strains = Optional.empty();
-        samples = new HashSet<>();
+        this.strains = new HashSet<>();
+        this.samples = new HashSet<>();
     }
 
     public void addStrain(Strain strain) {
-        if (strains.isEmpty()) {
-            strains = Optional.of(Set.of(strain));
-        } else {
-            strains.get().add(strain);
-        }
+        strains.add(strain);
     }
 
     public void addSample(Sample sample) {
@@ -31,7 +26,7 @@ public class Condition {
     public String getName() {
         return name;
     }
-    public Optional<Set<Strain>> getStrains() {
+    public Set<Strain> getStrains() {
         return strains;
     }
     public Set<Sample> getSamples() {
