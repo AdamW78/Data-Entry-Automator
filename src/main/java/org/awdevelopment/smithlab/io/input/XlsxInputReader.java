@@ -38,7 +38,7 @@ public class XlsxInputReader {
         return XlsxHeaderReader.readHeaders(LOGGER, sheet);
     }
 
-    private Optional<Sample> readSampleFromRow(Headers headers, XSSFRow row) throws InputFileException, InputFileWarningException {
+    private Optional<Sample> readSampleFromRow(Headers headers, XSSFRow row) {
         Optional<Condition> conditionOptional = Optional.empty();
         Optional<Strain> strainOptional = Optional.empty();
         HashSet<Timepoint> timepoints = new HashSet<>();
@@ -50,13 +50,39 @@ public class XlsxInputReader {
             if (headerOptional.isPresent()) {
                 Header header = headerOptional.get();
                 switch (header.type()) {
-                    case HeaderType.SAMPLE_NUMBER -> sampleNumber = readSampleNumber(curCell);
-                    case HeaderType.BASELINE -> {
-                        baseline = readBaseline(curCell);
-                        baselineCell = curCell;
+                    case HeaderType.SAMPLE_NUMBER -> {
+                        try {
+                            sampleNumber = readSampleNumber(curCell);
+                        } catch (InvalidSampleNumberException e) {
+                            LOGGER.atWarn().log(e.getMessage());
+                            return Optional.empty();
+                        }
                     }
-                    case HeaderType.CONDITION -> conditionOptional = Optional.of(readCondition(curCell));
-                    case HeaderType.STRAIN -> strainOptional = Optional.of(readStrain(curCell));
+                    case HeaderType.BASELINE -> {
+                        try {
+                            baseline = readBaseline(curCell);
+                            baselineCell = curCell;
+                        } catch (InvalidBaselineValueException e) {
+                            LOGGER.atWarn().log(e.getMessage());
+                        }
+                    }
+                    case HeaderType.CONDITION -> {
+                        try {
+                            conditionOptional = Optional.of(readCondition(curCell));
+                        } catch (InvalidConditionValueException e) {
+                            LOGGER.atWarn().log(e.getMessage());
+                            conditionOptional = Optional.empty();
+                        }
+                    }
+                    case HeaderType.STRAIN -> {
+                        try {
+                            strainOptional = Optional.of(readStrain(curCell));
+                        } catch (InvalidStrainValueException e) {
+                            LOGGER.atWarn().log(e.getMessage());
+                            strainOptional = Optional.empty();
+                        }
+                    }
+
                     case HeaderType.UNKNOWN -> {
                         String logMessage = "Skipping cell \"" + curCell.getRawValue() + "\" with unknown header: \"" + header.name()+  "\"";
                         LOGGER.atWarn().log(logMessage);
@@ -230,7 +256,7 @@ public class XlsxInputReader {
         }
     }
 
-    public Experiment readExperimentData() throws InputFileException, InputFileWarningException {
+    public Experiment readExperimentData() throws InputFileException {
         XSSFSheet sheet = getWorkbook().getSheetAt(INPUT_SHEET_INDEX);
         Headers headers = readHeaders(sheet);
         Experiment experiment = new Experiment();
@@ -238,7 +264,7 @@ public class XlsxInputReader {
         for (String logMessage : logMessages) LOGGER.atDebug().log(logMessage);
         for (int i = 2; i <= sheet.getLastRowNum(); i++) {
             Optional<Sample> sampleOptional = readSampleFromRow(headers, sheet.getRow(i));
-            if(sampleOptional.isPresent()) {
+            if (sampleOptional.isPresent()) {
                 String logMessage = "Got sample from row zero-indexed: "+i;
                 LOGGER.atDebug().log(logMessage);
                 Sample sample = sampleOptional.get();
@@ -247,7 +273,8 @@ public class XlsxInputReader {
         }
         experiment.addConditions(conditions);
         experiment.addStrains(strains);
-        return experiment;
+        if (experiment.getSamples().size() > 0) return experiment;
+        else throw new NoValidSamplesException(xlsxFile);
     }
 
     private XSSFWorkbook getWorkbook() throws FailedToOpenWorkbookException {

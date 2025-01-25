@@ -4,7 +4,6 @@ import org.apache.logging.log4j.Logger;
 import org.awdevelopment.smithlab.config.Config;
 import org.awdevelopment.smithlab.data.Experiment;
 import org.awdevelopment.smithlab.io.exceptions.InputFileException;
-import org.awdevelopment.smithlab.io.exceptions.InputFileWarningException;
 
 public class InputReader {
 
@@ -21,8 +20,10 @@ public class InputReader {
         XlsxInputReader reader = new XlsxInputReader(config.inputFile(), LOGGER);
         try {
             return reader.readExperimentData();
-        } catch (InputFileException | InputFileWarningException e) {
-            throw new RuntimeException(e);
+        } catch (InputFileException e) {
+            LOGGER.error(e.getMessage());
+            System.exit(0);
         }
+        return null;
     }
 }

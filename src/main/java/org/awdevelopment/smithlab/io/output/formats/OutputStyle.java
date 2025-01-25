@@ -5,7 +5,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.awdevelopment.smithlab.config.SortOption;
 import org.awdevelopment.smithlab.data.Experiment;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.awdevelopment.smithlab.io.exceptions.NoStrainOrConditionException;
+import org.awdevelopment.smithlab.io.exceptions.NoStrainsOrConditionsException;
 
 public abstract class OutputStyle {
 
@@ -21,7 +21,7 @@ public abstract class OutputStyle {
         return outputType;
     }
 
-    public void generateLabels(XSSFSheet[] sheets, Experiment experiment) throws NoStrainOrConditionException {
+    public void generateLabels(XSSFSheet[] sheets, Experiment experiment) throws NoStrainsOrConditionsException {
         XSSFSheet sheet = sheets[sheets.length - 1];
         XSSFRow row = sheet.createRow(0);
         XSSFCell cell = row.createCell(0);
@@ -32,7 +32,7 @@ public abstract class OutputStyle {
         } else if (!experiment.getConditions().isEmpty()) {
             cell.setCellValue("Condition");
         } else {
-            throw new NoStrainOrConditionException();
+            throw new NoStrainsOrConditionsException();
         }
     }
 
@@ -40,5 +40,5 @@ public abstract class OutputStyle {
         return cell.getAddress().formatAsString();
     }
 
-    public abstract void generateOutputSheets(XSSFSheet[] sheets, Experiment experiment) throws NoStrainOrConditionException;
+    public abstract void generateOutputSheets(XSSFSheet[] sheets, Experiment experiment) throws NoStrainsOrConditionsException;
 }

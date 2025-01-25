@@ -1,7 +1,11 @@
 package org.awdevelopment.smithlab.io.exceptions;
 
-public class InvalidSampleNumberException extends InputFileWarningException {
+
+import java.io.IOException;
+
+public class InvalidSampleNumberException extends IOException {
     public InvalidSampleNumberException(String value, int row, int column) {
-        super("Failed to read cell with value \"" + value + "\" as a sample number at row " + row + " and column " + column);
+        super("Failed to read sample number from cell with value \"" + value + "\" as a sample number at row "
+                + row + " and column " + column + " - Skipping this row...");
     }
 }
