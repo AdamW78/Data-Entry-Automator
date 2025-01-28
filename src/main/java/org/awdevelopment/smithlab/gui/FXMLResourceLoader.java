@@ -24,8 +24,10 @@ public class FXMLResourceLoader {
     private static URL getFxmlResourcePath(FXMLResourceType fxmlResource) {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         return switch (fxmlResource) {
-            case GENERATE_EMPTY_INPUT_SHEET -> classloader.getResource("generate_empty_input_sheet.fxml");
-            case GENERATE_OUTPUT_SHEETS -> classloader.getResource("generate_output_sheets.fxml");
+            case APPLICATION -> classloader.getResource("fxml/application.fxml");
+            case CONDITIONS -> classloader.getResource("fxml/conditions.fxml");
+            case STRAINS -> classloader.getResource("fxml/strains.fxml");
+            case TIMEPOINTS -> classloader.getResource("fxml/timepoints.fxml");
         };
     }
 }

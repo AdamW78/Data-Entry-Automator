@@ -13,12 +13,10 @@ import org.awdevelopment.smithlab.gui.SceneLoader;
 import org.awdevelopment.smithlab.io.input.InputReader;
 import org.awdevelopment.smithlab.io.output.OutputGenerator;
 
-import static org.awdevelopment.smithlab.gui.FXMLResourceType.GENERATE_OUTPUT_SHEETS;
-
 public class DataEntryAutomatorApplication extends Application {
 
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final FXMLResourceType DEFAULT_FXML_RESOURCE = GENERATE_OUTPUT_SHEETS;
+    private static final FXMLResourceType DEFAULT_FXML_RESOURCE = FXMLResourceType.APPLICATION;
 
     public static void main(String[] args) {
         if (args.length == 0) launch();

@@ -8,10 +8,14 @@ public class FailedToLoadFXMLException extends RuntimeException {
 
   public FailedToLoadFXMLException(FXMLResourceType fxmlResource) {
         switch (fxmlResource) {
-            case GENERATE_EMPTY_INPUT_SHEET ->
-                    throw new FailedToLoadFXMLException("Failed to load .fxml file \"generate_empty_input_sheet.fxml\"");
-            case GENERATE_OUTPUT_SHEETS ->
-                    throw new FailedToLoadFXMLException("Failed to load .fxml file \"generate_output_sheets.fxml\"");
+            case FXMLResourceType.APPLICATION ->
+                    throw new FailedToLoadFXMLException("Failed to load .fxml file \"application.fxml\"");
+            case FXMLResourceType.CONDITIONS ->
+                    throw new FailedToLoadFXMLException("Failed to load .fxml file \"conditions.fxml\"");
+            case FXMLResourceType.STRAINS ->
+                    throw new FailedToLoadFXMLException("Failed to load .fxml file \"strains.fxml\"");
+            case FXMLResourceType.TIMEPOINTS ->
+                    throw new FailedToLoadFXMLException("Failed to load .fxml file \"timepoints.fxml\"");
         }
     }
 }
