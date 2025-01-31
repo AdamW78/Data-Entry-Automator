@@ -4,15 +4,15 @@ import org.apache.logging.log4j.Logger;
 
 public class AbstractController {
 
-    private Logger logger;
+    private Logger LOGGER;
 
     public AbstractController() {}
 
-    public void setLogger(Logger logger) {
-        this.logger = logger;
+    public void setLogger(Logger LOGGER) {
+        this.LOGGER = LOGGER;
     }
 
     public Logger getLogger() {
-        return logger;
+        return LOGGER;
     }
 }

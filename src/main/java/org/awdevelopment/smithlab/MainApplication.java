@@ -1,8 +1,5 @@
 package org.awdevelopment.smithlab;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,9 +12,7 @@ import org.awdevelopment.smithlab.gui.SceneLoader;
 import org.awdevelopment.smithlab.io.input.InputReader;
 import org.awdevelopment.smithlab.io.output.OutputGenerator;
 
-import java.io.IOException;
-
-public class DataEntryAutomatorApplication extends Application {
+public class MainApplication extends javafx.application.Application {
 
     private static final Logger LOGGER = LogManager.getLogger();
     private static final FXMLResourceType DEFAULT_FXML_RESOURCE = FXMLResourceType.APPLICATION;

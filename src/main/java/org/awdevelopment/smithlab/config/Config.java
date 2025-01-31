@@ -64,4 +64,19 @@ public class Config {
 
     public String emptyInputSheetName() { return emptyInputSheetName.value(); }
 
+    public void setOutputType(OutputType outputType) { this.outputType.setValue(outputType); }
+
+    public void setInputFile(File inputFile) { this.inputFile.setValue(inputFile); }
+
+    public void setMode(Mode mode) { this.mode.setValue(mode); }
+
+    public void setOutputFilename(String outputFilename) { this.outputFilename.setValue(outputFilename); }
+
+    public void setWriteToDifferentFile(boolean writeToDifferentFile) { this.writeToDifferentFile.setValue(writeToDifferentFile); }
+
+    public void setNumberOfReplicates(short numberOfReplicates) { this.numberOfReplicates.setValue(numberOfReplicates); }
+
+    public void setSortOption(SortOption sortOption) { this.sortOption.setValue(sortOption); }
+
+    public void setEmptyInputSheetName(String emptyInputSheetName) { this.emptyInputSheetName.setValue(emptyInputSheetName); }
 }
