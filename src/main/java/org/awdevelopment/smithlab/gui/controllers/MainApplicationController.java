@@ -1,7 +1,6 @@
 package org.awdevelopment.smithlab.gui.controllers;
 
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -19,8 +18,15 @@ import java.io.File;
 
 public class MainApplicationController extends AbstractController {
 
-    private boolean failedEmptyFile = false;
-    private Config config;
+    private final Config config;
+    @FXML
+    private Label successFailureLabel;
+    @FXML
+    private Label replicatesErrorLabel;
+    @FXML
+    private Label outputStyleErrorLabel;
+    @FXML
+    private Label outputFilenameErrorLabel;
     @FXML
     private TabPane tabPane;
     @FXML
@@ -50,8 +56,17 @@ public class MainApplicationController extends AbstractController {
     @FXML
     private ChoiceBox<SortOption> sampleSortingMethodChoiceBox;
 
-    public void initialize() {
+    private boolean failedEmptyReplicates = false;
+    private boolean failedEmptyOutputFilename = false;
+    private boolean FailedEmptyInputSheetName = false;
+    private boolean failedEmptyInputFile = false;
+
+    public MainApplicationController() {
+        super();
         config = new Config();
+    }
+
+    public void initialize() {
         new RadioButtonGroup(
                 outputStylePrismRadioButton,
                 outputStyleTestsRadioButton,
@@ -60,9 +75,84 @@ public class MainApplicationController extends AbstractController {
         );
         sampleSortingMethodChoiceBox.getItems().addAll(SortOption.values());
         sampleSortingMethodChoiceBox.setValue(SortOption.NONE);
+        setupErrorLabels();
+        updateFields();
     }
 
-    public void handleRadioButtonPress() {
+    private void setupErrorLabels() {
+        replicatesErrorLabel.setText("");
+        outputStyleErrorLabel.setText("");
+        outputFilenameErrorLabel.setText("");
+        inputFileExistsLabel.setText("");
+        successFailureLabel.setText("");
+        replicatesErrorLabel.setStyle("");
+        outputStyleErrorLabel.setStyle("");
+        outputFilenameErrorLabel.setStyle("");
+        inputFileExistsLabel.setStyle("");
+        successFailureLabel.setStyle("");
+    }
+
+    public void generateOutput() {
+        if (notReadyForOutput()) return;
+        try {
+            if (config.mode() == Mode.GENERATE_OUTPUT_SHEETS) {
+                generateOutputSheets();
+            } else if (config.mode() == Mode.GENERATE_EMPTY_INPUT_SHEET) {
+                OutputGenerator outputGenerator = new OutputGenerator(config, getLogger());
+                outputGenerator.generateEmptyInputSheet();
+            }
+        } catch (Exception e) {
+            getLogger().atError().withThrowable(e).log("Error! Generating output...");
+            successFailureLabel.setText("Error! Generating output...");
+            successFailureLabel.setStyle("-fx-text-fill: red");
+        }
+        successFailureLabel.setText("Successfully generated output!");
+        successFailureLabel.setStyle("-fx-text-fill: green");
+    }
+
+    private void generateOutputSheets() {
+        getLogger().atDebug().log("FROM GUI: USER CLICKED GENERATE BUTTON");
+        getLogger().atInfo().log("Generating output...");
+        String[] logMessages = {
+                "Input file: " + config.inputFile().getPath(),
+                "Output file: " + config.outputFilename(),
+                "Output type: " + config.outputType(),
+                "Write to different file: " + config.writeToDifferentFile(),
+                "Sort option: " + config.sortOption(),
+                "Number of replicates: " + config.numberOfReplicates(),
+                "Empty input sheet name: " + config.emptyInputSheetName() };
+        for (String message : logMessages) getLogger().atDebug().log(message);
+        InputReader reader = new InputReader(config, getLogger());
+        getLogger().atDebug().log("Successfully initialized InputReader -  reading experiment data...");
+        Experiment experiment = reader.readExperimentData();
+        getLogger().atDebug().log("Successfully read experiment data - Initializing OutputGenerator...");
+        OutputGenerator outputGenerator = new OutputGenerator(config, getLogger());
+        getLogger().atDebug().log("Successfully initialized OutputGenerator - generating output...");
+        outputGenerator.generateOutput(experiment);
+        getLogger().atInfo().log("Successfully generated output!");
+    }
+
+    private boolean notReadyForOutput() {
+        if (sampleSortingMethodChoiceBox.getValue() == null) config.setSortOption(SortOption.NONE);
+        boolean badInputFile = badInputFileField();
+        boolean badOutputFilename = badOutputFilenameTextField();
+        boolean badNumReplicates = badNumReplicatesTextField();
+        boolean badOutputStyle = badOutputStyleRadioButton();
+        return badInputFile || badOutputFilename || badNumReplicates || badOutputStyle;
+    }
+
+    private boolean badInputFileField() {
+        if (!checkInputFile()) return true;
+        if (inputFileExistsLabel.getText().isEmpty()) {
+            failedEmptyInputFile = true;
+            inputFileExistsLabel.setText("Error: Please enter a valid input file path or browse for a file");
+            inputFileExistsLabel.setStyle("-fx-text-fill: red");
+            return true;
+        }
+        return false;
+    }
+
+    private boolean badOutputStyleRadioButton() {
         if (outputStylePrismRadioButton.isSelected()) {
             config.setOutputType(OutputType.PRISM);
         } else if (outputStyleTestsRadioButton.isSelected()) {
@@ -71,52 +161,117 @@ public class MainApplicationController extends AbstractController {
             config.setOutputType(OutputType.RAW);
         } else if (outputStyleBothRadioButton.isSelected()) {
             config.setOutputType(OutputType.BOTH);
-        }
-    }
-
-    public void generateOutput() {
-        if (notReadyForOutput()) return;
-        if (config.mode() == Mode.GENERATE_OUTPUT_SHEETS) {
-            InputReader reader = new InputReader(config, getLogger());
-            Experiment experiment = reader.readExperimentData();
-            OutputGenerator outputGenerator = new OutputGenerator(config, getLogger());
-            outputGenerator.generateOutput(experiment);
-        } else if (config.mode() == Mode.GENERATE_EMPTY_INPUT_SHEET) {
-            OutputGenerator outputGenerator = new OutputGenerator(config, getLogger());
-            outputGenerator.generateEmptyInputSheet();
-        }
-    }
-
-    private boolean notReadyForOutput() {
-        checkInputFile();
-        if (inputFileExistsLabel.getStyle().equals("-fx-text-fill: red")) return true;
-        if (inputFileExistsLabel.getText().isEmpty()) {
-            failedEmptyFile = true;
-            inputFileExistsLabel.setText("Error: Please enter a valid input file path or browse for a file");
-            inputFileExistsLabel.setStyle("-fx-text-fill: red");
+        } else {
+            outputStyleErrorLabel.setText("Error: Please select an output style");
+            outputStyleErrorLabel.setStyle("-fx-text-fill: red");
             return true;
         }
         return false;
     }
 
-    public void updateOutputFilename() {
-        config.setOutputFilename(outputFileTextField.getText());
+    private boolean badOutputFilenameTextField() {
+        if (!checkOutputFilename()) return true;
+        String outputFilename = outputFileTextField.getText();
+        if (outputFilename.isEmpty() && !addSheetsToInputFileCheckbox.isSelected()) {
+            failedEmptyOutputFilename = true;
+            outputFilenameErrorLabel.setText("Error: Please enter an output filename");
+            outputFilenameErrorLabel.setStyle("-fx-text-fill: red");
+            return true;
+        }
+        return false;
     }
 
-    public void updateSampleSortingMethod() {
-        config.setSortOption(sampleSortingMethodChoiceBox.getValue());
+    private boolean badNumReplicatesTextField() {
+        if (!checkNumReplicatesTextField()) return true;
+        if (numReplicatesTextField.getText().isEmpty()
+            && (config.outputType() == OutputType.OTHER
+                || config.outputType() == OutputType.BOTH)) {
+                failedEmptyReplicates = true;
+                replicatesErrorLabel.setText("Error: Please enter a number of replicates");
+                replicatesErrorLabel.setStyle("-fx-text-fill: red");
+                return true;
+        }
+        return false;
     }
 
-    public void updateInputFile(KeyEvent keyEvent) {
+    private boolean checkInputFile() {
+        if (inputFileTextField.getText().isEmpty() && !failedEmptyInputFile) {
+            inputFileExistsLabel.setText("");
+            inputFileExistsLabel.setStyle("");
+            return true;
+        } else if (inputFileTextField.getText().isEmpty()) {
+            inputFileExistsLabel.setText("Error: Please enter an input file path");
+            inputFileExistsLabel.setStyle("-fx-text-fill: red");
+            return false;
+        }
         File inputFile = new File(inputFileTextField.getText());
-        config.setInputFile(inputFile);
-        Scene scene = inputFileTextField.getScene();
-        if (    keyEvent == null
-                || !(scene.focusOwnerProperty().get().getId().equals("inputFileTextField"))
-                || keyEvent.getCode() == KeyCode.ENTER
-                || keyEvent.getCode() == KeyCode.TAB
-        ) {
-            checkInputFile();
+        if (inputFile.exists()) {
+            if (inputFile.isDirectory()) {
+                inputFileExistsLabel.setText("Error: Input file \"" + inputFileTextField.getText() + "\" is a directory");
+                inputFileExistsLabel.setStyle("-fx-text-fill: red");
+                return false;
+            } else {
+                inputFileExistsLabel.setText("Input file exists!");
+                inputFileExistsLabel.setStyle("-fx-text-fill: green");
+                return true;
+            }
+        } else {
+            inputFileExistsLabel.setText("Error: Input file \"" + inputFileTextField.getText() + "\" does not exist");
+            inputFileExistsLabel.setStyle("-fx-text-fill: red");
+            return false;
+        }
+    }
+
+    private boolean checkNumReplicatesTextField() {
+        if (numReplicatesTextField.getText().isEmpty() && !failedEmptyReplicates) {
+            replicatesErrorLabel.setText("");
+            replicatesErrorLabel.setStyle("");
+            return true;
+        }
+        else if (numReplicatesTextField.getText().isEmpty()) {
+            replicatesErrorLabel.setText("Error: Please enter a number of replicates");
+            replicatesErrorLabel.setStyle("-fx-text-fill: red");
+            return false;
+        }
+        try {
+            short numReplicates = Short.parseShort(numReplicatesTextField.getText());
+            if (numReplicates < 1) {
+                replicatesErrorLabel.setText("Error: Number must be > 0");
+                replicatesErrorLabel.setStyle("-fx-text-fill: red");
+                return false;
+            } else {
+                replicatesErrorLabel.setText("");
+                replicatesErrorLabel.setStyle("");
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            replicatesErrorLabel.setText("Error: Invalid number: \"" + numReplicatesTextField.getText() + "\"");
+            replicatesErrorLabel.setStyle("-fx-text-fill: red");
+            return false;
+        }
+    }
+
+    private boolean checkOutputFilename() {
+        if (addSheetsToInputFileCheckbox.isSelected()) {
+            config.setWriteToDifferentFile(false);
+            config.setOutputFilename(inputFileTextField.getText());
+            return true;
+        } else if (outputFileTextField.getText().isEmpty() && !failedEmptyOutputFilename) {
+            outputFilenameErrorLabel.setText("");
+            outputFilenameErrorLabel.setStyle("");
+            return true;
+        } else if (outputFileTextField.getText().isEmpty()) {
+            outputFilenameErrorLabel.setText("Error: Please enter an output filename");
+            outputFilenameErrorLabel.setStyle("-fx-text-fill: red");
+            return false;
+        } else if (!outputFileTextField.getText().endsWith(".xlsx")) {
+            outputFilenameErrorLabel.setText("Error: Output filename must end in .xlsx");
+            outputFilenameErrorLabel.setStyle("-fx-text-fill: red");
+            return false;
+        } else {
+            outputFilenameErrorLabel.setText("");
+            outputFilenameErrorLabel.setStyle("");
+            return true;
         }
     }
 
@@ -130,26 +285,15 @@ public class MainApplicationController extends AbstractController {
         }
     }
 
-    public void updateTextFields() { updateInputFile(null); }
-
-    private void checkInputFile() {
-        if (inputFileTextField.getText().isEmpty() && !failedEmptyFile) {
-            inputFileExistsLabel.setText("");
-            inputFileExistsLabel.setStyle("");
-            return;
-        }
-        File inputFile = new File(inputFileTextField.getText());
-        if (inputFile.exists()) {
-            if (inputFile.isDirectory()) {
-                inputFileExistsLabel.setText("Error: Input file \"" + inputFileTextField.getText() + "\" is a directory");
-                inputFileExistsLabel.setStyle("-fx-text-fill: red");
-            } else {
-                inputFileExistsLabel.setText("Input file \"" + inputFileTextField.getText() + "\" exists!");
-                inputFileExistsLabel.setStyle("-fx-text-fill: green");
-            }
-        } else {
-            inputFileExistsLabel.setText("Error: Input file \"" + inputFileTextField.getText() + "\" does not exist");
-            inputFileExistsLabel.setStyle("-fx-text-fill: red");
+    public void handleRadioButtonPress() {
+        if (outputStylePrismRadioButton.isSelected()) {
+            config.setOutputType(OutputType.PRISM);
+        } else if (outputStyleTestsRadioButton.isSelected()) {
+            config.setOutputType(OutputType.OTHER);
+        } else if (outputStyleRawRadioButton.isSelected()) {
+            config.setOutputType(OutputType.RAW);
+        } else if (outputStyleBothRadioButton.isSelected()) {
+            config.setOutputType(OutputType.BOTH);
         }
     }
 
@@ -165,11 +309,85 @@ public class MainApplicationController extends AbstractController {
         }
     }
 
-    public void setMode() {
+    public void updateMode() {
         if (tabPane.getSelectionModel().getSelectedItem() == outputSheetsTab) {
             config.setMode(Mode.GENERATE_OUTPUT_SHEETS);
         } else if (tabPane.getSelectionModel().getSelectedItem() == emptyInputSheetTab) {
             config.setMode(Mode.GENERATE_EMPTY_INPUT_SHEET);
         }
+    }
+
+    public void updateFields() {
+        updateMode();
+        updateInputFile(null);
+        updateOutputFilename(null);
+        updateSampleSortingMethod();
+    }
+
+    public void updateNumReplicates(KeyEvent keyEvent) {
+        if (numReplicatesTextField.getText().isEmpty() && !failedEmptyReplicates) {
+            replicatesErrorLabel.setText("");
+            replicatesErrorLabel.setStyle("");
+        }
+        if (    keyEvent == null
+                || !(numReplicatesTextField.getScene().focusOwnerProperty().get().getId().equals("numReplicatesTextField"))
+                || keyEvent.getCode() == KeyCode.ENTER
+                || keyEvent.getCode() == KeyCode.TAB
+        ) {
+            checkNumReplicatesTextField();
+        }
+
+    }
+
+
+    public void updateOutputFilename(KeyEvent keyEvent) {
+        config.setOutputFilename(outputFileTextField.getText());
+        if (outputFileTextField.getText().isEmpty() && !failedEmptyOutputFilename) {
+            outputFilenameErrorLabel.setText("");
+            outputFilenameErrorLabel.setStyle("");
+        }
+        if (    keyEvent == null
+                || !(outputFileTextField.getScene().focusOwnerProperty().get().getId().equals("outputFileTextField"))
+                || keyEvent.getCode() == KeyCode.ENTER
+                || keyEvent.getCode() == KeyCode.TAB
+        ) {
+            checkOutputFilename();
+        }
+    }
+
+
+    public void updateSampleSortingMethod() {
+        config.setSortOption(sampleSortingMethodChoiceBox.getValue());
+    }
+
+    public void updateInputFile(KeyEvent keyEvent) {
+        File inputFile = new File(inputFileTextField.getText());
+        config.setInputFile(inputFile);
+        if (inputFileTextField.getText().isEmpty() && !failedEmptyInputFile) {
+            inputFileExistsLabel.setText("");
+            inputFileExistsLabel.setStyle("");
+        }
+        if (    keyEvent == null
+                || !(inputFileTextField.getScene().focusOwnerProperty().get().getId().equals("inputFileTextField"))
+                || keyEvent.getCode() == KeyCode.ENTER
+                || keyEvent.getCode() == KeyCode.TAB
+        ) {
+            checkInputFile();
+        }
+    }
+
+    public void updateOutputReplicatesFields() {
+        updateOutputFilename(null);
+        updateNumReplicates(null);
+    }
+
+    public void updateInputReplicatesFields() {
+        updateInputFile(null);
+        updateNumReplicates(null);
+    }
+
+    public void updateInputOutputFields() {
+        updateInputFile(null);
+        updateOutputFilename(null);
     }
 }

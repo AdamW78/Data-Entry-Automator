@@ -1,5 +1,6 @@
 package org.awdevelopment.smithlab.gui;
 
+import org.apache.logging.log4j.Logger;
 import org.awdevelopment.smithlab.gui.controllers.AbstractController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -8,7 +9,7 @@ import java.net.URL;
 
 public class FXMLResourceLoader {
 
-    public static FXMLResource load(FXMLResourceType fxmlResource) {
+    public static FXMLResource load(FXMLResourceType fxmlResource, Logger logger) {
         Scene scene;
         AbstractController controller;
         try {
@@ -16,6 +17,9 @@ public class FXMLResourceLoader {
             scene = new Scene(loader.load());
             controller = loader.getController();
         } catch (IOException e) {
+            String logMessage = "Failed to load FXML resource: " + fxmlResource;
+            logger.atFatal().log(logMessage);
+            logger.atFatal().log(e);
             throw new FailedToLoadFXMLException(fxmlResource);
         }
         return new FXMLResource(scene, controller);
