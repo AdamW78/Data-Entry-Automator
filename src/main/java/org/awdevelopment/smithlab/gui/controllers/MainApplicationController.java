@@ -58,7 +58,7 @@ public class MainApplicationController extends AbstractController {
 
     private boolean failedEmptyReplicates = false;
     private boolean failedEmptyOutputFilename = false;
-    private boolean FailedEmptyInputSheetName = false;
+    private boolean failedEmptyInputSheetName = false;
     private boolean failedEmptyInputFile = false;
 
     public MainApplicationController() {
@@ -156,7 +156,7 @@ public class MainApplicationController extends AbstractController {
         if (outputStylePrismRadioButton.isSelected()) {
             config.setOutputType(OutputType.PRISM);
         } else if (outputStyleTestsRadioButton.isSelected()) {
-            config.setOutputType(OutputType.OTHER);
+            config.setOutputType(OutputType.STATISTICAL_TESTS);
         } else if (outputStyleRawRadioButton.isSelected()) {
             config.setOutputType(OutputType.RAW);
         } else if (outputStyleBothRadioButton.isSelected()) {
@@ -184,7 +184,7 @@ public class MainApplicationController extends AbstractController {
     private boolean badNumReplicatesTextField() {
         if (!checkNumReplicatesTextField()) return true;
         if (numReplicatesTextField.getText().isEmpty()
-            && (config.outputType() == OutputType.OTHER
+            && (config.outputType() == OutputType.STATISTICAL_TESTS
                 || config.outputType() == OutputType.BOTH)) {
                 failedEmptyReplicates = true;
                 replicatesErrorLabel.setText("Error: Please enter a number of replicates");
@@ -228,7 +228,8 @@ public class MainApplicationController extends AbstractController {
             replicatesErrorLabel.setStyle("");
             return true;
         }
-        else if (numReplicatesTextField.getText().isEmpty()) {
+        else if (numReplicatesTextField.getText().isEmpty()
+                && (config.outputType() == OutputType.STATISTICAL_TESTS || config.outputType() == OutputType.BOTH)) {
             replicatesErrorLabel.setText("Error: Please enter a number of replicates");
             replicatesErrorLabel.setStyle("-fx-text-fill: red");
             return false;
@@ -289,7 +290,7 @@ public class MainApplicationController extends AbstractController {
         if (outputStylePrismRadioButton.isSelected()) {
             config.setOutputType(OutputType.PRISM);
         } else if (outputStyleTestsRadioButton.isSelected()) {
-            config.setOutputType(OutputType.OTHER);
+            config.setOutputType(OutputType.STATISTICAL_TESTS);
         } else if (outputStyleRawRadioButton.isSelected()) {
             config.setOutputType(OutputType.RAW);
         } else if (outputStyleBothRadioButton.isSelected()) {
@@ -302,6 +303,10 @@ public class MainApplicationController extends AbstractController {
             outputFileTextField.setDisable(true);
             config.setWriteToDifferentFile(false);
             config.setOutputFilename(inputFileTextField.getText());
+            if (!outputFilenameErrorLabel.getText().isEmpty()) {
+                outputFilenameErrorLabel.setText("");
+                outputFilenameErrorLabel.setStyle("");
+            }
         } else {
             outputFileTextField.setDisable(false);
             config.setWriteToDifferentFile(true);

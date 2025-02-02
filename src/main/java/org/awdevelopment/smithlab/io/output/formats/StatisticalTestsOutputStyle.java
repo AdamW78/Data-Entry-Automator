@@ -9,12 +9,12 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.awdevelopment.smithlab.data.Sample;
 import org.awdevelopment.smithlab.io.exceptions.NoStrainsOrConditionsException;
 
-public class OtherOutputStyle extends OutputStyle {
+public class StatisticalTestsOutputStyle extends OutputStyle {
 
     private final short numberOfReplicates;
 
-    public OtherOutputStyle(SortOption sortOption, short numberOfReplicates) {
-        super(OutputType.OTHER, sortOption);
+    public StatisticalTestsOutputStyle(SortOption sortOption, short numberOfReplicates) {
+        super(OutputType.STATISTICAL_TESTS, sortOption);
         this.numberOfReplicates = numberOfReplicates;
     }
 

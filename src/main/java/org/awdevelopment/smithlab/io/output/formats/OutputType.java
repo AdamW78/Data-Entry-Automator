@@ -1,5 +1,5 @@
 package org.awdevelopment.smithlab.io.output.formats;
 
 public enum OutputType {
-    PRISM, OTHER, RAW, BOTH
+    PRISM, STATISTICAL_TESTS, RAW, BOTH
 }

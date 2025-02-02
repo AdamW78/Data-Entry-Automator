@@ -24,8 +24,8 @@ public class OutputGenerator {
             case PRISM:
                 outputStyle = new PrismOutputStyle(config.sortOption());
                 break;
-            case OTHER:
-                outputStyle = new OtherOutputStyle(config.sortOption(), config.numberOfReplicates());
+            case STATISTICAL_TESTS:
+                outputStyle = new StatisticalTestsOutputStyle(config.sortOption(), config.numberOfReplicates());
                 break;
             case RAW:
                 outputStyle = new RawOutputStyle(config.sortOption());

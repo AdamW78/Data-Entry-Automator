@@ -8,12 +8,12 @@ import org.awdevelopment.smithlab.io.exceptions.NoStrainsOrConditionsException;
 public class BothOutputStyle extends OutputStyle {
 
     private final PrismOutputStyle prismOutputStyle;
-    private final OtherOutputStyle otherOutputStyle;
+    private final StatisticalTestsOutputStyle statisticalTestsOutputStyle;
 
     public BothOutputStyle(SortOption sortOption, short numberOfReplicates) {
         super(OutputType.BOTH, sortOption);
         prismOutputStyle = new PrismOutputStyle(sortOption);
-        otherOutputStyle = new OtherOutputStyle(sortOption, numberOfReplicates);
+        statisticalTestsOutputStyle = new StatisticalTestsOutputStyle(sortOption, numberOfReplicates);
     }
 
     @Override
@@ -23,7 +23,7 @@ public class BothOutputStyle extends OutputStyle {
         XSSFSheet[] sheetsOther = new XSSFSheet[1];
         sheetsOther[0] = sheets[sheets.length - 1];
         prismOutputStyle.generateOutputSheets(sheetsPrism, experiment);
-        otherOutputStyle.generateOutputSheets(sheetsOther, experiment);
+        statisticalTestsOutputStyle.generateOutputSheets(sheetsOther, experiment);
     }
 
 }

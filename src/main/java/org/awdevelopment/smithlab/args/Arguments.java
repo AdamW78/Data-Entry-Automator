@@ -117,7 +117,7 @@ public class Arguments {
             }
         }
         if (replicateNumber == -1) {
-            if (outputType == OutputType.BOTH || outputType == OutputType.OTHER) {
+            if (outputType == OutputType.BOTH || outputType == OutputType.STATISTICAL_TESTS) {
                 throw new NoReplicatesProvidedException(outputType);
             } else {
                 String logMessage = "No replicate number provided. " +
