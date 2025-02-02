@@ -5,4 +5,12 @@ public class InvalidBaselineValueException extends InputFileException {
         super("Invalid baseline value: \"" + value + "\" at row: " + row + " column: " + column + "." +
                 "\n The Smith Lab Data Entry Automator will attempt to determine the correct value.");
     }
+
+    public String getMessage() {
+        return super.getMessage();
+    }
+
+    public String getExceptionDisplayName() {
+        return "Invalid Baseline Value";
+    }
 }

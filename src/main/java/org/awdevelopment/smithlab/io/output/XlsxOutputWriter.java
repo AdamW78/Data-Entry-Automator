@@ -4,6 +4,9 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.awdevelopment.smithlab.data.Experiment;
+import org.awdevelopment.smithlab.io.exceptions.FailedToCopySheetsException;
+import org.awdevelopment.smithlab.io.exceptions.FailedToCreateNewWorkbookException;
+import org.awdevelopment.smithlab.io.exceptions.WriteWorkbookToFileException;
 import org.awdevelopment.smithlab.io.output.formats.OutputStyle;
 import org.awdevelopment.smithlab.io.exceptions.OutputException;
 
@@ -39,9 +42,13 @@ public class XlsxOutputWriter {
             for (int i = 0; i < workbook.getNumberOfSheets(); i++) sheets[i] = workbook.getSheetAt(i);
             renameGeneratedOutputSheets(sheets);
             outputStyle.generateOutputSheets(sheets, experiment);
-            writeWorkbookToFile(outputFile, workbook);
+            try {
+                writeWorkbookToFile(outputFile, workbook);
+            } catch (IOException e) {
+                throw new WriteWorkbookToFileException(outputFile.getPath(), e);
+            }
         } catch (IOException e) {
-            throw new OutputException(outputFileName, e);
+            throw new FailedToCreateNewWorkbookException();
         }
     }
 
@@ -66,8 +73,10 @@ public class XlsxOutputWriter {
                 copySheet(inputSheet, outputSheet);
                 setSheetName(outputWorkbook, outputSheet, inputSheet.getSheetName());
             }
-        } catch (IOException | InvalidFormatException e) {
-            throw new OutputException(inputFile.getPath(), e);
+        } catch (IOException e) {
+            throw new FailedToCopySheetsException(inputFile, e);
+        } catch (InvalidFormatException e) {
+            throw new FailedToCopySheetsException(inputFile, e);
         }
     }
 
@@ -120,7 +129,7 @@ public class XlsxOutputWriter {
         try (FileOutputStream fileOut = new FileOutputStream(outputFile)) {
             workbook.write(fileOut);
         } catch (IOException e) {
-            throw new OutputException(outputFile.getPath(), e);
+            throw new WriteWorkbookToFileException(outputFile.getPath(), e);
         }
     }
 }

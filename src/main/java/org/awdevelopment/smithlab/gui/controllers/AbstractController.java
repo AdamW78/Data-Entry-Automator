@@ -1,18 +1,18 @@
 package org.awdevelopment.smithlab.gui.controllers;
 
-import org.apache.logging.log4j.Logger;
+import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 public class AbstractController {
 
-    private Logger LOGGER;
+    private LoggerHelper LOGGER;
 
     public AbstractController() {}
 
-    public void setLogger(Logger LOGGER) {
+    public void setLogger(LoggerHelper LOGGER) {
         this.LOGGER = LOGGER;
     }
 
-    public Logger getLogger() {
+    public LoggerHelper getLogger() {
         return LOGGER;
     }
 }

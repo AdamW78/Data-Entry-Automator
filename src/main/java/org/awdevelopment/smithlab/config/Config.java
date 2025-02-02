@@ -15,6 +15,7 @@ public class Config {
     private final ConfigEntry<SortOption> sortOption;
     private final ConfigEntry<Short> numberOfReplicates;
     private final ConfigEntry<String> emptyInputSheetName;
+    private final ConfigEntry<Boolean> GUI;
 
     public Config() {
         this.numberOfReplicates = new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, ConfigDefault.NUMBER_OF_REPLICATES);
@@ -25,6 +26,7 @@ public class Config {
         this.writeToDifferentFile = new ConfigEntry<>(ConfigOption.WRITE_TO_DIFFERENT_FILE, ConfigDefault.WRITE_TO_DIFFERENT_FILE);
         this.sortOption = new ConfigEntry<>(ConfigOption.SORT_OPTION, ConfigDefault.SORT_OPTION);
         this.emptyInputSheetName = new ConfigEntry<>(ConfigOption.EMPTY_INPUT_SHEET_NAME, ConfigDefault.EMPTY_INPUT_SHEET_NAME);
+        this.GUI = new ConfigEntry<>(ConfigOption.GUI, Boolean.TRUE);
     }
 
     public Config(Arguments arguments) {
@@ -36,6 +38,7 @@ public class Config {
         this.sortOption = new ConfigEntry<>(ConfigOption.SORT_OPTION, arguments.getOutputSorting());
         this.numberOfReplicates = new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, arguments.getReplicateNumber());
         this.emptyInputSheetName = new ConfigEntry<>(ConfigOption.EMPTY_INPUT_SHEET_NAME, arguments.getEmptyInputSheetName());
+        this.GUI = new ConfigEntry<>(ConfigOption.GUI, Boolean.FALSE);
     }
 
     public File inputFile() {
@@ -63,6 +66,8 @@ public class Config {
     public SortOption sortOption() { return sortOption.value(); }
 
     public String emptyInputSheetName() { return emptyInputSheetName.value(); }
+
+    public boolean GUI() { return GUI.value(); }
 
     public void setOutputType(OutputType outputType) { this.outputType.setValue(outputType); }
 

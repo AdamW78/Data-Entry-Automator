@@ -1,11 +1,11 @@
 package org.awdevelopment.smithlab.args;
 
-import org.apache.logging.log4j.Logger;
 import org.awdevelopment.smithlab.args.exceptions.*;
 import org.awdevelopment.smithlab.config.ConfigDefault;
 import org.awdevelopment.smithlab.config.Mode;
 import org.awdevelopment.smithlab.config.SortOption;
 import org.awdevelopment.smithlab.io.output.formats.OutputType;
+import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 import java.io.File;
 import java.util.Scanner;
@@ -14,7 +14,7 @@ import static org.awdevelopment.smithlab.args.exceptions.InvalidReplicateNumberE
 
 public class Arguments {
 
-    private final Logger LOGGER;
+    private final LoggerHelper LOGGER;
 
     private OutputType outputType = ConfigDefault.OUTPUT_TYPE;
     private Mode mode = ConfigDefault.MODE;
@@ -25,20 +25,19 @@ public class Arguments {
     private short replicateNumber = ConfigDefault.NUMBER_OF_REPLICATES;
     private String emptyInputSheetName = ConfigDefault.EMPTY_INPUT_SHEET_NAME;
 
-    public Arguments(String[] args, Logger logger) {
+    public Arguments(String[] args, LoggerHelper logger) {
         this.LOGGER = logger;
         try {
             readArguments(args);
         } catch (HelpException | NoSuchArgumentException | NoInputFileException e) {
             System.exit(0);
-        } catch (InputFileNotFoundException | InvalidReplicateNumberException | NoReplicatesProvidedException e) {
-            String logMessage = e.getMessage() + " Exiting...";
-            LOGGER.atError().log(logMessage);
+        } catch (InputFileNotFoundException | InvalidReplicateNumberException | NoReplicatesProvidedException | InvalidOutputFilenameException e) {
+            LOGGER.atError(e.getMessage() + " - Exiting...");
             System.exit(0);
         }
     }
 
-    protected Arguments(Logger logger) {
+    protected Arguments(LoggerHelper logger) {
         this.LOGGER = logger;
     }
 
@@ -97,8 +96,7 @@ public class Arguments {
                     throw new HelpException();
                 }
                 default -> {
-                    String logMessage = "Invalid argument: " + args[i];
-                    LOGGER.atError().log(logMessage);
+                    LOGGER.atError("Invalid argument: " + args[i]);
                     printUsage();
                     throw new NoSuchArgumentException(args[i]);
                 }
@@ -108,30 +106,27 @@ public class Arguments {
             throw new NoInputFileException(args);
         }
         if (writeToDifferentFile) {
-            if (!suppliedOutputFileName) {
-                String logMessage = "Output file name not provided. Using default file name: " + outputFileName;
-                LOGGER.atWarn().log(logMessage);
-            } else if (outputFileName.equals(inputFile.getPath())) {
+            if (!suppliedOutputFileName) LOGGER.atWarn("Output file name not provided. Using default file name: " + outputFileName);
+            else if (outputFileName.equals(inputFile.getPath())) {
                 writeToDifferentFile = false;
-                LOGGER.atWarn().log("Output file name is the same as the input file name.");
+                LOGGER.atWarn("Output file name is the same as the input file name.");
             }
         }
         if (replicateNumber == -1) {
             if (outputType == OutputType.BOTH || outputType == OutputType.STATISTICAL_TESTS) {
                 throw new NoReplicatesProvidedException(outputType);
             } else {
-                String logMessage = "No replicate number provided. " +
+                LOGGER.atWarn("No replicate number provided. " +
                         "This should not matter for your currently-selected output type, \"" + outputType + "\"," +
-                        " but may be important for other output types (e.g. BOTH, OTHER).";
-                LOGGER.atWarn().log(logMessage);
+                        " but may be important for other output types (e.g. Both, Statistical Tests).");
             }
         }
         if (suppliedOutputFileName && !writeToDifferentFile) {
             if (!inputFile.getPath().equals(outputFileName)) {
-                String[] logMessage = {"Warning: Output file name provided but --different/-d flag not set.",
-                        "The Data Entry Automator will write output to file with name \""+ outputFileName+"\". This behavior may change in the future.",
-                        "To avoid this warning, use the --different/-d flag."};
-                for (String message : logMessage) LOGGER.atWarn().log(message);
+                LOGGER.atTrace(new String[]{"Warning: Output file name provided but --different/-d flag not set.",
+                        "The Data Entry Automator will write output to file with name \""+ outputFileName+"\". " +
+                                "This behavior may change in the future.",
+                        "To avoid this warning, use the --different/-d flag."});
                 writeToDifferentFile = true;
             }
         }
@@ -142,9 +137,7 @@ public class Arguments {
             case "GENERATEOUTPUTSHEETS", "OUTPUTSHEETS", "OUTPUTSHEET", "OUTPUT" -> Mode.GENERATE_OUTPUT_SHEETS;
             case "GENERATEEMPTYINPUTSHEET", "INPUTSHEETS", "INPUTSHEET", "INPUT" -> Mode.GENERATE_EMPTY_INPUT_SHEET;
             default -> {
-                String[] logMessages = { "Warning: Invalid mode: " + arg,
-                        "Using default mode: " + mode };
-                for (String message : logMessages) LOGGER.atWarn().log(message);
+                LOGGER.atDebug(new String[] { "Warning: Invalid mode: " + arg, "Using default mode: " + mode });
                 yield mode;
             }
         };
@@ -169,28 +162,23 @@ public class Arguments {
             case "REVERSE_ALPHABETICAL" -> outputSorting = SortOption.REVERSE_ALPHABETICAL;
             case "SAMPLE, SAMPLE_NUMBER", "SAMPLE-NUMBER","SAMPLENUMBER","DEFAULT" -> outputSorting = SortOption.SAMPLE_NUMBER;
             case "NONE" -> outputSorting = SortOption.NONE;
-            default -> {
-                String[] logMessages = { "Warning: Invalid output sorting option: " + args[i + 1],
-                        "Using default output sorting option: " + outputSorting };
-                for (String message : logMessages) LOGGER.atWarn().log(message);
-            }
+            default -> LOGGER.atWarn(new String[] { "Warning: Invalid output sorting option: " + args[i + 1],
+                        "Using default output sorting option: " + outputSorting });
         }
     }
 
 
     private void checkIfHasNextArgument(String[] args, int i) {
         if (i + 1 >= args.length) {
-            String logMessage = "Error: No argument provided for " + args[i];
-            LOGGER.atError().log(logMessage);
+            LOGGER.atError("Error: No argument provided for " + args[i]);
             System.exit(0);
         }
     }
 
     private String checkFileExtension(String fileName) {
         if (!fileName.endsWith(".xlsx")) {
-            String[] logMessages = { "Warning: File name does not end with .xlsx: " + fileName,
-                    "Appending .xlsx to the end of the file name." };
-            for (String message : logMessages) LOGGER.atWarn().log(message);
+            LOGGER.atWarn(new String[] { "Warning: File name does not end with .xlsx: " + fileName,
+                    "Appending .xlsx to the end of the file name." });
             fileName += ".xlsx";
         }
         return fileName;
@@ -223,12 +211,11 @@ public class Arguments {
 
     private String handleExistingOutputFile(String outputFileName) {
         Scanner scanner = new Scanner(System.in);
-        String logMessage = "Output file already exists: " + outputFileName;
-        LOGGER.atWarn().log(logMessage);
+        LOGGER.atWarn("Output file already exists: \"" + outputFileName + "\"");
         System.out.print("Do you want to add sheets to the already existing file \"" + outputFileName + "\"? (y/N): ");
         String response = scanner.nextLine().strip();
         if (response.equalsIgnoreCase("y")
-                || response.equalsIgnoreCase("yes")) LOGGER.atInfo().log("Adding sheets...");
+                || response.equalsIgnoreCase("yes")) LOGGER.atInfo("Adding sheets...");
         else outputFileName = askForNewOutputFileName();
         return outputFileName;
     }
@@ -239,7 +226,7 @@ public class Arguments {
         System.out.println("Enter a new output file name (ending with .xlsx): ");
         String newOutputFileName = scanner.nextLine().strip();
         if (newOutputFileName.isBlank()) {
-            LOGGER.atInfo().log("Blank file name entered. Exiting...");
+            LOGGER.atInfo("Blank file name entered. Exiting...");
             System.exit(0);
         }
         newOutputFileName = checkFileExtension(newOutputFileName);

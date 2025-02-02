@@ -10,4 +10,5 @@ public enum ConfigOption {
     NUMBER_OF_REPLICATES,
     EMPTY_INPUT_SHEET_NAME,
     CONDITION_STRAIN_OUTPUT,
+    GUI;
 }

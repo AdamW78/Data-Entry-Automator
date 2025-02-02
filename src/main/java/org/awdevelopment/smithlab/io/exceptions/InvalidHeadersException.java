@@ -8,4 +8,9 @@ public class InvalidHeadersException extends InputFileException {
     protected InvalidHeadersException(String message) {
         super(message);
     }
+
+    @Override
+    public String getExceptionDisplayName() {
+        return "Header were Invalid";
+    }
 }

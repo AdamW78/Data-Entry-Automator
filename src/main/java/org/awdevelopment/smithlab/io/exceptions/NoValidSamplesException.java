@@ -7,4 +7,9 @@ public class NoValidSamplesException extends InputFileException {
         super("Error: No valid samples found in the input file \""
                 + inputFile.getPath() + "\".");
     }
+
+    @Override
+    public String getExceptionDisplayName() {
+        return "No Valid Samples";
+    }
 }

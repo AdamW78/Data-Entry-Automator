@@ -1,6 +1,5 @@
 package org.awdevelopment.smithlab.io.input;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -12,6 +11,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.awdevelopment.smithlab.io.exceptions.*;
+import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,9 +25,9 @@ public class XlsxInputReader {
     private static final double DELTA = 0.0000001;
     private final HashSet<Strain> strains;
     private final HashSet<Condition> conditions;
-    private final Logger LOGGER;
+    private final LoggerHelper LOGGER;
 
-    public XlsxInputReader(File xlsxFile, Logger logger) {
+    public XlsxInputReader(File xlsxFile, LoggerHelper logger) {
         this.xlsxFile = xlsxFile;
         this.LOGGER = logger;
         this.strains = new HashSet<>();
@@ -54,7 +54,7 @@ public class XlsxInputReader {
                         try {
                             sampleNumber = readSampleNumber(curCell);
                         } catch (InvalidSampleNumberException e) {
-                            LOGGER.atWarn().log(e.getMessage());
+                            LOGGER.atWarn(e + ": " + e.getMessage());
                             return Optional.empty();
                         }
                     }
@@ -62,15 +62,13 @@ public class XlsxInputReader {
                         try {
                             baseline = readBaseline(curCell);
                             baselineCell = curCell;
-                        } catch (InvalidBaselineValueException e) {
-                            LOGGER.atWarn().log(e.getMessage());
-                        }
+                        } catch (InvalidBaselineValueException e) { LOGGER.atWarn(e + ": " + e.getMessage()); }
                     }
                     case HeaderType.CONDITION -> {
                         try {
                             conditionOptional = Optional.of(readCondition(curCell));
                         } catch (InvalidConditionValueException e) {
-                            LOGGER.atWarn().log(e.getMessage());
+                            LOGGER.atWarn(e + ": " + e.getMessage());
                             conditionOptional = Optional.empty();
                         }
                     }
@@ -78,30 +76,24 @@ public class XlsxInputReader {
                         try {
                             strainOptional = Optional.of(readStrain(curCell));
                         } catch (InvalidStrainValueException e) {
-                            LOGGER.atWarn().log(e.getMessage());
+                            LOGGER.atWarn(e + ": " + e.getMessage());
                             strainOptional = Optional.empty();
                         }
                     }
 
-                    case HeaderType.UNKNOWN -> {
-                        String logMessage = "Skipping cell \"" + curCell.getRawValue() + "\" with unknown header: \"" + header.name()+  "\"";
-                        LOGGER.atWarn().log(logMessage);
-                    }
+                    case HeaderType.UNKNOWN -> LOGGER.atWarn("Skipping cell \"" + curCell.getRawValue() + "\" with unknown header: \"" + header.name()+  "\"");
                 }
             }
             readTimepoint(headers, i, curCell, timepoints);
         }
         if (sampleNumber == -1) {
-            String logMessage = "Row number "+row.getRowNum()+" missing valid sample number! Skipping...";
-            LOGGER.atWarn().log(logMessage);
+            LOGGER.atWarn("Row number "+row.getRowNum()+" missing valid sample number! Skipping...");
             return Optional.empty();
         } else if (conditionOptional.isEmpty() && strainOptional.isEmpty()) {
-            String logMessage = "Row number "+row.getRowNum()+" missing at least one condition/strain label! Skipping...";
-            LOGGER.atWarn().log(logMessage);
+            LOGGER.atWarn("Row number "+row.getRowNum()+" missing at least one condition/strain label! Skipping...");
             return Optional.empty();
         } else if (timepoints.isEmpty()) {
-            String logMessage = "Row number" + row.getRowNum() + " missing at least one valid timepoint! Skipping...";
-            LOGGER.atWarn().log(logMessage);
+            LOGGER.atWarn("Row number" + row.getRowNum() + " missing at least one valid timepoint! Skipping...");
             return Optional.empty();
         }
         if (baseline == -1) {
@@ -127,25 +119,25 @@ public class XlsxInputReader {
             conditionOptional.get().addStrain(strainOptional.get());
             strainOptional.get().addSample(sample);
             strainOptional.get().setCondition(conditionOptional.get());
-            String[] logMessages = { "Added sample number: " + sampleNumber + " to condition " +
+            LOGGER.atDebug( new String[] { "Added sample number: " + sampleNumber + " to condition " +
                         conditionOptional.get().getName() + " and strain " + strainOptional.get().getName(),
                         "Baseline: " + baseline,
-                        "Timepoints: " + timepoints };
-            for (String logMessage : logMessages) LOGGER.atDebug().log(logMessage);
+                        "Timepoints: " + timepoints
+            });
         } else if (conditionOptional.isPresent()) {
             conditionOptional.get().addSample(sample);
-            String[] logMessages = { "Added sample number: " + sampleNumber + " to condition " +
+            LOGGER.atDebug(new String[] { "Added sample number: " + sampleNumber + " to condition " +
                         conditionOptional.get().getName(),
                         "Baseline: " + baseline,
-                        "Timepoints: " + timepoints };
-            for (String logMessage : logMessages) LOGGER.atDebug().log(logMessage);
+                        "Timepoints: " + timepoints
+            });
         } else {
             strainOptional.get().addSample(sample);
-            String[] logMessages = { "Added sample number: " + sampleNumber + " to strain " +
+            LOGGER.atDebug( new String[]{ "Added sample number: " + sampleNumber + " to strain " +
                         strainOptional.get().getName(),
                         "Baseline: " + baseline,
-                        "Timepoints: " + timepoints };
-            for (String logMessage : logMessages) LOGGER.atDebug().log(logMessage);
+                        "Timepoints: " + timepoints
+            });
         }
         return Optional.of(sample);
     }
@@ -161,8 +153,7 @@ public class XlsxInputReader {
                     Timepoint timepoint = new Timepoint(day.day(), readColonies(curCell), readDilution(neighborCell), curCell, neighborCell);
                     timepoints.add(timepoint);
                 } catch (InvalidColoniesNumberException | InvalidDilutionValueException e) {
-                    String logMessage = e.getMessage();
-                    LOGGER.atWarn().log(logMessage);
+                    LOGGER.atWarn(e + ": " + e.getMessage());
                 }
             }
         }
@@ -260,20 +251,18 @@ public class XlsxInputReader {
         XSSFSheet sheet = getWorkbook().getSheetAt(INPUT_SHEET_INDEX);
         Headers headers = readHeaders(sheet);
         Experiment experiment = new Experiment();
-        String[] logMessages = { "Successfully read in the following headers: ", headers.toString() };
-        for (String logMessage : logMessages) LOGGER.atDebug().log(logMessage);
+        LOGGER.atDebug(new String[]{ "Successfully read in the following headers: ", headers.toString() });
         for (int i = 2; i <= sheet.getLastRowNum(); i++) {
             Optional<Sample> sampleOptional = readSampleFromRow(headers, sheet.getRow(i));
             if (sampleOptional.isPresent()) {
-                String logMessage = "Got sample from row zero-indexed: "+i;
-                LOGGER.atDebug().log(logMessage);
+                LOGGER.atDebug("Got sample from row zero-indexed: "+i);
                 Sample sample = sampleOptional.get();
                 experiment.addSample(sample);
             }
         }
         experiment.addConditions(conditions);
         experiment.addStrains(strains);
-        if (experiment.getSamples().size() > 0) return experiment;
+        if (!experiment.getSamples().isEmpty()) return experiment;
         else throw new NoValidSamplesException(xlsxFile);
     }
 

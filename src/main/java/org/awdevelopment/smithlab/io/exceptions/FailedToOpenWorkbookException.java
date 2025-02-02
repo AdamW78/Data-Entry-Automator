@@ -7,4 +7,9 @@ public class FailedToOpenWorkbookException extends InputFileException {
         super("Error: Failed to open Excel workbook from file \"" + xlsxFile.getPath()
                 + "\"\n This was caused by: " + message);
     }
+
+    @Override
+    public String getExceptionDisplayName() {
+        return "Failed to Open Workbook";
+    }
 }

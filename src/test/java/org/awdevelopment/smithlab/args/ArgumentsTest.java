@@ -1,12 +1,12 @@
 package org.awdevelopment.smithlab.args;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.awdevelopment.smithlab.args.exceptions.HelpException;
 import org.awdevelopment.smithlab.args.exceptions.NoInputFileException;
 import org.awdevelopment.smithlab.args.exceptions.NoSuchArgumentException;
 import org.awdevelopment.smithlab.config.Mode;
 import org.awdevelopment.smithlab.io.output.formats.OutputType;
+import org.awdevelopment.smithlab.logging.LoggerHelper;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ArgumentsTest {
 
     private static final String TEST_INPUT_PATH = "test_input/ynb.xlsx";
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final LoggerHelper LOGGER = new LoggerHelper(LogManager.getLogger());
 
     @Test
     void testGetInputFile() {

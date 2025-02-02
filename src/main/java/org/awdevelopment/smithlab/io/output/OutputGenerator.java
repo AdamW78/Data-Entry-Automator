@@ -1,24 +1,25 @@
 package org.awdevelopment.smithlab.io.output;
 
-import org.apache.logging.log4j.Logger;
 import org.awdevelopment.smithlab.config.Config;
 import org.awdevelopment.smithlab.data.Experiment;
 import org.awdevelopment.smithlab.io.exceptions.OutputException;
 import org.awdevelopment.smithlab.io.output.formats.*;
+import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 import java.io.File;
 
 public class OutputGenerator {
 
+    private final boolean GUI;
     private final OutputStyle outputStyle;
     private final String outputFileName;
     private final boolean writeToDifferentFile;
     private final File inputFile;
-    private final Logger LOGGER;
+    private final LoggerHelper LOGGER;
     private final String emptyInputSheetName;
     private final short numReplicates;
 
-    public OutputGenerator(Config config, Logger logger) {
+    public OutputGenerator(Config config, LoggerHelper logger) {
         LOGGER = logger;
         switch (config.outputType()) {
             case PRISM:
@@ -36,7 +37,7 @@ public class OutputGenerator {
             default:
                 // This is redundant because the compiler thinks that outputStyle is not initialized
                 outputStyle = null;
-                logger.atError().log("Output type not recognized");
+                LOGGER.atError("Output type not recognized");
                 System.exit(0);
         }
         if (config.writeToDifferentFile()) this.outputFileName = config.outputFilename();
@@ -45,15 +46,24 @@ public class OutputGenerator {
         this.inputFile = config.inputFile();
         this.emptyInputSheetName = config.emptyInputSheetName();
         this.numReplicates = config.numberOfReplicates();
+        this.GUI = config.GUI();
     }
-    public void generateOutput(Experiment experiment) {
+    public void generateOutput(Experiment experiment) throws OutputException {
         XlsxOutputWriter writer = new XlsxOutputWriter(outputStyle, writeToDifferentFile, inputFile);
         try {
             writer.writeOutput(outputFileName, experiment);
         } catch (OutputException e) {
-            String logMessage = "Error writing output: " + e.getMessage() + " Exiting...";
-            LOGGER.atError().log(logMessage);
+            if (GUI) {
+                LOGGER.atError("Error writing output: " + e.getMessage());
+                LOGGER.atError("Passing exception to GUI to display error message...");
+                throw e;
+            } else {
+                LOGGER.atError("Error writing output: " + e.getMessage() + " -  Exiting...");
+                System.out.println("Error writing output: " + e.getMessage() + " - Exiting...");
+                System.exit(0);
+            }
         }
+
     }
 
     public void generateEmptyInputSheet() {

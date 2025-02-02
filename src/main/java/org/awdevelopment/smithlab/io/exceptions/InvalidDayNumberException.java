@@ -4,4 +4,9 @@ public class InvalidDayNumberException extends InvalidHeadersException {
     public InvalidDayNumberException(Exception e, double dayNumber) {
         super("Error while reading day number: \"" + dayNumber + "\" - " + e.getMessage());
     }
+
+    @Override
+    public String getExceptionDisplayName() {
+        return "Day number was invalid";
+    }
 }

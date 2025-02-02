@@ -4,4 +4,6 @@ public class InvalidStrainValueException extends InvalidTimepointException {
     public InvalidStrainValueException(String value, int row, int column) {
         super("Invalid strain value: " + value + " at row: " + row + " column: " + column);
     }
+
+    public String getDisplayName() { return "Invalid Strain Value"; }
 }
