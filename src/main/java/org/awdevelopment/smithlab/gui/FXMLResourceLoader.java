@@ -27,8 +27,11 @@ public class FXMLResourceLoader {
 
     private static URL getFxmlResourcePath(FXMLResourceType fxmlResource) {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        System.out.println("FXMLResourceLoader.class.getResource(\"/fxml/application.fxml\"): " + FXMLResourceLoader.class.getResource("/fxml/application.fxml"));
+        // System.out.println("getClass().getResource(\"/fxml/application.fxml\"): " + getClass().getResource("/fxml/application.fxml"));
+        System.out.println("classloader.getResource(\"/fxml/application.fxml\"): " + classloader.getResource("/fxml/application.fxml"));
         return switch (fxmlResource) {
-            case APPLICATION -> classloader.getResource("fxml/application.fxml");
+            case APPLICATION -> FXMLResourceLoader.class.getResource("/fxml/application.fxml");
             case CONDITIONS -> classloader.getResource("conditions.fxml");
             case STRAINS -> classloader.getResource("strains.fxml");
             case TIMEPOINTS -> classloader.getResource("timepoints.fxml");
