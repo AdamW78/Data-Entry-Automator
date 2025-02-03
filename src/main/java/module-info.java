@@ -15,6 +15,7 @@ module org.awdevelopment.smithlab {
     exports org.awdevelopment.smithlab.config;
     exports org.awdevelopment.smithlab.io.output.formats;
     exports org.awdevelopment.smithlab.args;
+    exports org.awdevelopment.smithlab.data;
     opens org.awdevelopment.smithlab.gui to javafx.fxml, javafx.graphics, javafx.controls;
     opens org.awdevelopment.smithlab.gui.controllers to javafx.fxml, javafx.graphics, javafx.controls;
     opens org.awdevelopment.smithlab to javafx.fxml, javafx.graphics, javafx.controls;

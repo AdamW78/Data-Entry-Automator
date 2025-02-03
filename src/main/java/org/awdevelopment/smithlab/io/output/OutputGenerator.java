@@ -1,12 +1,17 @@
 package org.awdevelopment.smithlab.io.output;
 
 import org.awdevelopment.smithlab.config.Config;
+import org.awdevelopment.smithlab.data.Condition;
 import org.awdevelopment.smithlab.data.Experiment;
+import org.awdevelopment.smithlab.data.Strain;
+import org.awdevelopment.smithlab.io.exceptions.NoDaysException;
+import org.awdevelopment.smithlab.io.exceptions.NoStrainsOrConditionsException;
 import org.awdevelopment.smithlab.io.exceptions.OutputException;
 import org.awdevelopment.smithlab.io.output.formats.*;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 import java.io.File;
+import java.util.Set;
 
 public class OutputGenerator {
 
@@ -18,6 +23,11 @@ public class OutputGenerator {
     private final LoggerHelper LOGGER;
     private final String emptyInputSheetName;
     private final short numReplicates;
+    private final Set<Condition> conditions;
+    private final Set<Strain> strains;
+    private final Set<Short> days;
+    private final short numDays;
+    private final boolean includeBaselineColumn;
 
     public OutputGenerator(Config config, LoggerHelper logger) {
         LOGGER = logger;
@@ -47,6 +57,11 @@ public class OutputGenerator {
         this.emptyInputSheetName = config.emptyInputSheetName();
         this.numReplicates = config.numberOfReplicates();
         this.GUI = config.GUI();
+        this.conditions = config.conditions();
+        this.strains = config.strains();
+        this.days = config.days();
+        this.numDays = config.numDays();
+        this.includeBaselineColumn = config.includeBaselineColumn();
     }
     public void generateOutput(Experiment experiment) throws OutputException {
         XlsxOutputWriter writer = new XlsxOutputWriter(outputStyle, writeToDifferentFile, inputFile);
@@ -63,8 +78,17 @@ public class OutputGenerator {
 
     }
 
-    public void generateEmptyInputSheet() {
-        XlsxEmptyInputSheetWriter writer = new XlsxEmptyInputSheetWriter(emptyInputSheetName, numReplicates, LOGGER);
-        writer.writeEmptyInputSheet();
+    public void generateEmptyInputSheet() throws OutputException {
+        XlsxEmptyInputSheetWriter emptyInputSheetWriter;
+        if (this.conditions.isEmpty() && this.strains.isEmpty())
+            throw new NoStrainsOrConditionsException();
+        else if (this.numDays == 0 && this.days.isEmpty())
+            throw new NoDaysException();
+        else if (this.numDays != 0 && this.days.isEmpty()) {
+            LOGGER.atInfo("No days specified. Using number of days and leaving day numbers blank in empty input sheet.");
+            emptyInputSheetWriter = new XlsxEmptyInputSheetWriter(emptyInputSheetName, numReplicates, LOGGER, conditions, strains, numDays, includeBaselineColumn);
+        } else
+            emptyInputSheetWriter = new XlsxEmptyInputSheetWriter(emptyInputSheetName, numReplicates, LOGGER, conditions, strains, days, includeBaselineColumn);
+        emptyInputSheetWriter.writeEmptyInputSheet();
     }
 }

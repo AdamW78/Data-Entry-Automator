@@ -107,7 +107,12 @@ public class MainApplicationController extends AbstractController {
 
     private boolean generateEmptyInputSheet() {
         OutputGenerator outputGenerator = new OutputGenerator(config, getLogger());
-        outputGenerator.generateEmptyInputSheet();
+        try {
+            outputGenerator.generateEmptyInputSheet();
+        } catch (OutputException e) {
+            errorOccurred(successFailureLabel, e.getMessage());
+            return false;
+        }
         return true;
     }
 
