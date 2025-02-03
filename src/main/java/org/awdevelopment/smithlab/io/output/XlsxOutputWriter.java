@@ -42,14 +42,12 @@ public class XlsxOutputWriter {
             for (int i = 0; i < workbook.getNumberOfSheets(); i++) sheets[i] = workbook.getSheetAt(i);
             renameGeneratedOutputSheets(sheets);
             outputStyle.generateOutputSheets(sheets, experiment);
-            try {
-                writeWorkbookToFile(outputFile, workbook);
-            } catch (IOException e) {
-                throw new WriteWorkbookToFileException(outputFile.getPath(), e);
-            }
-        } catch (IOException e) {
-            throw new FailedToCreateNewWorkbookException();
+            try { writeWorkbookToFile(outputFile, workbook); }
+            catch (FailedToCopySheetsException e) { throw e; }
+            catch (IOException e) { throw new WriteWorkbookToFileException(outputFile.getPath(), e); }
         }
+        catch (FailedToCopySheetsException | WriteWorkbookToFileException e) { throw e; }
+        catch (IOException e) { throw new FailedToCreateNewWorkbookException(); }
     }
 
     private void renameGeneratedOutputSheets(XSSFSheet[] sheets) {

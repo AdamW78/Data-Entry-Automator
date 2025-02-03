@@ -78,7 +78,7 @@ public class MainApplicationController extends AbstractController {
                 outputStyleBothRadioButton
         };
         sampleSortingMethodChoiceBox.getItems().addAll(SortOption.values());
-        sampleSortingMethodChoiceBox.setValue(SortOption.NONE);
+        sampleSortingMethodChoiceBox.setValue(config.sortOption());
         setupErrorLabels();
         updateFields();
     }
@@ -98,24 +98,20 @@ public class MainApplicationController extends AbstractController {
 
     public void generateOutput() {
         if (notReadyForOutput()) return;
-        try {
-            if (config.mode() == Mode.GENERATE_OUTPUT_SHEETS) {
-                generateOutputSheets();
-            } else if (config.mode() == Mode.GENERATE_EMPTY_INPUT_SHEET) {
-                OutputGenerator outputGenerator = new OutputGenerator(config, getLogger());
-                outputGenerator.generateEmptyInputSheet();
-            }
-        } catch (Exception e) {
-            getLogger().atError("Error! Generating output...", e);
-            successFailureLabel.setText("Error! Generating output...");
-            successFailureLabel.setStyle("-fx-text-fill: red");
-        }
+        if (config.mode() == Mode.GENERATE_OUTPUT_SHEETS) if (!generateOutputSheets()) return;
+        else if (config.mode() == Mode.GENERATE_EMPTY_INPUT_SHEET) if (!generateEmptyInputSheet()) return;
+        setupErrorLabels();
         successFailureLabel.setText("Successfully generated output!");
         successFailureLabel.setStyle("-fx-text-fill: green");
-        setupErrorLabels();
     }
 
-    private void generateOutputSheets() {
+    private boolean generateEmptyInputSheet() {
+        OutputGenerator outputGenerator = new OutputGenerator(config, getLogger());
+        outputGenerator.generateEmptyInputSheet();
+        return true;
+    }
+
+    private boolean generateOutputSheets() {
         getLogger().atDebug("FROM GUI: USER CLICKED GENERATE BUTTON");
         getLogger().atInfo("Generating output...");
         getLogger().atDebug(new String[] {
@@ -133,8 +129,8 @@ public class MainApplicationController extends AbstractController {
         try {
             experiment = reader.readExperimentData();
         } catch (InputFileException e) {
-            errorOccurred(successFailureLabel, "Error reading input file \""+config.inputFile()+"\": " + e.getMessage());
-            return;
+            errorOccurred(successFailureLabel, e.getMessage());
+            return false;
         }
         getLogger().atDebug("Successfully read experiment data - Initializing OutputGenerator...");
         OutputGenerator outputGenerator = new OutputGenerator(config, getLogger());
@@ -142,10 +138,11 @@ public class MainApplicationController extends AbstractController {
         try {
             outputGenerator.generateOutput(experiment);
         } catch (OutputException e) {
-            errorOccurred(successFailureLabel, "Error writing output: " + e.getMessage());
-            return;
+            errorOccurred(successFailureLabel, e.getMessage());
+            return false;
         }
         getLogger().atInfo("Successfully generated output!");
+        return true;
     }
 
     private boolean notReadyForOutput() {

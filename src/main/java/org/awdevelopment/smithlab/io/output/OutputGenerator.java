@@ -53,11 +53,8 @@ public class OutputGenerator {
         try {
             writer.writeOutput(outputFileName, experiment);
         } catch (OutputException e) {
-            if (GUI) {
-                LOGGER.atError("Error writing output: " + e.getMessage());
-                LOGGER.atError("Passing exception to GUI to display error message...");
-                throw e;
-            } else {
+            if (GUI) throw e;
+            else {
                 LOGGER.atError("Error writing output: " + e.getMessage() + " -  Exiting...");
                 System.out.println("Error writing output: " + e.getMessage() + " - Exiting...");
                 System.exit(0);

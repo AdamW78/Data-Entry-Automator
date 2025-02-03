@@ -2,7 +2,7 @@ package org.awdevelopment.smithlab.io.exceptions;
 
 public class FailedToCreateNewWorkbookException extends OutputException {
     public FailedToCreateNewWorkbookException() {
-        super("Error: Failed to create a new workbook.");
+        super("Failed to create a new workbook with the Apache POI library.");
     }
 
     @Override
