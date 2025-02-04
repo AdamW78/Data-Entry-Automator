@@ -71,9 +71,9 @@ public class XlsxOutputWriter {
                 copySheet(inputSheet, outputSheet);
                 setSheetName(outputWorkbook, outputSheet, inputSheet.getSheetName());
             }
-        } catch (IOException e) {
-            throw new FailedToCopySheetsException(inputFile, e);
         } catch (InvalidFormatException e) {
+            throw new FailedToCopySheetsException(inputFile, e);
+        } catch (IOException e) {
             throw new FailedToCopySheetsException(inputFile, e);
         }
     }

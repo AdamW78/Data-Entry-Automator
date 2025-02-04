@@ -4,11 +4,15 @@ import org.awdevelopment.smithlab.args.exceptions.*;
 import org.awdevelopment.smithlab.config.ConfigDefault;
 import org.awdevelopment.smithlab.config.Mode;
 import org.awdevelopment.smithlab.config.SortOption;
+import org.awdevelopment.smithlab.data.Condition;
+import org.awdevelopment.smithlab.data.Strain;
 import org.awdevelopment.smithlab.io.output.formats.OutputType;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 import static org.awdevelopment.smithlab.args.exceptions.InvalidReplicateNumberException.InvalidReplicateNumberReason.*;
 
@@ -24,6 +28,11 @@ public class Arguments {
     private SortOption outputSorting = ConfigDefault.SORT_OPTION;
     private short replicateNumber = ConfigDefault.NUMBER_OF_REPLICATES;
     private String emptyInputSheetName = ConfigDefault.EMPTY_INPUT_SHEET_NAME;
+    private Set<Condition> conditions = ConfigDefault.CONDITIONS;
+    private Set<Strain> strains = ConfigDefault.STRAINS;
+    private Set<Short> days = ConfigDefault.DAYS;
+    private short numDays = ConfigDefault.NUM_DAYS;
+    private boolean includeBaselineColumn = ConfigDefault.INCLUDE_BASELINE_COLUMN;
 
     public Arguments(String[] args, LoggerHelper logger) {
         this.LOGGER = logger;
@@ -91,6 +100,27 @@ public class Arguments {
                     this.replicateNumber = Short.parseShort(args[i + 1]);
                     i++;
                 }
+                case "--conditions" -> {
+                    checkIfHasNextArgument(args, i);
+                    conditions = readConditions(args[i + 1]);
+                    i++;
+                }
+                case "--strains" -> {
+                    checkIfHasNextArgument(args, i);
+                    strains = readStrains(args[i + 1]);
+                    i++;
+                }
+                case "--days" -> {
+                    checkIfHasNextArgument(args, i);
+                    days = readDays(args[i + 1]);
+                    i++;
+                }
+                case "--include-baseline-column" -> includeBaselineColumn = true;
+                case "--number-of-days", "--num-days" -> {
+                    checkIfHasNextArgument(args, i);
+                    numDays = readNumDays(args[i + 1]);
+                    i++;
+                }
                 case "-h", "--help" -> {
                     printUsage();
                     throw new HelpException();
@@ -102,8 +132,18 @@ public class Arguments {
                 }
             }
         }
+        if (!days.isEmpty() && numDays != 0) {
+            LOGGER.atWarn("Both --days and --number-of-days were provided. --number-of-days will be ignored.");
+            numDays = (short) days.size();
+        } else if (days.isEmpty() && numDays > 0) {
+            LOGGER.atInfo("Number of days provided: " + numDays);
+        }
         if (inputFile == null) {
             throw new NoInputFileException(args);
+        }
+        if (mode == Mode.GENERATE_EMPTY_INPUT_SHEET && conditions.isEmpty() && strains.isEmpty()) {
+            LOGGER.atWarn("No conditions or strains provided. " +
+                    "This may result in an empty input sheet.");
         }
         if (writeToDifferentFile) {
             if (!suppliedOutputFileName) LOGGER.atWarn("Output file name not provided. Using default file name: " + outputFileName);
@@ -130,6 +170,49 @@ public class Arguments {
                 writeToDifferentFile = true;
             }
         }
+    }
+
+    private short readNumDays(String arg) {
+        try {
+            return Short.parseShort(arg);
+        } catch (NumberFormatException e) {
+            LOGGER.atError("Invalid number of days: " + arg);
+            return -1;
+        }
+    }
+
+    private Set<Short> readDays(String arg) {
+        Set<Short> days = new HashSet<>();
+        String[] dayStrings = arg.split(",");
+        for (String dayString : dayStrings) {
+            try {
+                short day = Short.parseShort(dayString);
+                days.add(day);
+            } catch (NumberFormatException e) {
+                LOGGER.atError("Invalid day: " + dayString);
+            }
+        }
+        return days;
+    }
+
+    private Set<Condition> readConditions(String arg) {
+        Set<Condition> conditions = new HashSet<>();
+        String[] conditionStrings = arg.split(",");
+        for (String conditionString : conditionStrings) {
+            Condition condition = new Condition(conditionString);
+            conditions.add(condition);
+        }
+        return conditions;
+    }
+
+    private Set<Strain> readStrains(String arg) {
+        Set<Strain> strains = new HashSet<>();
+        String[] strainStrings = arg.split(",");
+        for (String strainString : strainStrings) {
+            Strain strain = new Strain(strainString);
+            strains.add(strain);
+        }
+        return strains;
     }
 
     private Mode getModeFromArgument(String arg) {
@@ -286,4 +369,14 @@ public class Arguments {
     }
 
     public String getEmptyInputSheetName() { return emptyInputSheetName; }
+
+    public Set<Condition> getConditions() { return conditions; }
+
+    public Set<Strain> getStrains() { return strains; }
+
+    public Set<Short> getDays() { return days; }
+
+    public short getNumDays() { return numDays; }
+
+    public Boolean getIncludeBaselineColumn() { return includeBaselineColumn; }
 }
