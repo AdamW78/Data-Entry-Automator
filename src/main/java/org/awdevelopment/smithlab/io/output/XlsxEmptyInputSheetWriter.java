@@ -1,17 +1,15 @@
 package org.awdevelopment.smithlab.io.output;
 
-import org.apache.poi.ss.formula.functions.Days;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.awdevelopment.smithlab.data.Condition;
 import org.awdevelopment.smithlab.data.Strain;
+import org.awdevelopment.smithlab.data.experiment.EmptyExperiment;
 import org.awdevelopment.smithlab.io.exceptions.FailedToCreateNewWorkbookException;
 import org.awdevelopment.smithlab.io.exceptions.WriteWorkbookToFileException;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Set;
 
 public class XlsxEmptyInputSheetWriter {
@@ -21,33 +19,21 @@ public class XlsxEmptyInputSheetWriter {
     private final LoggerHelper LOGGER;
     private final Set<Condition> conditions;
     private final Set<Strain> strains;
-    private final Set<Short> days;
+    private final short[] days;
     private final short numDays;
 
     private final boolean usingNumDays;
     private final boolean includeBaselineColumn;
 
-    public XlsxEmptyInputSheetWriter(String emptyInputSheetName, short numReplicates, LoggerHelper logger, Set<Condition> conditions, Set<Strain> strains, Set<Short> days, boolean includeBaselineColumn) {
+    public XlsxEmptyInputSheetWriter(String emptyInputSheetName, LoggerHelper logger, boolean includeBaselineColumn, EmptyExperiment emptyExperiment) {
         this.emptyInputSheetName = emptyInputSheetName;
-        this.numReplicates = numReplicates;
+        this.numReplicates = emptyExperiment.getNumReplicates();
         this.LOGGER = logger;
-        this.conditions = conditions;
-        this.strains = strains;
-        this.days = days;
-        this.numDays = (short) days.size();
-        this.usingNumDays = false;
-        this.includeBaselineColumn = includeBaselineColumn;
-    }
-
-    public XlsxEmptyInputSheetWriter(String emptyInputSheetName, short numReplicates, LoggerHelper logger, Set<Condition> conditions, Set<Strain> strains, short numDays, boolean includeBaselineColumn) {
-        this.emptyInputSheetName = emptyInputSheetName;
-        this.numReplicates = numReplicates;
-        this.LOGGER = logger;
-        this.conditions = conditions;
-        this.strains = strains;
-        this.days = new HashSet<>();
-        this.numDays = numDays;
-        this.usingNumDays = true;
+        this.conditions = emptyExperiment.conditions();
+        this.strains = emptyExperiment.strains();
+        this.days = emptyExperiment.getDays();
+        this.numDays = emptyExperiment.getNumDays();
+        this.usingNumDays = emptyExperiment.usingNumDays();
         this.includeBaselineColumn = includeBaselineColumn;
     }
 

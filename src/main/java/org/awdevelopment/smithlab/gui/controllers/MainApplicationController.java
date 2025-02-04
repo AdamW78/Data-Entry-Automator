@@ -11,6 +11,7 @@ import org.awdevelopment.smithlab.config.Mode;
 import org.awdevelopment.smithlab.config.SortOption;
 import org.awdevelopment.smithlab.data.experiment.Experiment;
 import org.awdevelopment.smithlab.io.exceptions.InputFileException;
+import org.awdevelopment.smithlab.io.exceptions.NoDaysException;
 import org.awdevelopment.smithlab.io.exceptions.OutputException;
 import org.awdevelopment.smithlab.io.input.InputReader;
 import org.awdevelopment.smithlab.io.output.OutputGenerator;
@@ -106,7 +107,13 @@ public class MainApplicationController extends AbstractController {
     }
 
     private boolean generateEmptyInputSheet() {
-        OutputGenerator outputGenerator = new OutputGenerator(config, getLogger());
+        OutputGenerator outputGenerator;
+        try {
+            outputGenerator = new OutputGenerator(config, getLogger());
+        } catch (NoDaysException e) {
+            // TODO
+            throw new RuntimeException(e);
+        }
         try {
             outputGenerator.generateEmptyInputSheet();
         } catch (OutputException e) {
@@ -125,7 +132,7 @@ public class MainApplicationController extends AbstractController {
                 "Output type: " + config.outputType(),
                 "Write to different file: " + config.writeToDifferentFile(),
                 "Sort option: " + config.sortOption(),
-                "Number of replicates: " + config.numberOfReplicates(),
+                "Number of replicates: " + config.numReplicates(),
                 "Empty input sheet name: " + config.emptyInputSheetName()
         });
         InputReader reader = new InputReader(config, getLogger());
@@ -138,7 +145,13 @@ public class MainApplicationController extends AbstractController {
             return false;
         }
         getLogger().atDebug("Successfully read experiment data - Initializing OutputGenerator...");
-        OutputGenerator outputGenerator = new OutputGenerator(config, getLogger());
+        OutputGenerator outputGenerator = null;
+        try {
+            outputGenerator = new OutputGenerator(config, getLogger());
+        } catch (NoDaysException e) {
+            // TODO
+            throw new RuntimeException(e);
+        }
         getLogger().atDebug("Successfully initialized OutputGenerator - generating output...");
         try {
             outputGenerator.generateOutput(experiment);

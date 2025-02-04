@@ -79,7 +79,7 @@ public class Config {
         return writeToDifferentFile.value();
     }
 
-    public short numberOfReplicates() { return numberOfReplicates.value(); }
+    public short numReplicates() { return numberOfReplicates.value(); }
 
     public SortOption sortOption() { return sortOption.value(); }
 

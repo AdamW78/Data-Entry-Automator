@@ -10,7 +10,6 @@ import org.awdevelopment.smithlab.data.Strain;
 import org.awdevelopment.smithlab.io.exceptions.NoStrainsOrConditionsException;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class XlsxEmptyInputSheetHeaderWriter {
@@ -18,18 +17,18 @@ public class XlsxEmptyInputSheetHeaderWriter {
     private final LoggerHelper LOGGER;
     private final Set<Condition> conditions;
     private final Set<Strain> strains;
-    private final Set<Short> days;
-    private final boolean noDaysProvided;
+    private final short[] days;
+    private final boolean usingNumDays;
     private final boolean includeBaselineColumn;
     private final short numDays;
 
-    public XlsxEmptyInputSheetHeaderWriter(LoggerHelper logger, Set<Condition> conditions, Set<Strain> strains, Set<Short> days, boolean includeBaselineColumn) {
+    public XlsxEmptyInputSheetHeaderWriter(LoggerHelper logger, Set<Condition> conditions, Set<Strain> strains, short[] days, boolean includeBaselineColumn) {
         this.LOGGER = logger;
         this.conditions = conditions;
         this.strains = strains;
         this.days = days;
-        this.numDays = (short) days.size();
-        this.noDaysProvided = days.isEmpty();
+        this.numDays = (short) days.length;
+        this.usingNumDays = false;
         this.includeBaselineColumn = includeBaselineColumn;
     }
 
@@ -37,9 +36,9 @@ public class XlsxEmptyInputSheetHeaderWriter {
         this.LOGGER = logger;
         this.conditions = conditions;
         this.strains = strains;
-        this.days = new HashSet<>();
+        this.days = null;
         this.numDays = numDays;
-        this.noDaysProvided = true;
+        this.usingNumDays = true;
         this.includeBaselineColumn = includeBaselineColumn;
     }
 
@@ -55,7 +54,7 @@ public class XlsxEmptyInputSheetHeaderWriter {
     }
 
     private void generateDayHeaders(XSSFRow headerRow, XSSFRow subHeaderRow, short lastUsedColumn) {
-        if (noDaysProvided) {
+        if (usingNumDays) {
             for (int i = 0; i < numDays; i++) {
                 XSSFCell dayHeaderCell = headerRow.createCell(++lastUsedColumn);
                 dayHeaderCell.setCellValue("0");

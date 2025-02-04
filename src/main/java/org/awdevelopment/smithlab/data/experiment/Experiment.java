@@ -4,7 +4,6 @@ import org.awdevelopment.smithlab.data.*;
 
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 public class Experiment extends AbstractExperiment {
@@ -14,6 +13,7 @@ public class Experiment extends AbstractExperiment {
     private Sample[] sortedSamplesReverseAlphabetically;
     private Sample[] sortedSamplesBySampleNumber;
     private short[] sortedDayNumbers;
+    private short numReplicates;
 
     public Experiment() {
         super();
@@ -72,5 +72,13 @@ public class Experiment extends AbstractExperiment {
             for (int i = 0; i < daysSorted.length; i++) sortedDayNumbers[i] = daysSorted[i];
         }
         return sortedDayNumbers;
+    }
+
+    public short getNumReplicates() {
+        return numReplicates;
+    }
+
+    public void setNumReplicates(short numReplicates) {
+        this.numReplicates = numReplicates;
     }
 }

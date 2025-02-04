@@ -1,8 +1,8 @@
 package org.awdevelopment.smithlab.io.output;
 
 import org.awdevelopment.smithlab.config.Config;
-import org.awdevelopment.smithlab.data.Condition;
-import org.awdevelopment.smithlab.data.Strain;
+import org.awdevelopment.smithlab.config.Mode;
+import org.awdevelopment.smithlab.data.experiment.EmptyExperiment;
 import org.awdevelopment.smithlab.io.exceptions.NoDaysException;
 import org.awdevelopment.smithlab.io.exceptions.NoStrainsOrConditionsException;
 import org.awdevelopment.smithlab.data.experiment.Experiment;
@@ -11,7 +11,6 @@ import org.awdevelopment.smithlab.io.output.formats.*;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 import java.io.File;
-import java.util.Set;
 
 public class OutputGenerator {
 
@@ -22,27 +21,23 @@ public class OutputGenerator {
     private final File inputFile;
     private final LoggerHelper LOGGER;
     private final String emptyInputSheetName;
-    private final short numReplicates;
-    private final Set<Condition> conditions;
-    private final Set<Strain> strains;
-    private final Set<Short> days;
-    private final short numDays;
     private final boolean includeBaselineColumn;
+    private final EmptyExperiment emptyExperiment;
 
-    public OutputGenerator(Config config, LoggerHelper logger) {
+    public OutputGenerator(Config config, LoggerHelper logger) throws NoDaysException {
         LOGGER = logger;
         switch (config.outputType()) {
             case PRISM:
                 outputStyle = new PrismOutputStyle(config.sortOption());
                 break;
             case STATISTICAL_TESTS:
-                outputStyle = new StatisticalTestsOutputStyle(config.sortOption(), config.numberOfReplicates());
+                outputStyle = new StatisticalTestsOutputStyle(config.sortOption(), config.numReplicates());
                 break;
             case RAW:
                 outputStyle = new RawOutputStyle(config.sortOption());
                 break;
             case BOTH:
-                outputStyle = new BothOutputStyle(config.sortOption(), config.numberOfReplicates());
+                outputStyle = new BothOutputStyle(config.sortOption(), config.numReplicates());
                 break;
             default:
                 // This is redundant because the compiler thinks that outputStyle is not initialized
@@ -55,13 +50,17 @@ public class OutputGenerator {
         this.writeToDifferentFile = config.writeToDifferentFile();
         this.inputFile = config.inputFile();
         this.emptyInputSheetName = config.emptyInputSheetName();
-        this.numReplicates = config.numberOfReplicates();
         this.GUI = config.GUI();
-        this.conditions = config.conditions();
-        this.strains = config.strains();
-        this.days = config.days();
-        this.numDays = config.numDays();
         this.includeBaselineColumn = config.includeBaselineColumn();
+        if (config.mode() == Mode.GENERATE_EMPTY_INPUT_SHEET) {
+            Short[] dayShortObjects = config.days().toArray(new Short[0]);
+            short[] days = new short[dayShortObjects.length];
+            for (int i = 0; i < days.length; i++) { days[i] = dayShortObjects[i]; }
+            this.emptyExperiment = new EmptyExperiment(config.strains(), config.conditions(), config.numReplicates(),
+                    days, config.numDays());
+        } else {
+            this.emptyExperiment = null;
+        }
     }
     public void generateOutput(Experiment experiment) throws OutputException {
         XlsxOutputWriter writer = new XlsxOutputWriter(outputStyle, writeToDifferentFile, inputFile);
@@ -80,15 +79,12 @@ public class OutputGenerator {
 
     public void generateEmptyInputSheet() throws OutputException {
         XlsxEmptyInputSheetWriter emptyInputSheetWriter;
-        if (this.conditions.isEmpty() && this.strains.isEmpty())
+        if (this.emptyExperiment.hasNoStrainsOrConditions())
             throw new NoStrainsOrConditionsException();
-        else if (this.numDays == 0 && this.days.isEmpty())
-            throw new NoDaysException();
-        else if (this.numDays != 0 && this.days.isEmpty()) {
+        else if (this.emptyExperiment.usingNumDays()) {
             LOGGER.atInfo("No days specified. Using number of days and leaving day numbers blank in empty input sheet.");
-            emptyInputSheetWriter = new XlsxEmptyInputSheetWriter(emptyInputSheetName, numReplicates, LOGGER, conditions, strains, numDays, includeBaselineColumn);
-        } else
-            emptyInputSheetWriter = new XlsxEmptyInputSheetWriter(emptyInputSheetName, numReplicates, LOGGER, conditions, strains, days, includeBaselineColumn);
+        }
+        emptyInputSheetWriter = new XlsxEmptyInputSheetWriter(emptyInputSheetName, LOGGER, includeBaselineColumn, emptyExperiment);
         emptyInputSheetWriter.writeEmptyInputSheet();
     }
 }

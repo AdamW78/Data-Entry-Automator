@@ -11,6 +11,11 @@ public abstract class AbstractExperiment {
     private final Set<Condition> conditions;
     private final Set<Strain> strains;
 
+    protected AbstractExperiment(Set<Condition> conditions, Set<Strain> strains) {
+        this.conditions = conditions;
+        this.strains = strains;
+    }
+
     protected AbstractExperiment() {
         conditions = new HashSet<>();
         strains = new HashSet<>();
