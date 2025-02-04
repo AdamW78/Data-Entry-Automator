@@ -3,7 +3,7 @@ package org.awdevelopment.smithlab.io.output;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
-import org.awdevelopment.smithlab.data.Experiment;
+import org.awdevelopment.smithlab.data.experiment.Experiment;
 import org.awdevelopment.smithlab.io.exceptions.FailedToCopySheetsException;
 import org.awdevelopment.smithlab.io.exceptions.FailedToCreateNewWorkbookException;
 import org.awdevelopment.smithlab.io.exceptions.WriteWorkbookToFileException;

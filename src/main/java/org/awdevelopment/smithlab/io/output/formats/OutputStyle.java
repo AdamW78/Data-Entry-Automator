@@ -3,7 +3,7 @@ package org.awdevelopment.smithlab.io.output.formats;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.awdevelopment.smithlab.config.SortOption;
-import org.awdevelopment.smithlab.data.Experiment;
+import org.awdevelopment.smithlab.data.experiment.Experiment;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.awdevelopment.smithlab.io.exceptions.NoStrainsOrConditionsException;
 
@@ -25,11 +25,11 @@ public abstract class OutputStyle {
         XSSFSheet sheet = sheets[sheets.length - 1];
         XSSFRow row = sheet.createRow(0);
         XSSFCell cell = row.createCell(0);
-        if (!experiment.getStrains().isEmpty() && !experiment.getConditions().isEmpty()) {
+        if (experiment.hasBothStrainsAndConditions()) {
             cell.setCellValue("Strain + Condition");
-        } else if (!experiment.getStrains().isEmpty()) {
+        } else if (experiment.hasStrains()) {
             cell.setCellValue("Strain");
-        } else if (!experiment.getConditions().isEmpty()) {
+        } else if (experiment.hasConditions()) {
             cell.setCellValue("Condition");
         } else {
             throw new NoStrainsOrConditionsException();

@@ -5,7 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.awdevelopment.smithlab.args.Arguments;
 import org.awdevelopment.smithlab.config.Config;
 import org.awdevelopment.smithlab.config.Mode;
-import org.awdevelopment.smithlab.data.Experiment;
+import org.awdevelopment.smithlab.data.experiment.Experiment;
 import org.awdevelopment.smithlab.gui.FXMLResourceType;
 import org.awdevelopment.smithlab.gui.SceneLoader;
 import org.awdevelopment.smithlab.io.input.InputReader;

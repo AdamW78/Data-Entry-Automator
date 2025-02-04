@@ -1,7 +1,7 @@
 package org.awdevelopment.smithlab.io.input;
 
 import org.awdevelopment.smithlab.config.Config;
-import org.awdevelopment.smithlab.data.Experiment;
+import org.awdevelopment.smithlab.data.experiment.Experiment;
 import org.awdevelopment.smithlab.io.exceptions.InputFileException;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 

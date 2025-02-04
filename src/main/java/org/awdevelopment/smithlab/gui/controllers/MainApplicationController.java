@@ -9,7 +9,7 @@ import javafx.stage.FileChooser;
 import org.awdevelopment.smithlab.config.Config;
 import org.awdevelopment.smithlab.config.Mode;
 import org.awdevelopment.smithlab.config.SortOption;
-import org.awdevelopment.smithlab.data.Experiment;
+import org.awdevelopment.smithlab.data.experiment.Experiment;
 import org.awdevelopment.smithlab.io.exceptions.InputFileException;
 import org.awdevelopment.smithlab.io.exceptions.OutputException;
 import org.awdevelopment.smithlab.io.input.InputReader;
@@ -142,6 +142,9 @@ public class MainApplicationController extends AbstractController {
             return false;
         }
         getLogger().atInfo("Successfully generated output!");
+        failedEmptyInputFile = false;
+        failedEmptyOutputFilename = false;
+        failedEmptyReplicates = false;
         return true;
     }
 

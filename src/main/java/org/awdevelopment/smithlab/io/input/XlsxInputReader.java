@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.awdevelopment.smithlab.data.*;
+import org.awdevelopment.smithlab.data.experiment.Experiment;
 import org.awdevelopment.smithlab.io.Header;
 import org.awdevelopment.smithlab.io.HeaderType;
 import org.awdevelopment.smithlab.io.Headers;

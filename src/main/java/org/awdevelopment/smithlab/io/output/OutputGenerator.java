@@ -1,7 +1,7 @@
 package org.awdevelopment.smithlab.io.output;
 
 import org.awdevelopment.smithlab.config.Config;
-import org.awdevelopment.smithlab.data.Experiment;
+import org.awdevelopment.smithlab.data.experiment.Experiment;
 import org.awdevelopment.smithlab.io.exceptions.OutputException;
 import org.awdevelopment.smithlab.io.output.formats.*;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
