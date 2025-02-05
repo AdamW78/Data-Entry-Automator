@@ -25,6 +25,11 @@ public class Config {
     private final ConfigEntry<Byte> numDays;
     private final ConfigEntry<Boolean> includeBaselineColumn;
     private final ConfigEntry<SampleLabelingType> sampleLabelingType;
+    private final ConfigEntry<Byte> numConditions;
+    private final ConfigEntry<Byte> numStrains;
+    private final ConfigEntry<Boolean> usingNumDays;
+    private final ConfigEntry<Boolean> usingNumConditions;
+    private final ConfigEntry<Boolean> usingNumStrains;
 
     public Config() {
         this.numberOfReplicates = new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, ConfigDefault.NUMBER_OF_REPLICATES);
@@ -42,6 +47,11 @@ public class Config {
         this.numDays = new ConfigEntry<>(ConfigOption.NUM_DAYS, ConfigDefault.NUM_DAYS);
         this.includeBaselineColumn = new ConfigEntry<>(ConfigOption.INCLUDE_BASELINE_COLUMN, ConfigDefault.INCLUDE_BASELINE_COLUMN);
         this.sampleLabelingType = new ConfigEntry<>(ConfigOption.SAMPLE_LABELING_TYPE, ConfigDefault.SAMPLE_LABELING_TYPE);
+        this.numConditions = new ConfigEntry<>(ConfigOption.NUM_CONDITIONS, ConfigDefault.NUM_CONDITIONS);
+        this.numStrains = new ConfigEntry<>(ConfigOption.NUM_STRAINS, ConfigDefault.NUM_STRAINS);
+        this.usingNumDays = new ConfigEntry<>(ConfigOption.USING_NUM_DAYS, ConfigDefault.USING_NUM_DAYS);
+        this.usingNumConditions = new ConfigEntry<>(ConfigOption.USING_NUM_CONDITIONS, ConfigDefault.USING_NUM_CONDITIONS);
+        this.usingNumStrains = new ConfigEntry<>(ConfigOption.USING_NUM_STRAINS, ConfigDefault.USING_NUM_STRAINS);
     }
 
     public Config(Arguments arguments) {
@@ -60,6 +70,11 @@ public class Config {
         this.numDays = new ConfigEntry<>(ConfigOption.NUM_DAYS, arguments.getNumDays());
         this.includeBaselineColumn = new ConfigEntry<>(ConfigOption.INCLUDE_BASELINE_COLUMN, arguments.getIncludeBaselineColumn());
         this.sampleLabelingType = new ConfigEntry<>(ConfigOption.SAMPLE_LABELING_TYPE, arguments.getSampleLabelingType());
+        this.numConditions = new ConfigEntry<>(ConfigOption.NUM_CONDITIONS, arguments.getNumConditions());
+        this.numStrains = new ConfigEntry<>(ConfigOption.NUM_STRAINS, arguments.getNumStrains());
+        this.usingNumDays = new ConfigEntry<>(ConfigOption.USING_NUM_DAYS, arguments.usingNumDays());
+        this.usingNumConditions = new ConfigEntry<>(ConfigOption.USING_NUM_CONDITIONS, arguments.usingNumConditions());
+        this.usingNumStrains = new ConfigEntry<>(ConfigOption.USING_NUM_STRAINS, arguments.usingNumStrains());
     }
 
     public File inputFile() {
@@ -102,6 +117,16 @@ public class Config {
 
     public SampleLabelingType sampleLabelingType() { return sampleLabelingType.value(); }
 
+    public byte numConditions() { return numConditions.value(); }
+
+    public byte numStrains() { return numStrains.value(); }
+
+    public boolean usingNumDays() { return usingNumDays.value(); }
+
+    public boolean usingNumConditions() { return usingNumConditions.value(); }
+
+    public boolean usingNumStrains() { return usingNumStrains.value(); }
+
     public void setOutputType(OutputType outputType) { this.outputType.setValue(outputType); }
 
     public void setInputFile(File inputFile) { this.inputFile.setValue(inputFile); }
@@ -135,4 +160,14 @@ public class Config {
     public void setIncludeBaselineColumn(boolean includeBaselineColumn) { this.includeBaselineColumn.setValue(includeBaselineColumn); }
 
     public void setSampleLabelingType(SampleLabelingType sampleLabelingType) { this.sampleLabelingType.setValue(sampleLabelingType); }
+
+    public void setNumConditions(byte numConditions) { this.numConditions.setValue(numConditions); }
+
+    public void setNumStrains(byte numStrains) { this.numStrains.setValue(numStrains); }
+
+    public void setUsingNumDays(boolean usingNumDays) { this.usingNumDays.setValue(usingNumDays); }
+
+    public void setUsingNumConditions(boolean usingNumConditions) { this.usingNumConditions.setValue(usingNumConditions); }
+
+    public void setUsingNumStrains(boolean usingNumStrains) { this.usingNumStrains.setValue(usingNumStrains); }
 }

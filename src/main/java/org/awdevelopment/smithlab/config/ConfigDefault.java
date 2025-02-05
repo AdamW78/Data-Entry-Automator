@@ -25,5 +25,10 @@ public class ConfigDefault {
     public static final Set<Byte> DAYS = new HashSet<>();
     public static final boolean INCLUDE_BASELINE_COLUMN = true;
     public static final SampleLabelingType SAMPLE_LABELING_TYPE = SampleLabelingType.CONDITION;
+    public static final byte NUM_CONDITIONS = 0;
+    public static final byte NUM_STRAINS = 0;
+    public static final boolean USING_NUM_DAYS = false;
+    public static final boolean USING_NUM_CONDITIONS = false;
+    public static final boolean USING_NUM_STRAINS = false;
 
 }

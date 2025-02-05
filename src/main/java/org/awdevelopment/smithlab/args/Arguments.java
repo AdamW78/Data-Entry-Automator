@@ -35,6 +35,11 @@ public class Arguments {
     private byte numDays = ConfigDefault.NUM_DAYS;
     private boolean includeBaselineColumn = ConfigDefault.INCLUDE_BASELINE_COLUMN;
     private SampleLabelingType sampleLabelingType = ConfigDefault.SAMPLE_LABELING_TYPE;
+    private byte numConditions = ConfigDefault.NUM_CONDITIONS;
+    private byte numStrains = ConfigDefault.NUM_STRAINS;
+    private boolean usingNumDays = ConfigDefault.USING_NUM_DAYS;
+    private boolean usingNumConditions = ConfigDefault.USING_NUM_CONDITIONS;
+    private boolean usingNumStrains = ConfigDefault.USING_NUM_STRAINS;
 
     public Arguments(String[] args, LoggerHelper logger) {
         this.LOGGER = logger;
@@ -391,4 +396,14 @@ public class Arguments {
     public Boolean getIncludeBaselineColumn() { return includeBaselineColumn; }
 
     public SampleLabelingType getSampleLabelingType() { return sampleLabelingType; }
+
+    public byte getNumConditions() { return numConditions; }
+
+    public byte getNumStrains() { return numStrains; }
+
+    public boolean usingNumDays() { return usingNumDays; }
+
+    public boolean usingNumConditions() { return usingNumConditions; }
+
+    public boolean usingNumStrains() { return usingNumStrains; }
 }

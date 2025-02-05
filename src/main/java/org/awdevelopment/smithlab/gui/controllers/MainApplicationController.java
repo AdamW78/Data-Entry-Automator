@@ -29,7 +29,19 @@ public class MainApplicationController extends AbstractController {
     private final Config config;
 
     private TimepointsController timepointsController;
+    private StrainsController strainsController;
+    private ConditionsController conditionsController;
     // EMPTY INPUT SHEET
+    @FXML
+    private Label numConditionsErrorLabel;
+    @FXML
+    private Label numTimepointsErrorLabel;
+    @FXML
+    private Label numStrainErrorLabel;
+    @FXML
+    private TextField numConditionsTextField;
+    @FXML
+    private TextField numStrainsTextField;
     @FXML
     private HBox strainsHBox;
     @FXML
@@ -101,6 +113,8 @@ public class MainApplicationController extends AbstractController {
     private boolean failedEmptyNumTimepointsEmptyInputSheet = false;
     private boolean failedEmptyNumReplicatesEmptyInputSheet = false;
     private boolean failedEmptyOutputFilenameEmptyInputSheet = false;
+    private boolean failedEmptyConditionsEmptyInputSheet = false;
+    private boolean failedEmptyStrainsEmptyInputSheet = false;
 
     public MainApplicationController() {
         super();
@@ -440,10 +454,12 @@ public class MainApplicationController extends AbstractController {
 
     private boolean notReadyForOutputEmptyInputSheet() {
         if (badNumReplicatesEmptyInputSheet()) return true;
-        if (badNumTimepointsEmptyInputSheet()) return true;
-        if (badOutputFilenameEmptyInputSheet()) return true;
-        if (badSampleLabelingEmptyInputSheet()) return true;
-        return false;
+        else if (badNumTimepointsEmptyInputSheet()) return true;
+        else if (badOutputFilenameEmptyInputSheet()) return true;
+        else if (badSampleLabelingEmptyInputSheet()) return true;
+        else if (badNumConditionsEmptyInputSheet()) return true;
+        else if (badNumStrainsEmptyInputSheet()) return true;
+        else return false;
 
     }
 
@@ -485,6 +501,26 @@ public class MainApplicationController extends AbstractController {
         return !checkSampleLabelingRadioButtons();
     }
 
+    private boolean badNumConditionsEmptyInputSheet() {
+        if (!checkNumConditionsEmptyInputSheet()) return true;
+        if (numConditionsTextField.getText().isEmpty()) {
+            failedEmptyConditionsEmptyInputSheet = true;
+            errorOccurred(numConditionsErrorLabel, "Error: Please enter a number of conditions");
+            return true;
+        }
+        return false;
+    }
+
+    private boolean badNumStrainsEmptyInputSheet() {
+        if (!checkNumStrainsEmptyInputSheet()) return true;
+        if (numStrainsTextField.getText().isEmpty()) {
+            failedEmptyStrainsEmptyInputSheet = true;
+            errorOccurred(numStrainErrorLabel, "Error: Please enter a number of strains");
+            return true;
+        }
+        return false;
+    }
+
     private void generateEmptyInputSheet() {
         OutputGenerator outputGenerator;
         try {
@@ -505,51 +541,93 @@ public class MainApplicationController extends AbstractController {
 
     public void emptyInputValidateFields() {
         String focusID = (outputFilenameEmptyInputSheetsTextField.getScene().getFocusOwner().getId());
+        if (timepointsController != null) {
+            config.setUsingNumDays(timepointsController.usingNumDays());
+            config.setDays(timepointsController.getDays());
+        }
+        if (strainsController != null) {
+            config.setUsingNumStrains(strainsController.usingNumStrains());
+            config.setStrains(strainsController.getStrains());
+        }
+        if (conditionsController != null) {
+            config.setUsingNumConditions(conditionsController.usingNumConditions());
+            config.setConditions(conditionsController.getConditions());
+        }
         if (focusID == null || focusID.isEmpty()) focusID = "default";
-        if (focusID.equals("numReplicatesEmptyInputSheetTextField")) {
+        switch (focusID) {
+            case "numReplicatesEmptyInputSheetTextField" -> {
                 checkOutputFilenameEmptyInputSheets();
                 checkNumTimepointsEmptyInputSheet();
-        } else if (focusID.equals("numTimepointsTextField")) {
-            checkOutputFilenameEmptyInputSheets();
-            checkNumReplicatesEmptyInputSheet();
-        } else if (focusID.equals("outputFilenameEmptyInputSheetsTextField")) {
-            checkNumReplicatesEmptyInputSheet();
-            checkNumTimepointsEmptyInputSheet();
-        } else {
-            checkNumReplicatesEmptyInputSheet();
-            checkOutputFilenameEmptyInputSheets();
-            checkNumTimepointsEmptyInputSheet();
+                checkNumConditionsEmptyInputSheet();
+                checkNumStrainsEmptyInputSheet();
+            }
+            case "numTimepointsTextField" -> {
+                checkOutputFilenameEmptyInputSheets();
+                checkNumReplicatesEmptyInputSheet();
+                checkNumConditionsEmptyInputSheet();
+                checkNumStrainsEmptyInputSheet();
+            }
+            case "outputFilenameEmptyInputSheetsTextField" -> {
+                checkNumReplicatesEmptyInputSheet();
+                checkNumTimepointsEmptyInputSheet();
+                checkNumConditionsEmptyInputSheet();
+                checkNumStrainsEmptyInputSheet();
+            }
+            case "numConditionsTextField" -> {
+                checkOutputFilenameEmptyInputSheets();
+                checkNumReplicatesEmptyInputSheet();
+                checkNumTimepointsEmptyInputSheet();
+                checkNumStrainsEmptyInputSheet();
+            }
+            case "numStrainsTextField" -> {
+                checkOutputFilenameEmptyInputSheets();
+                checkNumReplicatesEmptyInputSheet();
+                checkNumTimepointsEmptyInputSheet();
+                checkNumConditionsEmptyInputSheet();
+            }
+            default -> {
+                checkNumReplicatesEmptyInputSheet();
+                checkOutputFilenameEmptyInputSheets();
+                checkNumTimepointsEmptyInputSheet();
+                checkNumConditionsEmptyInputSheet();
+                checkNumStrainsEmptyInputSheet();
+            }
         }
     }
 
     private boolean checkNumTimepointsEmptyInputSheet() {
         if (timepointsController == null || timepointsController.usingNumDays()) {
             if (numTimepointsTextField.getText().isEmpty() && failedEmptyNumTimepointsEmptyInputSheet) {
-                errorOccurred(statusLabelEmptyInputSheets, "Error: Please enter a number of timepoints");
+                errorOccurred(numTimepointsErrorLabel, "Error: Please enter a number of timepoints");
                 return false;
             } else if (numTimepointsTextField.getText().isEmpty()) {
-                clearError(statusLabelEmptyInputSheets);
+                clearError(numTimepointsErrorLabel);
                 return true;
             } else {
                 try {
                     long numDays = Long.parseLong(numTimepointsTextField.getText());
                     if (numDays < 1) {
-                        errorOccurred(statusLabelEmptyInputSheets, "Error: Number of timepoints must be > 0");
+                        errorOccurred(numTimepointsErrorLabel, "Error: Number of timepoints must be > 0");
                         return false;
                     } else if (numDays > 127) {
-                        errorOccurred(statusLabelEmptyInputSheets, "Error: Number of timepoints must be <= 127");
+                        errorOccurred(numTimepointsErrorLabel, "Error: Number of timepoints must be <= 127");
                         return false;
                     } else {
-                        clearError(statusLabelEmptyInputSheets);
+                        clearError(numTimepointsErrorLabel);
                         config.setNumDays((byte) numDays);
                         return true;
                     }
                 } catch (NumberFormatException e) {
-                    errorOccurred(statusLabelEmptyInputSheets, "Error: Invalid number: \"" + numTimepointsTextField.getText() + "\"");
+                    errorOccurred(numTimepointsErrorLabel, "Error: Invalid number: \"" + numTimepointsTextField.getText() + "\"");
                     return false;
                 }
             }
-        } else return true;
+        } else {
+            clearError(numTimepointsErrorLabel);
+            config.setUsingNumDays(timepointsController.usingNumDays());
+            config.setDays(timepointsController.getDays());
+            return true;
+        }
     }
 
     private boolean checkOutputFilenameEmptyInputSheets() {
@@ -598,6 +676,75 @@ public class MainApplicationController extends AbstractController {
         } catch (NumberFormatException e) {
             errorOccurred(statusLabelEmptyInputSheets, "Error: Invalid number: \"" + numReplicatesEmptyInputSheetTextField.getText() + "\"");
             return false;
+        }
+    }
+
+    private boolean checkNumConditionsEmptyInputSheet() {
+        if (conditionsController == null || conditionsController.usingNumConditions()) {
+            if (numConditionsTextField.getText().isEmpty() && !failedEmptyConditionsEmptyInputSheet) {
+                clearError(numConditionsErrorLabel);
+                return true;
+            } else if (numConditionsTextField.getText().isEmpty()) {
+                errorOccurred(numConditionsErrorLabel, "Error: Please enter a number of conditions");
+                return false;
+            } else {
+                try {
+                    long numConditions = Long.parseLong(numConditionsTextField.getText());
+                    if (numConditions < 1) {
+                        errorOccurred(numConditionsErrorLabel, "Error: Number of conditions must be > 0");
+                        return false;
+                    } else if (numConditions > 127) {
+                        errorOccurred(numConditionsErrorLabel, "Error: Number of conditions must be <= 127");
+                        return false;
+                    } else {
+                        clearError(numConditionsErrorLabel);
+                        config.setNumConditions((byte) numConditions);
+                        return true;
+                    }
+                } catch (NumberFormatException e) {
+                    errorOccurred(numConditionsErrorLabel, "Error: Invalid number: \"" + numConditionsTextField.getText() + "\"");
+                    return false;
+                }
+            }
+        } else {
+            clearError(numConditionsErrorLabel);
+            config.setUsingNumConditions(conditionsController.usingNumConditions());
+            config.setConditions(conditionsController.getConditions());
+            return true;
+        }
+    }
+    private boolean checkNumStrainsEmptyInputSheet() {
+        if (strainsController == null || strainsController.usingNumStrains()) {
+            if (numStrainsTextField.getText().isEmpty() && !failedEmptyStrainsEmptyInputSheet) {
+                clearError(numStrainErrorLabel);
+                return true;
+            } else if (numStrainsTextField.getText().isEmpty()) {
+                errorOccurred(numStrainErrorLabel, "Error: Please enter a number of strains");
+                return false;
+            } else {
+                try {
+                    long numStrains = Long.parseLong(numStrainsTextField.getText());
+                    if (numStrains < 1) {
+                        errorOccurred(numStrainErrorLabel, "Error: Number of strains must be > 0");
+                        return false;
+                    } else if (numStrains > 127) {
+                        errorOccurred(numStrainErrorLabel, "Error: Number of strains must be <= 127");
+                        return false;
+                    } else {
+                        clearError(numStrainErrorLabel);
+                        config.setNumStrains((byte) numStrains);
+                        return true;
+                    }
+                } catch (NumberFormatException e) {
+                    errorOccurred(numStrainErrorLabel, "Error: Invalid number: \"" + numStrainsTextField.getText() + "\"");
+                    return false;
+                }
+            }
+        } else {
+            clearError(numStrainErrorLabel);
+            config.setUsingNumStrains(strainsController.usingNumStrains());
+            config.setStrains(strainsController.getStrains());
+            return true;
         }
     }
 
@@ -672,6 +819,30 @@ public class MainApplicationController extends AbstractController {
                 || keyEvent.getCode() == KeyCode.TAB
         ) {
             checkNumTimepointsEmptyInputSheet();
+        }
+    }
+
+    public void updateNumConditionsEmptyInputSheet(KeyEvent keyEvent) {
+        emptyInputValidateFields();
+        if(numConditionsTextField.getText().isEmpty() && !failedEmptyConditionsEmptyInputSheet) clearError(statusLabelEmptyInputSheets);
+        if (    keyEvent == null
+                || !(numConditionsTextField.getScene().focusOwnerProperty().get().getId().equals("numConditionsTextField"))
+                || keyEvent.getCode() == KeyCode.ENTER
+                || keyEvent.getCode() == KeyCode.TAB
+        ) {
+            checkNumConditionsEmptyInputSheet();
+        }
+    }
+
+    public void updateNumStrainsEmptyInputSheet(KeyEvent keyEvent) {
+        emptyInputValidateFields();
+        if(numStrainsTextField.getText().isEmpty() && !failedEmptyStrainsEmptyInputSheet) clearError(statusLabelEmptyInputSheets);
+        if (    keyEvent == null
+                || !(numStrainsTextField.getScene().focusOwnerProperty().get().getId().equals("numStrainsTextField"))
+                || keyEvent.getCode() == KeyCode.ENTER
+                || keyEvent.getCode() == KeyCode.TAB
+        ) {
+            checkNumStrainsEmptyInputSheet();
         }
     }
 

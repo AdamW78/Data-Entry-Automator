@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.awdevelopment.smithlab.gui.controllers.MainApplicationController">
+<AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.awdevelopment.smithlab.gui.controllers.MainApplicationController">
    <HBox alignment="CENTER" minHeight="40.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0">
       <TabPane fx:id="tabPane" centerShape="false" onMouseClicked="#updateFields" prefHeight="40.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE">
          <Tab fx:id="outputSheetsTab" onSelectionChanged="#updateMode" text="Generate Output Sheet">
@@ -137,36 +137,50 @@
                         <padding>
                            <Insets left="10.0" />
                         </padding>
-                        <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Conditions" />
-                        <Button mnemonicParsing="false" onAction="#openConditionsFXML" prefHeight="26.0" prefWidth="120.0" text="Add Conditions..." />
+                        <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Number of Conditions" />
+                        <TextField fx:id="numConditionsTextField" onKeyPressed="#updateNumConditionsEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="102.0" promptText="# of conditions" />
+                        <Label text="Or:">
+                           <padding>
+                              <Insets left="5.0" right="5.0" />
+                           </padding>
+                        </Label>
+                        <Button mnemonicParsing="false" onAction="#openConditionsFXML" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="120.0" text="Add Conditions..." />
+                        <Label fx:id="numConditionsErrorLabel" text="Label" />
                      </HBox>
                      <HBox fx:id="strainsHBox" alignment="CENTER_LEFT" disable="true" onMouseClicked="#emptyInputValidateFields" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
-                        <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Strains" />
-                        <Button mnemonicParsing="false" onAction="#openStrainsFXML" prefHeight="26.0" prefWidth="120.0" text="Add Strains..." />
+                        <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Number of Strains" />
+                        <TextField fx:id="numStrainsTextField" onKeyPressed="#updateNumStrainsEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="102.0" promptText="# of strains" />
+                        <Label text="Or:">
+                           <padding>
+                              <Insets left="5.0" right="5.0" />
+                           </padding>
+                        </Label>
+                        <Button mnemonicParsing="false" onAction="#openStrainsFXML" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="120.0" text="Add Strains..." />
+                        <Label fx:id="numStrainErrorLabel" text="Label" />
                      </HBox>
                      <HBox alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
                         <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Number of Replicates:" />
-                        <TextField fx:id="numReplicatesEmptyInputSheetTextField" onKeyPressed="#updateNumReplicateEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="300.0" promptText="# of replicates" />
+                        <TextField fx:id="numReplicatesEmptyInputSheetTextField" onKeyPressed="#updateNumReplicateEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="102.0" promptText="# of replicates" />
                      </HBox>
                      <HBox alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
                         <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Number of Timepoints:" />
-                        <TextField fx:id="numTimepointsTextField" onKeyPressed="#updateNumTimepointsEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="188.0" promptText="# of timepoints" />
+                        <TextField fx:id="numTimepointsTextField" onKeyPressed="#updateNumTimepointsEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="102.0" promptText="# of timepoints" />
                         <Label text="Or:">
                            <padding>
                               <Insets left="5.0" right="5.0" />
                            </padding>
                         </Label>
                         <Button mnemonicParsing="false" onAction="#openTimepointsFXML" prefHeight="26.0" prefWidth="120.0" text="Add Timepoints..." />
-                        <Label fx:id="timepointsAddedLabel" text="Timepoints Added" />
+                        <Label fx:id="numTimepointsErrorLabel" text="Label" />
                      </HBox>
                      <HBox alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="54.0" prefWidth="600.0" spacing="5.0">
                         <padding>
