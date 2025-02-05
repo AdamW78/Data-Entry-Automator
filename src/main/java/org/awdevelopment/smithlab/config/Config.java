@@ -16,14 +16,15 @@ public class Config {
     private final ConfigEntry<OutputType> outputType;
     private final ConfigEntry<Boolean> writeToDifferentFile;
     private final ConfigEntry<SortOption> sortOption;
-    private final ConfigEntry<Short> numberOfReplicates;
+    private final ConfigEntry<Byte> numberOfReplicates;
     private final ConfigEntry<String> emptyInputSheetName;
     private final ConfigEntry<Boolean> GUI;
     private final ConfigEntry<Set<Condition>> conditions;
     private final ConfigEntry<Set<Strain>> strains;
-    private final ConfigEntry<Set<Short>> days;
-    private final ConfigEntry<Short> numDays;
+    private final ConfigEntry<Set<Byte>> days;
+    private final ConfigEntry<Byte> numDays;
     private final ConfigEntry<Boolean> includeBaselineColumn;
+    private final ConfigEntry<SampleLabelingType> sampleLabelingType;
 
     public Config() {
         this.numberOfReplicates = new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, ConfigDefault.NUMBER_OF_REPLICATES);
@@ -40,6 +41,7 @@ public class Config {
         this.days = new ConfigEntry<>(ConfigOption.DAYS, ConfigDefault.DAYS);
         this.numDays = new ConfigEntry<>(ConfigOption.NUM_DAYS, ConfigDefault.NUM_DAYS);
         this.includeBaselineColumn = new ConfigEntry<>(ConfigOption.INCLUDE_BASELINE_COLUMN, ConfigDefault.INCLUDE_BASELINE_COLUMN);
+        this.sampleLabelingType = new ConfigEntry<>(ConfigOption.SAMPLE_LABELING_TYPE, ConfigDefault.SAMPLE_LABELING_TYPE);
     }
 
     public Config(Arguments arguments) {
@@ -57,6 +59,7 @@ public class Config {
         this.days = new ConfigEntry<>(ConfigOption.DAYS, arguments.getDays());
         this.numDays = new ConfigEntry<>(ConfigOption.NUM_DAYS, arguments.getNumDays());
         this.includeBaselineColumn = new ConfigEntry<>(ConfigOption.INCLUDE_BASELINE_COLUMN, arguments.getIncludeBaselineColumn());
+        this.sampleLabelingType = new ConfigEntry<>(ConfigOption.SAMPLE_LABELING_TYPE, arguments.getSampleLabelingType());
     }
 
     public File inputFile() {
@@ -79,7 +82,7 @@ public class Config {
         return writeToDifferentFile.value();
     }
 
-    public short numReplicates() { return numberOfReplicates.value(); }
+    public byte numReplicates() { return numberOfReplicates.value(); }
 
     public SortOption sortOption() { return sortOption.value(); }
 
@@ -91,11 +94,13 @@ public class Config {
 
     public Set<Strain> strains() { return strains.value(); }
 
-    public Set<Short> days() { return days.value(); }
+    public Set<Byte> days() { return days.value(); }
 
-    public short numDays() { return numDays.value(); }
+    public byte numDays() { return numDays.value(); }
 
     public boolean includeBaselineColumn() { return includeBaselineColumn.value(); }
+
+    public SampleLabelingType sampleLabelingType() { return sampleLabelingType.value(); }
 
     public void setOutputType(OutputType outputType) { this.outputType.setValue(outputType); }
 
@@ -107,7 +112,7 @@ public class Config {
 
     public void setWriteToDifferentFile(boolean writeToDifferentFile) { this.writeToDifferentFile.setValue(writeToDifferentFile); }
 
-    public void setNumberOfReplicates(short numberOfReplicates) { this.numberOfReplicates.setValue(numberOfReplicates); }
+    public void setNumberOfReplicates(byte numberOfReplicates) { this.numberOfReplicates.setValue(numberOfReplicates); }
 
     public void setSortOption(SortOption sortOption) { this.sortOption.setValue(sortOption); }
 
@@ -121,11 +126,13 @@ public class Config {
 
     public void addStrain(Strain strain) { this.strains.value().add(strain); }
 
-    public void addDay(short day) { this.days.value().add(day); }
+    public void addDay(byte day) { this.days.value().add(day); }
 
-    public void setDays(Set<Short> days) { this.days.setValue(days); }
+    public void setDays(Set<Byte> days) { this.days.setValue(days); }
 
-    public void setNumDays(short numDays) { this.numDays.setValue(numDays); }
+    public void setNumDays(byte numDays) { this.numDays.setValue(numDays); }
 
     public void setIncludeBaselineColumn(boolean includeBaselineColumn) { this.includeBaselineColumn.setValue(includeBaselineColumn); }
+
+    public void setSampleLabelingType(SampleLabelingType sampleLabelingType) { this.sampleLabelingType.setValue(sampleLabelingType); }
 }

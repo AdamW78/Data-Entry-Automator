@@ -5,11 +5,16 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import org.awdevelopment.smithlab.config.Config;
 import org.awdevelopment.smithlab.config.Mode;
+import org.awdevelopment.smithlab.config.SampleLabelingType;
 import org.awdevelopment.smithlab.config.SortOption;
 import org.awdevelopment.smithlab.data.experiment.Experiment;
+import org.awdevelopment.smithlab.gui.FXMLResourceType;
+import org.awdevelopment.smithlab.gui.SceneLoader;
 import org.awdevelopment.smithlab.io.exceptions.InputFileException;
 import org.awdevelopment.smithlab.io.exceptions.NoDaysException;
 import org.awdevelopment.smithlab.io.exceptions.OutputException;
@@ -22,10 +27,38 @@ import java.io.File;
 public class MainApplicationController extends AbstractController {
 
     private final Config config;
+
+    private TimepointsController timepointsController;
+    // EMPTY INPUT SHEET
     @FXML
-    private Label successFailureLabel;
+    private HBox strainsHBox;
     @FXML
-    private Label replicatesErrorLabel;
+    private HBox conditionsHBox;
+    @FXML
+    private TextField numTimepointsTextField;
+    @FXML
+    private TextField numReplicatesEmptyInputSheetTextField;
+    @FXML
+    private TextField outputFilenameEmptyInputSheetsTextField;
+    @FXML
+    private RadioButton conditionLabelingRadioButton;
+    @FXML
+    private RadioButton strainLabelingRadioButton;
+    @FXML
+    private RadioButton conditionAndStrainLabelingRadioButton;
+    @FXML
+    private CheckBox includeBaselineColumnCheckbox;
+    @FXML
+    private ChoiceBox<SortOption> sampleSortingMethodEmptyInputSheetChoiceBox;
+    @FXML
+    private Label statusLabelEmptyInputSheets;
+    @FXML
+    private Label timepointsAddedLabel;
+    // OUTPUT SHEETS
+    @FXML
+    private Label statusLabelOutputSheet;
+    @FXML
+    private Label replicatesErrorLabelOutputSheet;
     @FXML
     private Label outputStyleErrorLabel;
     @FXML
@@ -60,11 +93,14 @@ public class MainApplicationController extends AbstractController {
     private ChoiceBox<SortOption> sampleSortingMethodChoiceBox;
 
     private RadioButton[] radioButtons;
+    private RadioButton[] sampleLabelingRadioButtons;
 
     private boolean failedEmptyReplicates = false;
     private boolean failedEmptyOutputFilename = false;
-    private boolean failedEmptyInputSheetName = false;
     private boolean failedEmptyInputFile = false;
+    private boolean failedEmptyNumTimepointsEmptyInputSheet = false;
+    private boolean failedEmptyNumReplicatesEmptyInputSheet = false;
+    private boolean failedEmptyOutputFilenameEmptyInputSheet = false;
 
     public MainApplicationController() {
         super();
@@ -78,52 +114,45 @@ public class MainApplicationController extends AbstractController {
                 outputStyleRawRadioButton,
                 outputStyleBothRadioButton
         };
+        sampleLabelingRadioButtons = new RadioButton[] {
+                conditionLabelingRadioButton,
+                strainLabelingRadioButton,
+                conditionAndStrainLabelingRadioButton
+        };
         sampleSortingMethodChoiceBox.getItems().addAll(SortOption.values());
         sampleSortingMethodChoiceBox.setValue(config.sortOption());
-        setupErrorLabels();
+        sampleSortingMethodEmptyInputSheetChoiceBox.getItems().addAll(SortOption.values());
+        sampleSortingMethodEmptyInputSheetChoiceBox.setValue(config.sortOption());
+        setupErrorLabelsOutputSheet();
         updateFields();
     }
 
-    private void setupErrorLabels() {
-        replicatesErrorLabel.setText("");
+    private void setupErrorLabelsOutputSheet() {
+        replicatesErrorLabelOutputSheet.setText("");
         outputStyleErrorLabel.setText("");
         outputFilenameErrorLabel.setText("");
         inputFileExistsLabel.setText("");
-        successFailureLabel.setText("");
-        replicatesErrorLabel.setStyle("");
+        statusLabelOutputSheet.setText("");
+        replicatesErrorLabelOutputSheet.setStyle("");
         outputStyleErrorLabel.setStyle("");
         outputFilenameErrorLabel.setStyle("");
         inputFileExistsLabel.setStyle("");
-        successFailureLabel.setStyle("");
+        statusLabelOutputSheet.setStyle("");
     }
 
     public void generateOutput() {
-        if (notReadyForOutput()) return;
-        if (config.mode() == Mode.GENERATE_OUTPUT_SHEETS) if (!generateOutputSheets()) return;
-        else if (config.mode() == Mode.GENERATE_EMPTY_INPUT_SHEET) if (!generateEmptyInputSheet()) return;
-        setupErrorLabels();
-        successFailureLabel.setText("Successfully generated output!");
-        successFailureLabel.setStyle("-fx-text-fill: green");
+        if (config.mode() == Mode.GENERATE_OUTPUT_SHEETS) {
+            if (notReadyForOutputOutputSheet()) return;
+            generateOutputSheets();
+        }
+        else if (config.mode() == Mode.GENERATE_EMPTY_INPUT_SHEET) {
+            if (notReadyForOutputEmptyInputSheet()) return;
+            generateEmptyInputSheet();
+        }
     }
 
-    private boolean generateEmptyInputSheet() {
-        OutputGenerator outputGenerator;
-        try {
-            outputGenerator = new OutputGenerator(config, getLogger());
-        } catch (NoDaysException e) {
-            // TODO
-            throw new RuntimeException(e);
-        }
-        try {
-            outputGenerator.generateEmptyInputSheet();
-        } catch (OutputException e) {
-            errorOccurred(successFailureLabel, e.getMessage());
-            return false;
-        }
-        return true;
-    }
 
-    private boolean generateOutputSheets() {
+    private void generateOutputSheets() {
         getLogger().atDebug("FROM GUI: USER CLICKED GENERATE BUTTON");
         getLogger().atInfo("Generating output...");
         getLogger().atDebug(new String[] {
@@ -141,38 +170,40 @@ public class MainApplicationController extends AbstractController {
         try {
             experiment = reader.readExperimentData();
         } catch (InputFileException e) {
-            errorOccurred(successFailureLabel, e.getMessage());
-            return false;
+            errorOccurred(statusLabelOutputSheet, e.getMessage());
+            return;
         }
         getLogger().atDebug("Successfully read experiment data - Initializing OutputGenerator...");
-        OutputGenerator outputGenerator = null;
+        OutputGenerator outputGenerator;
         try {
             outputGenerator = new OutputGenerator(config, getLogger());
         } catch (NoDaysException e) {
-            // TODO
+            // SHOULD NEVER HAPPEN
             throw new RuntimeException(e);
         }
         getLogger().atDebug("Successfully initialized OutputGenerator - generating output...");
         try {
             outputGenerator.generateOutput(experiment);
         } catch (OutputException e) {
-            errorOccurred(successFailureLabel, e.getMessage());
-            return false;
+            errorOccurred(statusLabelOutputSheet, e.getMessage());
+            return;
         }
         getLogger().atInfo("Successfully generated output!");
         failedEmptyInputFile = false;
         failedEmptyOutputFilename = false;
         failedEmptyReplicates = false;
-        return true;
+        setupErrorLabelsOutputSheet();
+        statusLabelOutputSheet.setText("Successfully generated output!");
+        statusLabelOutputSheet.setStyle("-fx-text-fill: green");
     }
 
-    private boolean notReadyForOutput() {
+    private boolean notReadyForOutputOutputSheet() {
         if (sampleSortingMethodChoiceBox.getValue() == null) config.setSortOption(SortOption.NONE);
-        boolean badInputFile = badInputFileField();
-        boolean badOutputFilename = badOutputFilenameTextField();
-        boolean badNumReplicates = badNumReplicatesTextField();
-        boolean badOutputStyle = badOutputStyleRadioButton();
-        return badInputFile || badOutputFilename || badNumReplicates || badOutputStyle;
+        if (badInputFileField()) return true;
+        if (badOutputStyleRadioButton()) return true;
+        if (badOutputFilenameTextField()) return true;
+        if (badNumReplicatesTextField()) return true;
+        return false;
     }
 
     private boolean badInputFileField() {
@@ -202,7 +233,7 @@ public class MainApplicationController extends AbstractController {
     }
 
     private boolean badOutputFilenameTextField() {
-        if (!checkOutputFilename()) return true;
+        if (!checkOutputFilenameOutputSheets()) return true;
         String outputFilename = outputFileTextField.getText();
         if (outputFilename.isEmpty() && !addSheetsToInputFileCheckbox.isSelected()) {
             failedEmptyOutputFilename = true;
@@ -221,7 +252,7 @@ public class MainApplicationController extends AbstractController {
             && (config.outputType() == OutputType.STATISTICAL_TESTS
                 || config.outputType() == OutputType.BOTH)) {
                 failedEmptyReplicates = true;
-                errorOccurred(replicatesErrorLabel, "Error: Please enter a number of replicates");
+                errorOccurred(replicatesErrorLabelOutputSheet, "Error: Please enter a number of replicates");
                 return true;
         }
         return false;
@@ -254,46 +285,38 @@ public class MainApplicationController extends AbstractController {
     private boolean checkNumReplicatesTextField() {
         if ((numReplicatesTextField.getText().isEmpty() && !failedEmptyReplicates)
                 || (config.outputType() == OutputType.PRISM || config.outputType() == OutputType.RAW)) {
-            clearError(replicatesErrorLabel);
+            clearError(replicatesErrorLabelOutputSheet);
             return true;
         }
         else if (numReplicatesTextField.getText().isEmpty() && (config.outputType() == OutputType.STATISTICAL_TESTS || config.outputType() == OutputType.BOTH)) {
-            errorOccurred(replicatesErrorLabel, "Error: Please enter a number of replicates");
+            errorOccurred(replicatesErrorLabelOutputSheet, "Error: Please enter a number of replicates");
             return false;
         }
         try {
-            short numReplicates = Short.parseShort(numReplicatesTextField.getText());
+            long numReplicates = Long.parseLong(numReplicatesTextField.getText());
             if (numReplicates < 1) {
-                errorOccurred(replicatesErrorLabel, "Error: Number must be > 0");
+                errorOccurred(replicatesErrorLabelOutputSheet, "Error: Number must be > 0");
+                return false;
+            } else if (numReplicates > 127) {
+                errorOccurred(replicatesErrorLabelOutputSheet, "Error: Number must be <= 127");
                 return false;
             } else {
-                clearError(replicatesErrorLabel);
+                clearError(replicatesErrorLabelOutputSheet);
+                config.setNumberOfReplicates((byte) numReplicates);
                 return true;
             }
         } catch (NumberFormatException e) {
-            errorOccurred(replicatesErrorLabel, "Error: Invalid number: \"" + numReplicatesTextField.getText() + "\"");
+            errorOccurred(replicatesErrorLabelOutputSheet, "Error: Invalid number: \"" + numReplicatesTextField.getText() + "\"");
             return false;
         }
     }
 
-    private boolean checkOutputFilename() {
+    private boolean checkOutputFilenameOutputSheets() {
         if (addSheetsToInputFileCheckbox.isSelected()) {
             config.setWriteToDifferentFile(false);
             config.setOutputFilename(inputFileTextField.getText());
             return true;
-        } else if (outputFileTextField.getText().isEmpty() && !failedEmptyOutputFilename) {
-            clearError(outputFilenameErrorLabel);
-            return true;
-        } else if (outputFileTextField.getText().isEmpty()) {
-            errorOccurred(outputFilenameErrorLabel, "Error: Please enter an output filename");
-            return false;
-        } else if (!outputFileTextField.getText().endsWith(".xlsx")) {
-            errorOccurred(outputFilenameErrorLabel, "Error: Output filename must end in .xlsx");
-            return false;
-        } else {
-            clearError(outputFilenameErrorLabel);
-            return true;
-        }
+        } else return checkOutputFilename(outputFileTextField, failedEmptyOutputFilename, outputFilenameErrorLabel);
     }
 
     public void browseForInputFile() {
@@ -350,7 +373,7 @@ public class MainApplicationController extends AbstractController {
     }
 
     public void updateNumReplicates(KeyEvent keyEvent) {
-        if (numReplicatesTextField.getText().isEmpty() && !failedEmptyReplicates) clearError(replicatesErrorLabel);
+        if (numReplicatesTextField.getText().isEmpty() && !failedEmptyReplicates) clearError(replicatesErrorLabelOutputSheet);
         if (    keyEvent == null
                 || !(numReplicatesTextField.getScene().focusOwnerProperty().get().getId().equals("numReplicatesTextField"))
                 || keyEvent.getCode() == KeyCode.ENTER
@@ -358,7 +381,6 @@ public class MainApplicationController extends AbstractController {
         ) {
             checkNumReplicatesTextField();
         }
-
     }
 
 
@@ -370,7 +392,7 @@ public class MainApplicationController extends AbstractController {
                 || keyEvent.getCode() == KeyCode.ENTER
                 || keyEvent.getCode() == KeyCode.TAB
         ) {
-            checkOutputFilename();
+            checkOutputFilenameOutputSheets();
         }
     }
 
@@ -415,4 +437,245 @@ public class MainApplicationController extends AbstractController {
         errorLabel.setText(errorMessage);
         errorLabel.setStyle("-fx-text-fill: red");
     }
+
+    private boolean notReadyForOutputEmptyInputSheet() {
+        if (badNumReplicatesEmptyInputSheet()) return true;
+        if (badNumTimepointsEmptyInputSheet()) return true;
+        if (badOutputFilenameEmptyInputSheet()) return true;
+        if (badSampleLabelingEmptyInputSheet()) return true;
+        return false;
+
+    }
+
+    private boolean badNumReplicatesEmptyInputSheet() {
+        if (!checkNumReplicatesEmptyInputSheet()) return true;
+        if (numReplicatesEmptyInputSheetTextField.getText().isEmpty()) {
+            failedEmptyNumReplicatesEmptyInputSheet = true;
+            errorOccurred(statusLabelEmptyInputSheets, "Error: Please enter a number of replicates");
+            return true;
+        }
+        return false;
+    }
+
+    private boolean badNumTimepointsEmptyInputSheet() {
+        if (!checkNumTimepointsEmptyInputSheet()) return true;
+        if (numTimepointsTextField.getText().isEmpty()) {
+            failedEmptyNumTimepointsEmptyInputSheet = true;
+            errorOccurred(statusLabelEmptyInputSheets, "Error: Please enter a number of timepoints");
+            return true;
+        }
+        return false;
+    }
+
+    private boolean badOutputFilenameEmptyInputSheet() {
+        if (!checkOutputFilenameEmptyInputSheets()) return true;
+        String outputFilename = outputFilenameEmptyInputSheetsTextField.getText();
+        if (outputFilename.isEmpty()) {
+            failedEmptyOutputFilenameEmptyInputSheet = true;
+            errorOccurred(statusLabelEmptyInputSheets, "Error: Please enter an output filename");
+            return true;
+        } else if (!outputFilename.endsWith(".xlsx")) {
+            errorOccurred(statusLabelEmptyInputSheets, "Error: Output filename must end in .xlsx");
+            return true;
+        }
+        return false;
+    }
+
+    private boolean badSampleLabelingEmptyInputSheet() {
+        return !checkSampleLabelingRadioButtons();
+    }
+
+    private void generateEmptyInputSheet() {
+        OutputGenerator outputGenerator;
+        try {
+            outputGenerator = new OutputGenerator(config, getLogger());
+        } catch (NoDaysException e) {
+            errorOccurred(statusLabelEmptyInputSheets, e.getMessage());
+            return;
+        }
+        try {
+            outputGenerator.generateEmptyInputSheet();
+        } catch (OutputException e) {
+            errorOccurred(statusLabelEmptyInputSheets, e.getMessage());
+            return;
+        }
+        statusLabelEmptyInputSheets.setText("Successfully generated output!");
+        statusLabelEmptyInputSheets.setStyle("-fx-text-fill: green");
+    }
+
+    public void emptyInputValidateFields() {
+        String focusID = (outputFilenameEmptyInputSheetsTextField.getScene().getFocusOwner().getId());
+        if (focusID == null || focusID.isEmpty()) focusID = "default";
+        if (focusID.equals("numReplicatesEmptyInputSheetTextField")) {
+                checkOutputFilenameEmptyInputSheets();
+                checkNumTimepointsEmptyInputSheet();
+        } else if (focusID.equals("numTimepointsTextField")) {
+            checkOutputFilenameEmptyInputSheets();
+            checkNumReplicatesEmptyInputSheet();
+        } else if (focusID.equals("outputFilenameEmptyInputSheetsTextField")) {
+            checkNumReplicatesEmptyInputSheet();
+            checkNumTimepointsEmptyInputSheet();
+        } else {
+            checkNumReplicatesEmptyInputSheet();
+            checkOutputFilenameEmptyInputSheets();
+            checkNumTimepointsEmptyInputSheet();
+        }
+    }
+
+    private boolean checkNumTimepointsEmptyInputSheet() {
+        if (timepointsController == null || timepointsController.usingNumDays()) {
+            if (numTimepointsTextField.getText().isEmpty() && failedEmptyNumTimepointsEmptyInputSheet) {
+                errorOccurred(statusLabelEmptyInputSheets, "Error: Please enter a number of timepoints");
+                return false;
+            } else if (numTimepointsTextField.getText().isEmpty()) {
+                clearError(statusLabelEmptyInputSheets);
+                return true;
+            } else {
+                try {
+                    long numDays = Long.parseLong(numTimepointsTextField.getText());
+                    if (numDays < 1) {
+                        errorOccurred(statusLabelEmptyInputSheets, "Error: Number of timepoints must be > 0");
+                        return false;
+                    } else if (numDays > 127) {
+                        errorOccurred(statusLabelEmptyInputSheets, "Error: Number of timepoints must be <= 127");
+                        return false;
+                    } else {
+                        clearError(statusLabelEmptyInputSheets);
+                        config.setNumDays((byte) numDays);
+                        return true;
+                    }
+                } catch (NumberFormatException e) {
+                    errorOccurred(statusLabelEmptyInputSheets, "Error: Invalid number: \"" + numTimepointsTextField.getText() + "\"");
+                    return false;
+                }
+            }
+        } else return true;
+    }
+
+    private boolean checkOutputFilenameEmptyInputSheets() {
+        return checkOutputFilename(outputFilenameEmptyInputSheetsTextField, failedEmptyOutputFilenameEmptyInputSheet, statusLabelEmptyInputSheets);
+    }
+
+    private boolean checkOutputFilename(TextField textField, boolean failedEmptyBoolean, Label errorLabel) {
+        if (outputFilenameEmptyInputSheetsTextField.getText().isEmpty() && !failedEmptyOutputFilenameEmptyInputSheet) {
+            clearError(statusLabelEmptyInputSheets);
+            return true;
+        } else if (outputFilenameEmptyInputSheetsTextField.getText().isEmpty()){
+            errorOccurred(statusLabelEmptyInputSheets, "Error: Please enter an output filename");
+            return false;
+        } else if (!outputFilenameEmptyInputSheetsTextField.getText().endsWith(".xlsx")) {
+            errorOccurred(statusLabelEmptyInputSheets, "Error: Output filename must end in .xlsx");
+            return false;
+        } else {
+            clearError(statusLabelEmptyInputSheets);
+            return true;
+        }
+    }
+
+    private boolean checkNumReplicatesEmptyInputSheet() {
+        if (numReplicatesEmptyInputSheetTextField.getText().isEmpty() && !failedEmptyNumReplicatesEmptyInputSheet) {
+            clearError(statusLabelEmptyInputSheets);
+            return true;
+        }
+        else if (numReplicatesEmptyInputSheetTextField.getText().isEmpty()) {
+            errorOccurred(statusLabelEmptyInputSheets, "Error: Please enter a number of replicates");
+            return false;
+        }
+        try {
+            long numReplicates = Long.parseLong(numReplicatesEmptyInputSheetTextField.getText());
+            if (numReplicates < 1){
+                errorOccurred(statusLabelEmptyInputSheets, "Error: Number must be > 0");
+                return false;
+            }
+            else if (numReplicates > 127) {
+                errorOccurred(statusLabelEmptyInputSheets, "Error: Number must be <= 127");
+                return false;
+            }
+            else {
+                clearError(statusLabelEmptyInputSheets);
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            errorOccurred(statusLabelEmptyInputSheets, "Error: Invalid number: \"" + numReplicatesEmptyInputSheetTextField.getText() + "\"");
+            return false;
+        }
+    }
+
+    private boolean checkSampleLabelingRadioButtons() {
+        if (!conditionLabelingRadioButton.isSelected() && !strainLabelingRadioButton.isSelected() && !conditionAndStrainLabelingRadioButton.isSelected()) {
+            errorOccurred(statusLabelEmptyInputSheets, "Error: Please select a sample labeling method");
+            return false;
+        }
+        return true;
+    }
+
+
+    public void updateSampleLabelingRadioButtons(ActionEvent actionEvent) {
+        emptyInputValidateFields();
+        RadioButton selectedRadioButton = (RadioButton) actionEvent.getSource();
+        for (RadioButton radioButton : sampleLabelingRadioButtons) if (!radioButton.equals(selectedRadioButton)) radioButton.setSelected(false);
+        switch (selectedRadioButton.getId()) {
+            case "conditionLabelingRadioButton" -> {
+                config.setSampleLabelingType(SampleLabelingType.CONDITION);
+                strainsHBox.setDisable(true);
+                conditionsHBox.setDisable(false);
+            }
+            case "strainLabelingRadioButton" -> {
+                config.setSampleLabelingType(SampleLabelingType.STRAIN);
+                strainsHBox.setDisable(false);
+                conditionsHBox.setDisable(true);
+            }
+            case "conditionAndStrainLabelingRadioButton" -> {
+                config.setSampleLabelingType(SampleLabelingType.CONDITION_AND_STRAIN);
+                strainsHBox.setDisable(false);
+                conditionsHBox.setDisable(false);
+            }
+        }
+        checkSampleLabelingRadioButtons();
+    }
+
+    public void openConditionsFXML() {
+        emptyInputValidateFields();
+        SceneLoader.loadScene(new Stage(), FXMLResourceType.CONDITIONS, getLogger(), config);
+    }
+
+    public void openStrainsFXML() {
+        emptyInputValidateFields();
+        SceneLoader.loadScene(new Stage(), FXMLResourceType.STRAINS, getLogger(), config);
+    }
+
+    public void openTimepointsFXML() {
+        emptyInputValidateFields();
+        Stage stage = new Stage();
+        timepointsController = (TimepointsController) SceneLoader.loadScene(stage, FXMLResourceType.TIMEPOINTS, getLogger(), config);
+    }
+
+    public void updateNumReplicateEmptyInputSheet(KeyEvent keyEvent) {
+        emptyInputValidateFields();
+        if (numReplicatesEmptyInputSheetTextField.getText().isEmpty() && !failedEmptyNumReplicatesEmptyInputSheet) clearError(statusLabelEmptyInputSheets);
+        if (    keyEvent == null
+                || !(numReplicatesEmptyInputSheetTextField.getScene().focusOwnerProperty().get().getId().equals("numReplicatesEmptyInputSheetTextField"))
+                || keyEvent.getCode() == KeyCode.ENTER
+                || keyEvent.getCode() == KeyCode.TAB
+        ) {
+            checkNumReplicatesEmptyInputSheet();
+        }
+    }
+
+    public void updateNumTimepointsEmptyInputSheet(KeyEvent keyEvent) {
+        emptyInputValidateFields();
+        if (numTimepointsTextField.getText().isEmpty() && !failedEmptyNumTimepointsEmptyInputSheet)
+            clearError(statusLabelEmptyInputSheets);
+        if (keyEvent == null
+                || !(numTimepointsTextField.getScene().focusOwnerProperty().get().getId().equals("numTimepointsTextField"))
+                || keyEvent.getCode() == KeyCode.ENTER
+                || keyEvent.getCode() == KeyCode.TAB
+        ) {
+            checkNumTimepointsEmptyInputSheet();
+        }
+    }
+
+    public void handleIncludeBaselineColumn() {
+        emptyInputValidateFields();
+        config.setIncludeBaselineColumn(includeBaselineColumnCheckbox.isSelected()); }
 }

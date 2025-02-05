@@ -3,6 +3,7 @@ package org.awdevelopment.smithlab.args;
 import org.awdevelopment.smithlab.args.exceptions.*;
 import org.awdevelopment.smithlab.config.ConfigDefault;
 import org.awdevelopment.smithlab.config.Mode;
+import org.awdevelopment.smithlab.config.SampleLabelingType;
 import org.awdevelopment.smithlab.config.SortOption;
 import org.awdevelopment.smithlab.data.Condition;
 import org.awdevelopment.smithlab.data.Strain;
@@ -26,13 +27,14 @@ public class Arguments {
     private String outputFileName = ConfigDefault.OUTPUT_FILENAME;
     private File inputFile = ConfigDefault.INPUT_FILE;
     private SortOption outputSorting = ConfigDefault.SORT_OPTION;
-    private short replicateNumber = ConfigDefault.NUMBER_OF_REPLICATES;
+    private byte replicateNumber = ConfigDefault.NUMBER_OF_REPLICATES;
     private String emptyInputSheetName = ConfigDefault.EMPTY_INPUT_SHEET_NAME;
     private Set<Condition> conditions = ConfigDefault.CONDITIONS;
     private Set<Strain> strains = ConfigDefault.STRAINS;
-    private Set<Short> days = ConfigDefault.DAYS;
-    private short numDays = ConfigDefault.NUM_DAYS;
+    private Set<Byte> days = ConfigDefault.DAYS;
+    private byte numDays = ConfigDefault.NUM_DAYS;
     private boolean includeBaselineColumn = ConfigDefault.INCLUDE_BASELINE_COLUMN;
+    private SampleLabelingType sampleLabelingType = ConfigDefault.SAMPLE_LABELING_TYPE;
 
     public Arguments(String[] args, LoggerHelper logger) {
         this.LOGGER = logger;
@@ -97,7 +99,7 @@ public class Arguments {
                 case "--number-of-replicates", "-r" -> {
                     checkIfHasNextArgument(args, i);
                     checkReplicateNumber(args, i);
-                    this.replicateNumber = Short.parseShort(args[i + 1]);
+                    this.replicateNumber = Byte.parseByte(args[i + 1]);
                     i++;
                 }
                 case "--conditions" -> {
@@ -134,7 +136,7 @@ public class Arguments {
         }
         if (!days.isEmpty() && numDays != 0) {
             LOGGER.atWarn("Both --days and --number-of-days were provided. --number-of-days will be ignored.");
-            numDays = (short) days.size();
+            numDays = (byte) days.size();
         } else if (days.isEmpty() && numDays > 0) {
             LOGGER.atInfo("Number of days provided: " + numDays);
         }
@@ -172,21 +174,29 @@ public class Arguments {
         }
     }
 
-    private short readNumDays(String arg) {
+    private byte readNumDays(String arg) {
         try {
-            return Short.parseShort(arg);
+            long numDays = Long.parseLong(arg);
+            if (numDays <= 0) {
+                LOGGER.atError("Number of days must be greater than 0: " + arg);
+                return -1;
+            } else if (numDays >= 128) {
+                LOGGER.atError("Number of days must be less than 128: " + arg);
+                return -1;
+            }
+            else return (byte) numDays;
         } catch (NumberFormatException e) {
-            LOGGER.atError("Invalid number of days: " + arg);
+            LOGGER.atError("Invalid number of days: \"" + arg + "\" - must be a positive integer < 128");
             return -1;
         }
     }
 
-    private Set<Short> readDays(String arg) {
-        Set<Short> days = new HashSet<>();
+    private Set<Byte> readDays(String arg) {
+        Set<Byte> days = new HashSet<>();
         String[] dayStrings = arg.split(",");
         for (String dayString : dayStrings) {
             try {
-                short day = Short.parseShort(dayString);
+                byte day = Byte.parseByte(dayString);
                 days.add(day);
             } catch (NumberFormatException e) {
                 LOGGER.atError("Invalid day: " + dayString);
@@ -228,7 +238,7 @@ public class Arguments {
 
     private void checkReplicateNumber(String[] args, int i) {
         try {
-            int numberOfReplicates = Short.parseShort(args[i + 1]);
+            long numberOfReplicates = Long.parseLong(args[i + 1]);
             if (numberOfReplicates <= 0) {
                 throw new InvalidReplicateNumberException(LESS_THAN_ZERO);
             } else if (numberOfReplicates > 100) {
@@ -349,7 +359,7 @@ public class Arguments {
         return inputFile;
     }
 
-    public short getReplicateNumber() {
+    public byte getReplicateNumber() {
         return replicateNumber;
     }
 
@@ -374,9 +384,11 @@ public class Arguments {
 
     public Set<Strain> getStrains() { return strains; }
 
-    public Set<Short> getDays() { return days; }
+    public Set<Byte> getDays() { return days; }
 
-    public short getNumDays() { return numDays; }
+    public byte getNumDays() { return numDays; }
 
     public Boolean getIncludeBaselineColumn() { return includeBaselineColumn; }
+
+    public SampleLabelingType getSampleLabelingType() { return sampleLabelingType; }
 }

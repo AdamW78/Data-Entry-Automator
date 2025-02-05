@@ -17,22 +17,22 @@ public class XlsxEmptyInputSheetHeaderWriter {
     private final LoggerHelper LOGGER;
     private final Set<Condition> conditions;
     private final Set<Strain> strains;
-    private final short[] days;
+    private final byte[] days;
     private final boolean usingNumDays;
     private final boolean includeBaselineColumn;
-    private final short numDays;
+    private final byte numDays;
 
-    public XlsxEmptyInputSheetHeaderWriter(LoggerHelper logger, Set<Condition> conditions, Set<Strain> strains, short[] days, boolean includeBaselineColumn) {
+    public XlsxEmptyInputSheetHeaderWriter(LoggerHelper logger, Set<Condition> conditions, Set<Strain> strains, byte[] days, boolean includeBaselineColumn) {
         this.LOGGER = logger;
         this.conditions = conditions;
         this.strains = strains;
         this.days = days;
-        this.numDays = (short) days.length;
+        this.numDays = (byte) days.length;
         this.usingNumDays = false;
         this.includeBaselineColumn = includeBaselineColumn;
     }
 
-    public XlsxEmptyInputSheetHeaderWriter(LoggerHelper logger, Set<Condition> conditions, Set<Strain> strains, short numDays, boolean includeBaselineColumn) {
+    public XlsxEmptyInputSheetHeaderWriter(LoggerHelper logger, Set<Condition> conditions, Set<Strain> strains, byte numDays, boolean includeBaselineColumn) {
         this.LOGGER = logger;
         this.conditions = conditions;
         this.strains = strains;
@@ -46,14 +46,14 @@ public class XlsxEmptyInputSheetHeaderWriter {
         XSSFRow headerRow = emptyInputSheet.createRow(0);
         XSSFRow subHeaderRow = emptyInputSheet.createRow(1);
         LOGGER.atInfo("Writing empty input sheet headers...");
-        short lastUsedColumn = generateStrainConditionLabels(headerRow);
+        byte lastUsedColumn = generateStrainConditionLabels(headerRow);
         headerRow.createCell(++lastUsedColumn).setCellValue("Sample Number");
         if (includeBaselineColumn) headerRow.createCell(++lastUsedColumn).setCellValue("Baseline");
         generateDayHeaders(headerRow, subHeaderRow, lastUsedColumn);
 
     }
 
-    private void generateDayHeaders(XSSFRow headerRow, XSSFRow subHeaderRow, short lastUsedColumn) {
+    private void generateDayHeaders(XSSFRow headerRow, XSSFRow subHeaderRow, byte lastUsedColumn) {
         if (usingNumDays) {
             for (int i = 0; i < numDays; i++) {
                 XSSFCell dayHeaderCell = headerRow.createCell(++lastUsedColumn);
@@ -74,7 +74,7 @@ public class XlsxEmptyInputSheetHeaderWriter {
         }
     }
 
-    private short generateStrainConditionLabels(XSSFRow headerRow) throws NoStrainsOrConditionsException {
+    private byte generateStrainConditionLabels(XSSFRow headerRow) throws NoStrainsOrConditionsException {
         if (conditions.isEmpty() && strains.isEmpty()) {
             LOGGER.atError("No conditions or strains provided");
             throw new NoStrainsOrConditionsException();

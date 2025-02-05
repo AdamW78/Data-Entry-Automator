@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.awdevelopment.smithlab.gui.controllers.MainApplicationController">
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.awdevelopment.smithlab.gui.controllers.MainApplicationController">
    <HBox alignment="CENTER" minHeight="40.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0">
       <TabPane fx:id="tabPane" centerShape="false" onMouseClicked="#updateFields" prefHeight="40.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE">
          <Tab fx:id="outputSheetsTab" onSelectionChanged="#updateMode" text="Generate Output Sheet">
@@ -84,7 +84,7 @@
                         </padding>
                         <Label onMouseClicked="#updateFields" text="Number of Replicates:" />
                         <TextField fx:id="numReplicatesTextField" onKeyPressed="#updateNumReplicates" onMouseClicked="#updateInputOutputFields" prefHeight="26.0" prefWidth="202.0" promptText="# of replicates" />
-                        <Label fx:id="replicatesErrorLabel" text="Label" />
+                        <Label fx:id="replicatesErrorLabelOutputSheet" text="Label" />
                      </HBox>
                      <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFields" prefHeight="95.0" prefWidth="600.0" spacing="5.0">
                         <padding>
@@ -98,7 +98,7 @@
                            <Button mnemonicParsing="false" onAction="#generateOutput" onMouseClicked="#updateFields" text="Generate" />
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                           <Label fx:id="successFailureLabel" text="Label" />
+                           <Label fx:id="statusLabelOutputSheet" text="Label" />
                         </HBox>
                      </VBox>
                      <HBox.margin>
@@ -112,84 +112,88 @@
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="302.0" prefWidth="600.0">
                <HBox layoutX="1.0" layoutY="-1.0" prefHeight="374.0" prefWidth="600.0">
                   <VBox prefHeight="374.0" prefWidth="601.0">
-                     <HBox alignment="CENTER_LEFT" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
+                     <HBox alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
-                        <Label prefHeight="18.0" prefWidth="128.0" text="Output Filename:" textAlignment="CENTER" />
-                        <TextField prefHeight="26.0" prefWidth="399.0" promptText="Name for output file (.xlsx)" />
+                        <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Output Filename:" textAlignment="CENTER" />
+                        <TextField fx:id="outputFilenameEmptyInputSheetsTextField" onKeyPressed="#updateOutputFilename" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="399.0" promptText="Name for output file (.xlsx)" />
                      </HBox>
                      <HBox alignment="CENTER_LEFT" prefHeight="54.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
-                        <Label prefHeight="18.0" prefWidth="157.0" text="Sample Labeling Method:" />
-                        <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="445.0" spacing="30.0">
+                        <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="157.0" text="Sample Labeling Method:" />
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="50.0" prefWidth="445.0" spacing="30.0">
                            <padding>
                               <Insets left="30.0" />
                            </padding>
-                           <RadioButton mnemonicParsing="false" selected="true" text="Condition" />
-                           <RadioButton mnemonicParsing="false" text="Strain" />
-                           <RadioButton mnemonicParsing="false" text="Condition + Strain" />
+                           <RadioButton fx:id="conditionLabelingRadioButton" mnemonicParsing="false" onAction="#updateSampleLabelingRadioButtons" selected="true" text="Condition" />
+                           <RadioButton fx:id="strainLabelingRadioButton" mnemonicParsing="false" onAction="#updateSampleLabelingRadioButtons" text="Strain" />
+                           <RadioButton fx:id="conditionAndStrainLabelingRadioButton" mnemonicParsing="false" onAction="#updateSampleLabelingRadioButtons" text="Condition + Strain" />
                         </HBox>
                      </HBox>
-                     <HBox alignment="CENTER_LEFT" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
+                     <HBox fx:id="conditionsHBox" alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
-                        <Label prefHeight="18.0" prefWidth="128.0" text="Number of Conditions:" />
-                        <TextField prefHeight="26.0" prefWidth="300.0" promptText="# of distinct conditions" />
-                        <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="120.0" text="Add Conditions..." />
+                        <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Conditions" />
+                        <Button mnemonicParsing="false" onAction="#openConditionsFXML" prefHeight="26.0" prefWidth="120.0" text="Add Conditions..." />
                      </HBox>
-                     <HBox alignment="CENTER_LEFT" disable="true" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
+                     <HBox fx:id="strainsHBox" alignment="CENTER_LEFT" disable="true" onMouseClicked="#emptyInputValidateFields" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
-                        <Label prefHeight="18.0" prefWidth="128.0" text="Strains Per Condition:" />
-                        <TextField prefHeight="26.0" prefWidth="300.0" promptText="# of strains in each condition" />
-                        <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="120.0" text="Add Strains..." />
+                        <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Strains" />
+                        <Button mnemonicParsing="false" onAction="#openStrainsFXML" prefHeight="26.0" prefWidth="120.0" text="Add Strains..." />
                      </HBox>
-                     <HBox alignment="CENTER_LEFT" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
+                     <HBox alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
-                        <Label prefHeight="18.0" prefWidth="128.0" text="Number of Replicates:" />
-                        <TextField prefHeight="26.0" prefWidth="300.0" promptText="# of replicates" />
+                        <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Number of Replicates:" />
+                        <TextField fx:id="numReplicatesEmptyInputSheetTextField" onKeyPressed="#updateNumReplicateEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="300.0" promptText="# of replicates" />
                      </HBox>
-                     <HBox alignment="CENTER_LEFT" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
+                     <HBox alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
-                        <Label prefHeight="18.0" prefWidth="128.0" text="Number of Timepoints:" />
-                        <TextField prefHeight="26.0" prefWidth="300.0" promptText="# of timepoints" />
-                        <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="120.0" text="Add Timepoints..." />
+                        <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Number of Timepoints:" />
+                        <TextField fx:id="numTimepointsTextField" onKeyPressed="#updateNumTimepointsEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="188.0" promptText="# of timepoints" />
+                        <Label text="Or:">
+                           <padding>
+                              <Insets left="5.0" right="5.0" />
+                           </padding>
+                        </Label>
+                        <Button mnemonicParsing="false" onAction="#openTimepointsFXML" prefHeight="26.0" prefWidth="120.0" text="Add Timepoints..." />
+                        <Label fx:id="timepointsAddedLabel" text="Timepoints Added" />
                      </HBox>
-                     <HBox alignment="CENTER_LEFT" prefHeight="54.0" prefWidth="600.0" spacing="5.0">
+                     <HBox alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="54.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
-                        <Label prefHeight="18.0" prefWidth="142.0" text="Include Baseline Column?" />
-                        <CheckBox mnemonicParsing="false" />
+                        <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="142.0" text="Include Baseline Column?" />
+                        <CheckBox fx:id="includeBaselineColumnCheckbox" mnemonicParsing="false" onAction="#handleIncludeBaselineColumn" />
                      </HBox>
-                     <HBox alignment="CENTER_LEFT" prefHeight="61.0" prefWidth="600.0" spacing="5.0">
+                     <HBox alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="61.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
-                        <Label text="Sample Sorting Method:" />
-                        <ChoiceBox prefWidth="150.0" />
+                        <Label onMouseClicked="#emptyInputValidateFields" text="Sample Sorting Method:" />
+                        <ChoiceBox fx:id="sampleSortingMethodEmptyInputSheetChoiceBox" prefWidth="150.0" />
                      </HBox>
-                     <VBox spacing="10.0">
+                     <VBox onMouseClicked="#emptyInputValidateFields" spacing="10.0">
                         <VBox.margin>
                            <Insets />
                         </VBox.margin>
                         <padding>
                            <Insets bottom="10.0" top="10.0" />
                         </padding>
-                        <HBox alignment="CENTER" prefWidth="600.0">
-                           <Button mnemonicParsing="false" text="Generate" />
+                        <HBox alignment="CENTER" onMouseClicked="#emptyInputValidateFields" prefWidth="600.0">
+                           <Button mnemonicParsing="false" onAction="#generateOutput" text="Generate" />
                         </HBox>
-                        <HBox alignment="CENTER" prefWidth="600.0">
-                           <Label text="Label" />
+                        <HBox alignment="CENTER" onMouseClicked="#emptyInputValidateFields" prefWidth="600.0">
+                           <Label fx:id="statusLabelEmptyInputSheets" onMouseClicked="#emptyInputValidateFields" text="Label" />
                         </HBox>
                      </VBox>
                   </VBox>

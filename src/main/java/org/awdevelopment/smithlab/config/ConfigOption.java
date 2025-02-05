@@ -15,5 +15,6 @@ public enum ConfigOption {
     STRAINS,
     DAYS,
     NUM_DAYS,
-    INCLUDE_BASELINE_COLUMN;
+    INCLUDE_BASELINE_COLUMN,
+    SAMPLE_LABELING_TYPE;
 }

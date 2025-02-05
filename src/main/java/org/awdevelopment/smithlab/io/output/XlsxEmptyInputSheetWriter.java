@@ -15,12 +15,12 @@ import java.util.Set;
 public class XlsxEmptyInputSheetWriter {
 
     private final String emptyInputSheetName;
-    private final short numReplicates;
+    private final byte numReplicates;
     private final LoggerHelper LOGGER;
     private final Set<Condition> conditions;
     private final Set<Strain> strains;
-    private final short[] days;
-    private final short numDays;
+    private final byte[] days;
+    private final byte numDays;
 
     private final boolean usingNumDays;
     private final boolean includeBaselineColumn;

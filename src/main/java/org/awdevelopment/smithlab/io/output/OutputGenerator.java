@@ -53,9 +53,9 @@ public class OutputGenerator {
         this.GUI = config.GUI();
         this.includeBaselineColumn = config.includeBaselineColumn();
         if (config.mode() == Mode.GENERATE_EMPTY_INPUT_SHEET) {
-            Short[] dayShortObjects = config.days().toArray(new Short[0]);
-            short[] days = new short[dayShortObjects.length];
-            for (int i = 0; i < days.length; i++) { days[i] = dayShortObjects[i]; }
+            Byte[] dayByteObjects = config.days().toArray(new Byte[0]);
+            byte[] days = new byte[dayByteObjects.length];
+            for (int i = 0; i < days.length; i++) { days[i] = dayByteObjects[i]; }
             this.emptyExperiment = new EmptyExperiment(config.strains(), config.conditions(), config.numReplicates(),
                     days, config.numDays());
         } else {

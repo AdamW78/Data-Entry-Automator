@@ -14,4 +14,13 @@ public enum FXMLResourceType {
             case TIMEPOINTS -> "/fxml/timepoints.fxml";
         };
     }
+
+    public String getWindowTitle() {
+        return switch (this) {
+            case APPLICATION -> "Smith Lab Data Entry Automator";
+            case CONDITIONS -> "Conditions";
+            case STRAINS -> "Strains";
+            case TIMEPOINTS -> "Timepoints";
+        };
+    }
 }

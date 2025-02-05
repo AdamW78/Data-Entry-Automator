@@ -8,30 +8,30 @@ import java.util.Set;
 
 public class EmptyExperiment extends AbstractExperiment {
 
-    private final short numReplicates;
-    private final short[] days;
-    private final short numDays;
+    private final byte numReplicates;
+    private final byte[] days;
+    private final byte numDays;
     private final boolean usingNumDays;
 
-    public EmptyExperiment(Set<Strain> strains, Set<Condition> conditions, short numReplicates, short[] days, short numDays) throws NoDaysException {
+    public EmptyExperiment(Set<Strain> strains, Set<Condition> conditions, byte numReplicates, byte[] days, byte numDays) throws NoDaysException {
         super(conditions, strains);
         this.numReplicates = numReplicates;
         if (numDays <= 0 && days.length == 0) throw new NoDaysException();
         else {
             usingNumDays = numDays > 0;
             if (usingNumDays) {
-                this.days = new short[numDays];
+                this.days = new byte[numDays];
                 this.numDays = numDays;
             } else {
                 this.days = days;
-                this.numDays = (short) days.length;
+                this.numDays = (byte) days.length;
             }
         }
     }
 
-    public short getNumReplicates() { return numReplicates; }
+    public byte getNumReplicates() { return numReplicates; }
     public boolean hasNoDays() { return days.length == 0 && !usingNumDays; }
-    public short[] getDays() { return days; }
-    public short getNumDays() { return numDays; }
+    public byte[] getDays() { return days; }
+    public byte getNumDays() { return numDays; }
     public boolean usingNumDays() { return usingNumDays; }
 }
