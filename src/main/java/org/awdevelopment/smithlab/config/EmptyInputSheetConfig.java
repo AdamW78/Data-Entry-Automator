@@ -1,0 +1,63 @@
+package org.awdevelopment.smithlab.config;
+
+import org.awdevelopment.smithlab.data.Condition;
+import org.awdevelopment.smithlab.data.Strain;
+import org.awdevelopment.smithlab.logging.LoggerHelper;
+import java.util.Set;
+
+public class EmptyInputSheetConfig extends AbstractConfig {
+
+    private static final Mode MODE = Mode.GENERATE_EMPTY_INPUT_SHEET;
+
+    public EmptyInputSheetConfig(LoggerHelper logger) {
+        super(logger);
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.SORT_OPTION, ConfigDefault.SORT_OPTION));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, ConfigDefault.NUMBER_OF_REPLICATES));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.EMPTY_INPUT_SHEET_NAME, ConfigDefault.EMPTY_INPUT_SHEET_NAME));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.CONDITIONS, ConfigDefault.CONDITIONS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.STRAINS, ConfigDefault.STRAINS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.DAYS, ConfigDefault.DAYS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.INCLUDE_BASELINE_COLUMN, ConfigDefault.INCLUDE_BASELINE_COLUMN));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.SAMPLE_LABELING_TYPE, ConfigDefault.SAMPLE_LABELING_TYPE));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUM_DAYS, ConfigDefault.NUM_DAYS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUM_CONDITIONS, ConfigDefault.NUM_CONDITIONS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUM_STRAINS, ConfigDefault.NUM_STRAINS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_DAYS, ConfigDefault.USING_NUM_DAYS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_CONDITIONS, ConfigDefault.USING_NUM_CONDITIONS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_STRAINS, ConfigDefault.USING_NUM_STRAINS));
+    }
+
+    public Set<Condition> conditions() { return (Set<Condition>) get(ConfigOption.CONDITIONS); }
+    public Set<Strain> strains() { return (Set<Strain>) get(ConfigOption.STRAINS); }
+    public byte numReplicates() { return (byte) get(ConfigOption.NUMBER_OF_REPLICATES); }
+    public String emptyInputSheetName() { return (String) get(ConfigOption.EMPTY_INPUT_SHEET_NAME); }
+    public boolean includeBaselineColumn() { return (boolean) get(ConfigOption.INCLUDE_BASELINE_COLUMN); }
+    public boolean usingNumDays() { return (boolean) get(ConfigOption.USING_NUM_DAYS); }
+    public boolean usingNumConditions() { return (boolean) get(ConfigOption.USING_NUM_CONDITIONS); }
+    public boolean usingNumStrains() { return (boolean) get(ConfigOption.USING_NUM_STRAINS); }
+    public byte numDays() { return (byte) get(ConfigOption.NUM_DAYS); }
+    public byte numConditions() { return (byte) get(ConfigOption.NUM_CONDITIONS); }
+    public byte numStrains() { return (byte) get(ConfigOption.NUM_STRAINS); }
+    public Set<Byte> days() { return (Set<Byte>) get(ConfigOption.DAYS); }
+    public SortOption sortOption() { return (SortOption) get(ConfigOption.SORT_OPTION); }
+    public SampleLabelingType sampleLabelingType() { return (SampleLabelingType) get(ConfigOption.SAMPLE_LABELING_TYPE); }
+    public void setConditions(Set<Condition> conditions) { set(ConfigOption.CONDITIONS, conditions); }
+    public void setStrains(Set<Strain> strains) { set(ConfigOption.STRAINS, strains); }
+    public void setNumReplicates(byte numReplicates) { set(ConfigOption.NUMBER_OF_REPLICATES, numReplicates); }
+    public void setEmptyInputSheetName(String emptyInputSheetName) { set(ConfigOption.EMPTY_INPUT_SHEET_NAME, emptyInputSheetName); }
+    public void setIncludeBaselineColumn(boolean includeBaselineColumn) { set(ConfigOption.INCLUDE_BASELINE_COLUMN, includeBaselineColumn); }
+    public void setUsingNumDays(boolean usingNumDays) { set(ConfigOption.USING_NUM_DAYS, usingNumDays); }
+    public void setUsingNumConditions(boolean usingNumConditions) { set(ConfigOption.USING_NUM_CONDITIONS, usingNumConditions); }
+    public void setUsingNumStrains(boolean usingNumStrains) { set(ConfigOption.USING_NUM_STRAINS, usingNumStrains); }
+    public void setNumDays(byte numDays) { set(ConfigOption.NUM_DAYS, numDays); }
+    public void setNumConditions(byte numConditions) { set(ConfigOption.NUM_CONDITIONS, numConditions); }
+    public void setNumStrains(byte numStrains) { set(ConfigOption.NUM_STRAINS, numStrains); }
+    public void setDays(Set<Byte> days) { set(ConfigOption.DAYS, days); }
+    public void setSortOption(SortOption sortOption) { set(ConfigOption.SORT_OPTION, sortOption); }
+    public void setSampleLabelingType(SampleLabelingType sampleLabelingType) { set(ConfigOption.SAMPLE_LABELING_TYPE, sampleLabelingType); }
+
+    @Override
+    public String toString() { return "Empty Input Sheet Configuration"; }
+    @Override
+    public Mode mode() { return MODE; };
+}

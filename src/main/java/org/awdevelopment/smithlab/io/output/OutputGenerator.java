@@ -2,6 +2,7 @@ package org.awdevelopment.smithlab.io.output;
 
 import org.awdevelopment.smithlab.config.Config;
 import org.awdevelopment.smithlab.config.Mode;
+import org.awdevelopment.smithlab.config.OutputSheetsConfig;
 import org.awdevelopment.smithlab.data.experiment.EmptyExperiment;
 import org.awdevelopment.smithlab.io.exceptions.NoDaysException;
 import org.awdevelopment.smithlab.io.exceptions.NoStrainsOrConditionsException;
@@ -61,6 +62,21 @@ public class OutputGenerator {
         } else {
             this.emptyExperiment = null;
         }
+    }
+
+    public OutputGenerator(OutputSheetsConfig config) throws NoDaysException {
+        LOGGER = config.LOGGER();
+        outputStyle = switch (config.outputType()) {
+            case PRISM -> new PrismOutputStyle(config.sortOption());
+            case STATISTICAL_TESTS -> new StatisticalTestsOutputStyle(config.sortOption(), config.numberOfReplicates());
+            case RAW -> new RawOutputStyle(config.sortOption());
+            case BOTH -> new BothOutputStyle(config.sortOption(), config.numberOfReplicates());
+        };
+        if (config.writeToDifferentFile()) this.outputFileName = config.outputFilename();
+        else this.outputFileName = config.inputFile().getPath();
+        this.writeToDifferentFile = config.writeToDifferentFile();
+        this.inputFile = config.inputFile();
+        this.GUI = config.GUI();
     }
     public void generateOutput(Experiment experiment) throws OutputException {
         XlsxOutputWriter writer = new XlsxOutputWriter(outputStyle, writeToDifferentFile, inputFile);

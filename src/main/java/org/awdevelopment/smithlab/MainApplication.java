@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.awdevelopment.smithlab.args.Arguments;
 import org.awdevelopment.smithlab.config.Config;
 import org.awdevelopment.smithlab.config.Mode;
+import org.awdevelopment.smithlab.config.OutputSheetsConfig;
 import org.awdevelopment.smithlab.data.experiment.Experiment;
 import org.awdevelopment.smithlab.gui.FXMLResourceType;
 import org.awdevelopment.smithlab.gui.SceneLoader;
@@ -21,12 +22,12 @@ public class MainApplication extends javafx.application.Application {
         if (args.length == 0) launch();
         else {
             Arguments arguments = new Arguments(args, LOGGER);
-            Config config = new Config(arguments);
             try {
-                if (config.mode() == Mode.GENERATE_EMPTY_INPUT_SHEET) {
+                if (arguments.getMode() == Mode.GENERATE_EMPTY_INPUT_SHEET) {
+                    OutputSheetsConfig config = new OutputSheetsConfig(arguments, LOGGER);
                     OutputGenerator outputGenerator = new OutputGenerator(config, LOGGER);
                     outputGenerator.generateEmptyInputSheet();
-                } else if (config.mode() == Mode.GENERATE_OUTPUT_SHEETS) {
+                } else if (arguments.getMode() == Mode.GENERATE_OUTPUT_SHEETS) {
                     InputReader reader = new InputReader(config, LOGGER);
                     Experiment experiment = reader.readExperimentData();
                     OutputGenerator outputGenerator = new OutputGenerator(config, LOGGER);

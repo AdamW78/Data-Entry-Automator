@@ -11,6 +11,7 @@ import java.util.Set;
 public class ConfigDefault {
 
     public static final byte NUM_DAYS = 0;
+    public static final Object GUI = Boolean.TRUE;
     private static final String DEFAULT_FILENAME = "Spreadsheet Formatter Output.xlsx";
     public static final OutputType OUTPUT_TYPE = OutputType.BOTH;
     public static final String OUTPUT_FILENAME = DEFAULT_FILENAME;
