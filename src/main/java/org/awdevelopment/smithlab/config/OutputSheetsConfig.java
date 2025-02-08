@@ -22,12 +22,12 @@ public class OutputSheetsConfig extends AbstractConfig {
 
     public OutputSheetsConfig(LoggerHelper logger) {
         super(logger);
-        addConfigEntry(new ConfigEntry<>(ConfigOption.INPUT_FILE, ConfigDefault.INPUT_FILE));
-        addConfigEntry(new ConfigEntry<>(ConfigOption.OUTPUT_FILE, ConfigDefault.OUTPUT_FILENAME));
-        addConfigEntry(new ConfigEntry<>(ConfigOption.OUTPUT_TYPE, ConfigDefault.OUTPUT_TYPE));
-        addConfigEntry(new ConfigEntry<>(ConfigOption.WRITE_TO_DIFFERENT_FILE, ConfigDefault.WRITE_TO_DIFFERENT_FILE));
-        addConfigEntry(new ConfigEntry<>(ConfigOption.SORT_OPTION, ConfigDefault.SORT_OPTION));
-        addConfigEntry(new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, ConfigDefault.NUMBER_OF_REPLICATES));
+        addConfigEntry(new ConfigEntry<>(ConfigOption.INPUT_FILE, ConfigDefaults.INPUT_FILE));
+        addConfigEntry(new ConfigEntry<>(ConfigOption.OUTPUT_FILE, ConfigDefaults.OUTPUT_FILENAME));
+        addConfigEntry(new ConfigEntry<>(ConfigOption.OUTPUT_TYPE, ConfigDefaults.OUTPUT_TYPE));
+        addConfigEntry(new ConfigEntry<>(ConfigOption.WRITE_TO_DIFFERENT_FILE, ConfigDefaults.WRITE_TO_DIFFERENT_FILE));
+        addConfigEntry(new ConfigEntry<>(ConfigOption.SORT_OPTION, ConfigDefaults.SORT_OPTION));
+        addConfigEntry(new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, ConfigDefaults.NUMBER_OF_REPLICATES));
     }
 
     public File inputFile() { return get(ConfigOption.INPUT_FILE); }

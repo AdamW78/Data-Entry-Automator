@@ -1,6 +1,8 @@
 package org.awdevelopment.smithlab.io.output;
 
 import org.awdevelopment.smithlab.config.Config;
+import org.awdevelopment.smithlab.config.ConfigDefaults;
+import org.awdevelopment.smithlab.config.EmptyInputSheetConfig;
 import org.awdevelopment.smithlab.config.Mode;
 import org.awdevelopment.smithlab.config.OutputSheetsConfig;
 import org.awdevelopment.smithlab.data.experiment.EmptyExperiment;
@@ -64,7 +66,7 @@ public class OutputGenerator {
         }
     }
 
-    public OutputGenerator(OutputSheetsConfig config) throws NoDaysException {
+    public OutputGenerator(OutputSheetsConfig config) {
         LOGGER = config.LOGGER();
         outputStyle = switch (config.outputType()) {
             case PRISM -> new PrismOutputStyle(config.sortOption());
@@ -78,6 +80,17 @@ public class OutputGenerator {
         this.inputFile = config.inputFile();
         this.GUI = config.GUI();
     }
+
+    public OutputGenerator(EmptyInputSheetConfig config) {
+        LOGGER = config.LOGGER();
+        outputFileName = ConfigDefaults.EMPTY_INPUT_SHEET_FILENAME;
+        emptyInputSheetName = config.emptyInputSheetName();
+        includeBaselineColumn = config.includeBaselineColumn();
+        emptyExperiment = new EmptyExperiment(config.strains(), config.conditions(), config.numReplicates(),
+                config.days(), config.numDays());
+        GUI = false;
+    }
+
     public void generateOutput(Experiment experiment) throws OutputException {
         XlsxOutputWriter writer = new XlsxOutputWriter(outputStyle, writeToDifferentFile, inputFile);
         try {

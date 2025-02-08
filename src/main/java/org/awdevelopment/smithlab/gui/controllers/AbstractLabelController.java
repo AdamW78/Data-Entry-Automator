@@ -1,6 +1,7 @@
 package org.awdevelopment.smithlab.gui.controllers;
 
 import org.awdevelopment.smithlab.config.Config;
+import org.awdevelopment.smithlab.config.EmptyInputSheetConfig;
 
 public class AbstractLabelController extends AbstractController {
 
@@ -8,7 +9,7 @@ public class AbstractLabelController extends AbstractController {
 
     public AbstractLabelController() { super(); }
 
-    public void setConfig(Config config) {
+    public void setConfig(EmptyInputSheetConfig config) {
         this.config = config;
     }
 

@@ -20,4 +20,7 @@ module org.awdevelopment.smithlab {
     opens org.awdevelopment.smithlab.gui.controllers to javafx.fxml, javafx.graphics, javafx.controls;
     opens org.awdevelopment.smithlab to javafx.fxml, javafx.graphics, javafx.controls;
     exports org.awdevelopment.smithlab.config.exceptions;
+    opens org.awdevelopment.smithlab.config to javafx.controls, javafx.fxml, javafx.graphics;
+    exports org.awdevelopment.smithlab.gui.controllers.main;
+    opens org.awdevelopment.smithlab.gui.controllers.main to javafx.controls, javafx.fxml, javafx.graphics;
 }

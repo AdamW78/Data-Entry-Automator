@@ -11,20 +11,20 @@ public class EmptyInputSheetConfig extends AbstractConfig {
 
     public EmptyInputSheetConfig(LoggerHelper logger) {
         super(logger);
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.SORT_OPTION, ConfigDefault.SORT_OPTION));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, ConfigDefault.NUMBER_OF_REPLICATES));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.EMPTY_INPUT_SHEET_NAME, ConfigDefault.EMPTY_INPUT_SHEET_NAME));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.CONDITIONS, ConfigDefault.CONDITIONS));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.STRAINS, ConfigDefault.STRAINS));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.DAYS, ConfigDefault.DAYS));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.INCLUDE_BASELINE_COLUMN, ConfigDefault.INCLUDE_BASELINE_COLUMN));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.SAMPLE_LABELING_TYPE, ConfigDefault.SAMPLE_LABELING_TYPE));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUM_DAYS, ConfigDefault.NUM_DAYS));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUM_CONDITIONS, ConfigDefault.NUM_CONDITIONS));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUM_STRAINS, ConfigDefault.NUM_STRAINS));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_DAYS, ConfigDefault.USING_NUM_DAYS));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_CONDITIONS, ConfigDefault.USING_NUM_CONDITIONS));
-        super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_STRAINS, ConfigDefault.USING_NUM_STRAINS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.SORT_OPTION, ConfigDefaults.SORT_OPTION));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, ConfigDefaults.NUMBER_OF_REPLICATES));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.EMPTY_INPUT_SHEET_NAME, ConfigDefaults.EMPTY_INPUT_SHEET_NAME));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.CONDITIONS, ConfigDefaults.CONDITIONS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.STRAINS, ConfigDefaults.STRAINS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.DAYS, ConfigDefaults.DAYS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.INCLUDE_BASELINE_COLUMN, ConfigDefaults.INCLUDE_BASELINE_COLUMN));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.SAMPLE_LABELING_TYPE, ConfigDefaults.SAMPLE_LABELING_TYPE));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUM_DAYS, ConfigDefaults.NUM_DAYS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUM_CONDITIONS, ConfigDefaults.NUM_CONDITIONS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUM_STRAINS, ConfigDefaults.NUM_STRAINS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_DAYS, ConfigDefaults.USING_NUM_DAYS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_CONDITIONS, ConfigDefaults.USING_NUM_CONDITIONS));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_STRAINS, ConfigDefaults.USING_NUM_STRAINS));
     }
 
     public Set<Condition> conditions() { return (Set<Condition>) get(ConfigOption.CONDITIONS); }

@@ -17,10 +17,10 @@ public abstract class AbstractConfig {
     protected AbstractConfig(LoggerHelper logger) {
         this.config = new HashSet<>();
         this.LOGGER = logger;
-        config.add(new ConfigEntry<>(ConfigOption.GUI, ConfigDefault.GUI));
+        config.add(new ConfigEntry<>(ConfigOption.GUI, ConfigDefaults.GUI));
     }
 
-    protected <T> T get(ConfigOption option) {
+    public <T> T get(ConfigOption option) {
         try {
             return getConfigEntryValue(option);
         } catch (ConfigException e) {
@@ -30,7 +30,7 @@ public abstract class AbstractConfig {
         return null;
     }
 
-    protected <T> void set(ConfigOption option, T value) {
+    public <T> void set(ConfigOption option, T value) {
         try {
             setConfigEntry(option, value);
         } catch (ConfigException e) {

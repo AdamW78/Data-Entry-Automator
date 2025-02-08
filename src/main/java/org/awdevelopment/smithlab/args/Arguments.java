@@ -1,7 +1,7 @@
 package org.awdevelopment.smithlab.args;
 
 import org.awdevelopment.smithlab.args.exceptions.*;
-import org.awdevelopment.smithlab.config.ConfigDefault;
+import org.awdevelopment.smithlab.config.ConfigDefaults;
 import org.awdevelopment.smithlab.config.Mode;
 import org.awdevelopment.smithlab.config.SampleLabelingType;
 import org.awdevelopment.smithlab.config.SortOption;
@@ -21,25 +21,25 @@ public class Arguments {
 
     private final LoggerHelper LOGGER;
 
-    private OutputType outputType = ConfigDefault.OUTPUT_TYPE;
-    private Mode mode = ConfigDefault.MODE;
-    private boolean writeToDifferentFile = ConfigDefault.WRITE_TO_DIFFERENT_FILE;
-    private String outputFileName = ConfigDefault.OUTPUT_FILENAME;
-    private File inputFile = ConfigDefault.INPUT_FILE;
-    private SortOption outputSorting = ConfigDefault.SORT_OPTION;
-    private byte replicateNumber = ConfigDefault.NUMBER_OF_REPLICATES;
-    private String emptyInputSheetName = ConfigDefault.EMPTY_INPUT_SHEET_NAME;
-    private Set<Condition> conditions = ConfigDefault.CONDITIONS;
-    private Set<Strain> strains = ConfigDefault.STRAINS;
-    private Set<Byte> days = ConfigDefault.DAYS;
-    private byte numDays = ConfigDefault.NUM_DAYS;
-    private boolean includeBaselineColumn = ConfigDefault.INCLUDE_BASELINE_COLUMN;
-    private SampleLabelingType sampleLabelingType = ConfigDefault.SAMPLE_LABELING_TYPE;
-    private byte numConditions = ConfigDefault.NUM_CONDITIONS;
-    private byte numStrains = ConfigDefault.NUM_STRAINS;
-    private boolean usingNumDays = ConfigDefault.USING_NUM_DAYS;
-    private boolean usingNumConditions = ConfigDefault.USING_NUM_CONDITIONS;
-    private boolean usingNumStrains = ConfigDefault.USING_NUM_STRAINS;
+    private OutputType outputType = ConfigDefaults.OUTPUT_TYPE;
+    private Mode mode = ConfigDefaults.MODE;
+    private boolean writeToDifferentFile = ConfigDefaults.WRITE_TO_DIFFERENT_FILE;
+    private String outputFileName = ConfigDefaults.OUTPUT_FILENAME;
+    private File inputFile = ConfigDefaults.INPUT_FILE;
+    private SortOption outputSorting = ConfigDefaults.SORT_OPTION;
+    private byte replicateNumber = ConfigDefaults.NUMBER_OF_REPLICATES;
+    private String emptyInputSheetName = ConfigDefaults.EMPTY_INPUT_SHEET_NAME;
+    private Set<Condition> conditions = ConfigDefaults.CONDITIONS;
+    private Set<Strain> strains = ConfigDefaults.STRAINS;
+    private Set<Byte> days = ConfigDefaults.DAYS;
+    private byte numDays = ConfigDefaults.NUM_DAYS;
+    private boolean includeBaselineColumn = ConfigDefaults.INCLUDE_BASELINE_COLUMN;
+    private SampleLabelingType sampleLabelingType = ConfigDefaults.SAMPLE_LABELING_TYPE;
+    private byte numConditions = ConfigDefaults.NUM_CONDITIONS;
+    private byte numStrains = ConfigDefaults.NUM_STRAINS;
+    private boolean usingNumDays = ConfigDefaults.USING_NUM_DAYS;
+    private boolean usingNumConditions = ConfigDefaults.USING_NUM_CONDITIONS;
+    private boolean usingNumStrains = ConfigDefaults.USING_NUM_STRAINS;
 
     public Arguments(String[] args, LoggerHelper logger) {
         this.LOGGER = logger;
