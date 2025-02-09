@@ -3,7 +3,6 @@ package org.awdevelopment.smithlab.gui.controllers.main;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -17,6 +16,7 @@ import org.awdevelopment.smithlab.gui.controllers.StrainsController;
 import org.awdevelopment.smithlab.gui.controllers.TimepointsController;
 import org.awdevelopment.smithlab.io.exceptions.InputFileException;
 import org.awdevelopment.smithlab.io.exceptions.NoDaysException;
+import org.awdevelopment.smithlab.io.exceptions.NoStrainsOrConditionsException;
 import org.awdevelopment.smithlab.io.exceptions.OutputException;
 import org.awdevelopment.smithlab.io.input.InputReader;
 import org.awdevelopment.smithlab.io.output.OutputGenerator;
@@ -48,6 +48,10 @@ public class MainApplicationController extends AbstractController {
     protected StrainsController strainsController;
     protected ConditionsController conditionsController;
 
+    protected EmptyInputSheetFields emptyInputSheetFields;
+    protected EmptyInputSheetValidator emptyInputSheetValidator;
+    private EmptyInputSheetConfigUpdater emptyInputSheetConfigUpdater;
+
     // OUTPUT SHEETS
     @FXML protected Label statusLabelOutputSheet;
     @FXML protected Label replicatesErrorLabelOutputSheet;
@@ -71,6 +75,7 @@ public class MainApplicationController extends AbstractController {
 
     private Mode mode = ConfigDefaults.MODE;
     GUILogger guiLogger;
+
     OutputSheetFields outputSheetFields;
     OutputSheetValidator outputSheetValidator;
     OutputSheetConfigUpdater outputSheetConfigUpdater;
@@ -91,6 +96,10 @@ public class MainApplicationController extends AbstractController {
         outputSheetFields = new OutputSheetFields(this);
         outputSheetValidator = new OutputSheetValidator(outputSheetFields, guiLogger, config.getOutputSheetsConfig());
         outputSheetConfigUpdater = new OutputSheetConfigUpdater(this, config.getOutputSheetsConfig());
+        // Initialize support classes for generating empty input sheets
+        emptyInputSheetFields = new EmptyInputSheetFields(this);
+        emptyInputSheetValidator = new EmptyInputSheetValidator(emptyInputSheetFields, guiLogger, config.getEmptyInputSheetConfig());
+        emptyInputSheetConfigUpdater = new EmptyInputSheetConfigUpdater(this, config.getEmptyInputSheetConfig());
     }
 
     private void choiceBoxSetup() {
@@ -134,7 +143,7 @@ public class MainApplicationController extends AbstractController {
                 generateOutputSheets();
             }
             case GENERATE_EMPTY_INPUT_SHEET -> {
-                if (notReadyForOutputEmptyInputSheet()) return;
+                if (!emptyInputSheetValidator.fieldsValid()) return;
                 generateEmptyInputSheet();
             }
             case IMAGE_RECOGNITION -> {
@@ -190,7 +199,7 @@ public class MainApplicationController extends AbstractController {
 
     public void updateNumReplicates(KeyEvent keyEvent) { outputSheetConfigUpdater.updateNumReplicates(keyEvent); }
 
-    public void updateSampleSortingMethod(ActionEvent actionEvent) { outputSheetConfigUpdater.updateSampleSortingMethod(); }
+    public void updateSampleSortingMethod() { outputSheetConfigUpdater.updateSampleSortingMethod(); }
 
     public void updateOutputReplicatesFields() {
         outputSheetConfigUpdater.updateNumReplicates(null);
@@ -221,79 +230,11 @@ public class MainApplicationController extends AbstractController {
 //        }
     }
 
-    private boolean notReadyForOutputEmptyInputSheet() {
-        if (badNumReplicatesEmptyInputSheet()) return true;
-        else if (badNumTimepointsEmptyInputSheet()) return true;
-        else if (badOutputFilenameEmptyInputSheet()) return true;
-        else if (badSampleLabelingEmptyInputSheet()) return true;
-        else if (badNumConditionsEmptyInputSheet()) return true;
-        else if (badNumStrainsEmptyInputSheet()) return true;
-        else return false;
-    }
-
-    private boolean badNumReplicatesEmptyInputSheet() {
-        if (!checkNumReplicatesEmptyInputSheet()) return true;
-        if (numReplicatesEmptyInputSheetTextField.getText().isEmpty()) {
-            failedEmptyNumReplicatesEmptyInputSheet = true;
-            guiLogger.errorOccurred(statusLabelEmptyInputSheets, "Error: Please enter a number of replicates");
-            return true;
-        }
-        return false;
-    }
-
-    private boolean badNumTimepointsEmptyInputSheet() {
-        if (!checkNumTimepointsEmptyInputSheet()) return true;
-        if (numTimepointsTextField.getText().isEmpty()) {
-            failedEmptyNumTimepointsEmptyInputSheet = true;
-            guiLogger.errorOccurred(statusLabelEmptyInputSheets, "Error: Please enter a number of timepoints");
-            return true;
-        }
-        return false;
-    }
-
-    private boolean badOutputFilenameEmptyInputSheet() {
-        if (!checkOutputFilenameEmptyInputSheets()) return true;
-        String outputFilename = outputFilenameEmptyInputSheetsTextField.getText();
-        if (outputFilename.isEmpty()) {
-            failedEmptyOutputFilenameEmptyInputSheet = true;
-            guiLogger.errorOccurred(statusLabelEmptyInputSheets, "Error: Please enter an output filename");
-            return true;
-        } else if (!outputFilename.endsWith(".xlsx")) {
-            guiLogger.errorOccurred(statusLabelEmptyInputSheets, "Error: Output filename must end in .xlsx");
-            return true;
-        }
-        return false;
-    }
-
-    private boolean badSampleLabelingEmptyInputSheet() {
-        return !checkSampleLabelingRadioButtons();
-    }
-
-    private boolean badNumConditionsEmptyInputSheet() {
-        if (!checkNumConditionsEmptyInputSheet()) return true;
-        if (numConditionsTextField.getText().isEmpty()) {
-            failedEmptyConditionsEmptyInputSheet = true;
-            guiLogger.errorOccurred(numConditionsErrorLabel, "Error: Please enter a number of conditions");
-            return true;
-        }
-        return false;
-    }
-
-    private boolean badNumStrainsEmptyInputSheet() {
-        if (!checkNumStrainsEmptyInputSheet()) return true;
-        if (numStrainsTextField.getText().isEmpty()) {
-            failedEmptyStrainsEmptyInputSheet = true;
-            guiLogger.errorOccurred(numStrainErrorLabel, "Error: Please enter a number of strains");
-            return true;
-        }
-        return false;
-    }
-
     private void generateEmptyInputSheet() {
         OutputGenerator outputGenerator;
         try {
-            outputGenerator = new OutputGenerator(config, getLogger());
-        } catch (NoDaysException e) {
+            outputGenerator = new OutputGenerator(config.getEmptyInputSheetConfig());
+        } catch (NoDaysException | NoStrainsOrConditionsException e) {
             guiLogger.errorOccurred(statusLabelEmptyInputSheets, e.getMessage());
             return;
         }
@@ -310,151 +251,52 @@ public class MainApplicationController extends AbstractController {
     public void emptyInputValidateFields() {
         String focusID = (outputFilenameEmptyInputSheetsTextField.getScene().getFocusOwner().getId());
         if (timepointsController != null) {
-            config.setUsingNumDays(timepointsController.usingNumDays());
-            config.setDays(timepointsController.getDays());
+            config.getEmptyInputSheetConfig().setUsingNumDays(timepointsController.usingNumDays());
+            config.getEmptyInputSheetConfig().setDays(timepointsController.getDays());
         }
         if (strainsController != null) {
-            config.setUsingNumStrains(strainsController.usingNumStrains());
-            config.setStrains(strainsController.getStrains());
+            config.getEmptyInputSheetConfig().setUsingNumStrains(strainsController.usingNumStrains());
+            config.getEmptyInputSheetConfig().setStrains(strainsController.getStrains());
         }
         if (conditionsController != null) {
-            config.setUsingNumConditions(conditionsController.usingNumConditions());
-            config.setConditions(conditionsController.getConditions());
+            config.getEmptyInputSheetConfig().setUsingNumConditions(conditionsController.usingNumConditions());
+            config.getEmptyInputSheetConfig().setConditions(conditionsController.getConditions());
         }
         if (focusID == null || focusID.isEmpty()) focusID = "default";
         switch (focusID) {
-            case "numReplicatesEmptyInputSheetTextField" -> {
-                checkOutputFilenameEmptyInputSheets();
-                checkNumTimepointsEmptyInputSheet();
-                checkNumConditionsEmptyInputSheet();
-                checkNumStrainsEmptyInputSheet();
-            }
-            case "numTimepointsTextField" -> {
-                checkOutputFilenameEmptyInputSheets();
-                checkNumReplicatesEmptyInputSheet();
-                checkNumConditionsEmptyInputSheet();
-                checkNumStrainsEmptyInputSheet();
-            }
-            case "outputFilenameEmptyInputSheetsTextField" -> {
-                checkNumReplicatesEmptyInputSheet();
-                checkNumTimepointsEmptyInputSheet();
-                checkNumConditionsEmptyInputSheet();
-                checkNumStrainsEmptyInputSheet();
-            }
-            case "numConditionsTextField" -> {
-                checkOutputFilenameEmptyInputSheets();
-                checkNumReplicatesEmptyInputSheet();
-                checkNumTimepointsEmptyInputSheet();
-                checkNumStrainsEmptyInputSheet();
-            }
-            case "numStrainsTextField" -> {
-                checkOutputFilenameEmptyInputSheets();
-                checkNumReplicatesEmptyInputSheet();
-                checkNumTimepointsEmptyInputSheet();
-                checkNumConditionsEmptyInputSheet();
-            }
-            default -> {
-                checkNumReplicatesEmptyInputSheet();
-                checkOutputFilenameEmptyInputSheets();
-                checkNumTimepointsEmptyInputSheet();
-                checkNumConditionsEmptyInputSheet();
-                checkNumStrainsEmptyInputSheet();
-            }
+            case "numReplicatesEmptyInputSheetTextField" -> emptyInputSheetValidator.fieldsValidExceptNumReplicates();
+            case "numTimepointsTextField" -> emptyInputSheetValidator.fieldsValidExceptNumTimepoints();
+            case "outputFilenameEmptyInputSheetsTextField" -> emptyInputSheetValidator.fieldsValidExceptOutputFilename();
+            case "numConditionsTextField" -> emptyInputSheetValidator.fieldsValidExceptNumConditions();
+            case "numStrainsTextField" -> emptyInputSheetValidator.fieldsValidExceptNumStrains();
+            default -> emptyInputSheetValidator.fieldsValid();
         }
-    }
-
-
-    public void updateSampleLabelingRadioButtons(ActionEvent actionEvent) {
-        emptyInputValidateFields();
-        RadioButton selectedRadioButton = (RadioButton) actionEvent.getSource();
-        for (RadioButton radioButton : sampleLabelingRadioButtons) if (!radioButton.equals(selectedRadioButton)) radioButton.setSelected(false);
-        switch (selectedRadioButton.getId()) {
-            case "conditionLabelingRadioButton" -> {
-                config.setSampleLabelingType(SampleLabelingType.CONDITION);
-                strainsHBox.setDisable(true);
-                conditionsHBox.setDisable(false);
-            }
-            case "strainLabelingRadioButton" -> {
-                config.setSampleLabelingType(SampleLabelingType.STRAIN);
-                strainsHBox.setDisable(false);
-                conditionsHBox.setDisable(true);
-            }
-            case "conditionAndStrainLabelingRadioButton" -> {
-                config.setSampleLabelingType(SampleLabelingType.CONDITION_AND_STRAIN);
-                strainsHBox.setDisable(false);
-                conditionsHBox.setDisable(false);
-            }
-        }
-        checkSampleLabelingRadioButtons();
     }
 
     public void openConditionsFXML() {
         emptyInputValidateFields();
-        SceneLoader.loadScene(new Stage(), FXMLResourceType.CONDITIONS, getLogger(), config);
+        conditionsController = (ConditionsController) SceneLoader.loadScene(new Stage(), FXMLResourceType.CONDITIONS, getLogger(), config.getEmptyInputSheetConfig());
     }
 
     public void openStrainsFXML() {
         emptyInputValidateFields();
-        SceneLoader.loadScene(new Stage(), FXMLResourceType.STRAINS, getLogger(), config);
+        strainsController = (StrainsController) SceneLoader.loadScene(new Stage(), FXMLResourceType.STRAINS, getLogger(), config.getEmptyInputSheetConfig());
     }
 
     public void openTimepointsFXML() {
         emptyInputValidateFields();
-        Stage stage = new Stage();
-        timepointsController = (TimepointsController) SceneLoader.loadScene(stage, FXMLResourceType.TIMEPOINTS, getLogger(), config);
+        timepointsController = (TimepointsController) SceneLoader.loadScene(new Stage(), FXMLResourceType.TIMEPOINTS, getLogger(), config.getEmptyInputSheetConfig());
     }
 
-    public void updateNumReplicateEmptyInputSheet(KeyEvent keyEvent) {
-        emptyInputValidateFields();
-        if (numReplicatesEmptyInputSheetTextField.getText().isEmpty() && !failedEmptyNumReplicatesEmptyInputSheet) guiLogger.clearError(statusLabelEmptyInputSheets);
-        if (    keyEvent == null
-                || !(numReplicatesEmptyInputSheetTextField.getScene().focusOwnerProperty().get().getId().equals("numReplicatesEmptyInputSheetTextField"))
-                || keyEvent.getCode() == KeyCode.ENTER
-                || keyEvent.getCode() == KeyCode.TAB
-        ) {
-            checkNumReplicatesEmptyInputSheet();
-        }
-    }
+    public void updateSampleLabelingRadioButtons(ActionEvent actionEvent) { emptyInputSheetConfigUpdater.updateSampleLabelingRadioButtons(actionEvent); }
 
-    public void updateNumTimepointsEmptyInputSheet(KeyEvent keyEvent) {
-        emptyInputValidateFields();
-        if (numTimepointsTextField.getText().isEmpty() && !failedEmptyNumTimepointsEmptyInputSheet)
-            guiLogger.clearError(statusLabelEmptyInputSheets);
-        if (keyEvent == null
-                || !(numTimepointsTextField.getScene().focusOwnerProperty().get().getId().equals("numTimepointsTextField"))
-                || keyEvent.getCode() == KeyCode.ENTER
-                || keyEvent.getCode() == KeyCode.TAB
-        ) {
-            checkNumTimepointsEmptyInputSheet();
-        }
-    }
+    public void updateNumConditionsEmptyInputSheet(KeyEvent keyEvent) { emptyInputSheetConfigUpdater.updateNumConditions(keyEvent); }
 
-    public void updateNumConditionsEmptyInputSheet(KeyEvent keyEvent) {
-        emptyInputValidateFields();
-        if(numConditionsTextField.getText().isEmpty() && !failedEmptyConditionsEmptyInputSheet) guiLogger.clearError(statusLabelEmptyInputSheets);
-        if (    keyEvent == null
-                || !(numConditionsTextField.getScene().focusOwnerProperty().get().getId().equals("numConditionsTextField"))
-                || keyEvent.getCode() == KeyCode.ENTER
-                || keyEvent.getCode() == KeyCode.TAB
-        ) {
-            checkNumConditionsEmptyInputSheet();
-        }
-    }
+    public void updateNumStrainsEmptyInputSheet(KeyEvent keyEvent) { emptyInputSheetConfigUpdater.updateNumStrains(keyEvent); }
 
-    public void updateNumStrainsEmptyInputSheet(KeyEvent keyEvent) {
-        emptyInputValidateFields();
-        if(numStrainsTextField.getText().isEmpty() && !failedEmptyStrainsEmptyInputSheet) guiLogger.clearError(statusLabelEmptyInputSheets);
-        if (    keyEvent == null
-                || !(numStrainsTextField.getScene().focusOwnerProperty().get().getId().equals("numStrainsTextField"))
-                || keyEvent.getCode() == KeyCode.ENTER
-                || keyEvent.getCode() == KeyCode.TAB
-        ) {
-            checkNumStrainsEmptyInputSheet();
-        }
-    }
+    public void updateNumReplicateEmptyInputSheet(KeyEvent keyEvent) { emptyInputSheetConfigUpdater.updateNumReplicates(keyEvent); }
 
-    public void handleIncludeBaselineColumn() {
-        emptyInputValidateFields();
-        config.setIncludeBaselineColumn(includeBaselineColumnCheckbox.isSelected()); }
+    public void updateNumTimepointsEmptyInputSheet(KeyEvent keyEvent) { emptyInputSheetConfigUpdater.updateNumTimepoints(keyEvent); }
 
+    public void handleIncludeBaselineColumn() { emptyInputSheetConfigUpdater.handleIncludeBaselineColumn(); }
 }

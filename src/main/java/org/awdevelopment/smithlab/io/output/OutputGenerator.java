@@ -1,9 +1,7 @@
 package org.awdevelopment.smithlab.io.output;
 
-import org.awdevelopment.smithlab.config.Config;
 import org.awdevelopment.smithlab.config.ConfigDefaults;
 import org.awdevelopment.smithlab.config.EmptyInputSheetConfig;
-import org.awdevelopment.smithlab.config.Mode;
 import org.awdevelopment.smithlab.config.OutputSheetsConfig;
 import org.awdevelopment.smithlab.data.experiment.EmptyExperiment;
 import org.awdevelopment.smithlab.io.exceptions.NoDaysException;
@@ -27,45 +25,6 @@ public class OutputGenerator {
     private final boolean includeBaselineColumn;
     private final EmptyExperiment emptyExperiment;
 
-    public OutputGenerator(Config config, LoggerHelper logger) throws NoDaysException {
-        LOGGER = logger;
-        switch (config.outputType()) {
-            case PRISM:
-                outputStyle = new PrismOutputStyle(config.sortOption());
-                break;
-            case STATISTICAL_TESTS:
-                outputStyle = new StatisticalTestsOutputStyle(config.sortOption(), config.numReplicates());
-                break;
-            case RAW:
-                outputStyle = new RawOutputStyle(config.sortOption());
-                break;
-            case BOTH:
-                outputStyle = new BothOutputStyle(config.sortOption(), config.numReplicates());
-                break;
-            default:
-                // This is redundant because the compiler thinks that outputStyle is not initialized
-                outputStyle = null;
-                LOGGER.atError("Output type not recognized");
-                System.exit(0);
-        }
-        if (config.writeToDifferentFile()) this.outputFileName = config.outputFilename();
-        else this.outputFileName = config.inputFile().getPath();
-        this.writeToDifferentFile = config.writeToDifferentFile();
-        this.inputFile = config.inputFile();
-        this.emptyInputSheetName = config.emptyInputSheetName();
-        this.GUI = config.GUI();
-        this.includeBaselineColumn = config.includeBaselineColumn();
-        if (config.mode() == Mode.GENERATE_EMPTY_INPUT_SHEET) {
-            Byte[] dayByteObjects = config.days().toArray(new Byte[0]);
-            byte[] days = new byte[dayByteObjects.length];
-            for (int i = 0; i < days.length; i++) { days[i] = dayByteObjects[i]; }
-            this.emptyExperiment = new EmptyExperiment(config.strains(), config.conditions(), config.numReplicates(),
-                    days, config.numDays());
-        } else {
-            this.emptyExperiment = null;
-        }
-    }
-
     public OutputGenerator(OutputSheetsConfig config) {
         LOGGER = config.LOGGER();
         outputStyle = switch (config.outputType()) {
@@ -79,16 +38,23 @@ public class OutputGenerator {
         this.writeToDifferentFile = config.writeToDifferentFile();
         this.inputFile = config.inputFile();
         this.GUI = config.GUI();
+        // these are not used in this constructor
+        emptyInputSheetName = null;
+        includeBaselineColumn = false;
+        emptyExperiment = null;
     }
 
-    public OutputGenerator(EmptyInputSheetConfig config) {
+    public OutputGenerator(EmptyInputSheetConfig config) throws NoDaysException, NoStrainsOrConditionsException {
         LOGGER = config.LOGGER();
         outputFileName = ConfigDefaults.EMPTY_INPUT_SHEET_FILENAME;
         emptyInputSheetName = config.emptyInputSheetName();
         includeBaselineColumn = config.includeBaselineColumn();
-        emptyExperiment = new EmptyExperiment(config.strains(), config.conditions(), config.numReplicates(),
-                config.days(), config.numDays());
+        emptyExperiment = generateEmptyExperiment(config);
         GUI = false;
+        // these are not used in this constructor
+        this.outputStyle = null;
+        this.writeToDifferentFile = false;
+        this.inputFile = null;
     }
 
     public void generateOutput(Experiment experiment) throws OutputException {
@@ -115,5 +81,20 @@ public class OutputGenerator {
         }
         emptyInputSheetWriter = new XlsxEmptyInputSheetWriter(emptyInputSheetName, LOGGER, includeBaselineColumn, emptyExperiment);
         emptyInputSheetWriter.writeEmptyInputSheet();
+    }
+
+    private EmptyExperiment generateEmptyExperiment(EmptyInputSheetConfig config) throws NoDaysException {
+        Byte[] days = config.days().toArray(new Byte[0]);
+        byte[] daysArray = new byte[days.length];
+        for (int i = 0; i < days.length; i++) { daysArray[i] = days[i];}
+        if (config.usingNumConditions() && config.usingNumStrains()) {
+            return new EmptyExperiment(config.numStrains(), config.numConditions(), config.numReplicates(), daysArray, config.numDays());
+        } else if (config.usingNumConditions()) {
+            return new EmptyExperiment(config.strains(), config.numConditions(), config.numReplicates(), daysArray, config.numDays());
+        } else if (config.usingNumStrains()) {
+            return new EmptyExperiment(config.numStrains(), config.conditions(), config.numReplicates(), daysArray, config.numDays());
+        } else {
+            return new EmptyExperiment(config.strains(), config.conditions(), config.numReplicates(), daysArray, config.numDays());
+        }
     }
 }

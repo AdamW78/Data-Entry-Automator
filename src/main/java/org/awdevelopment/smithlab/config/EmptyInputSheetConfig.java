@@ -1,5 +1,6 @@
 package org.awdevelopment.smithlab.config;
 
+import org.awdevelopment.smithlab.args.Arguments;
 import org.awdevelopment.smithlab.data.Condition;
 import org.awdevelopment.smithlab.data.Strain;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
@@ -25,6 +26,24 @@ public class EmptyInputSheetConfig extends AbstractConfig {
         super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_DAYS, ConfigDefaults.USING_NUM_DAYS));
         super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_CONDITIONS, ConfigDefaults.USING_NUM_CONDITIONS));
         super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_STRAINS, ConfigDefaults.USING_NUM_STRAINS));
+    }
+
+    public EmptyInputSheetConfig(Arguments args, LoggerHelper logger) {
+        super(logger);
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.SORT_OPTION, args.getOutputSorting()));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, args.getReplicateNumber()));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.EMPTY_INPUT_SHEET_NAME, args.getEmptyInputSheetName()));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.CONDITIONS, args.getConditions()));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.STRAINS, args.getStrains()));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.DAYS, args.getDays()));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.INCLUDE_BASELINE_COLUMN, ConfigDefaults.INCLUDE_BASELINE_COLUMN));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.SAMPLE_LABELING_TYPE, args.getSampleLabelingType()));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUM_DAYS, args.getNumDays()));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUM_CONDITIONS, args.getNumConditions()));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUM_STRAINS, args.getNumStrains()));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_DAYS, args.usingNumDays()));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_CONDITIONS, args.usingNumConditions()));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.USING_NUM_STRAINS, args.usingNumStrains()));
     }
 
     public Set<Condition> conditions() { return (Set<Condition>) get(ConfigOption.CONDITIONS); }

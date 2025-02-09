@@ -9,11 +9,11 @@ public class EmptyInputSheetValidator extends AbstractValidator {
     private final EmptyInputSheetFields fields;
     private final GUILogger guiLogger;
     private final EmptyInputSheetConfig config;
-    private boolean failedEmptyNumTimepointsEmptyInputSheet = false;
-    private boolean failedEmptyNumReplicatesEmptyInputSheet = false;
-    private boolean failedEmptyOutputFilenameEmptyInputSheet = false;
-    private boolean failedEmptyConditionsEmptyInputSheet = false;
-    private boolean failedEmptyStrainsEmptyInputSheet = false;
+    private boolean failedEmptyNumTimepoints = false;
+    private boolean failedEmptyNumReplicates = false;
+    private boolean failedEmptyOutputFilename = false;
+    private boolean failedEmptyConditions = false;
+    private boolean failedEmptyStrains = false;
 
     public EmptyInputSheetValidator(EmptyInputSheetFields fields, GUILogger guiLogger, EmptyInputSheetConfig config) {
         super(fields, guiLogger, config);
@@ -23,18 +23,70 @@ public class EmptyInputSheetValidator extends AbstractValidator {
     }
 
     @Override
-    public boolean preliminaryFieldsValid() {
-        return false;
-    }
-
+    public boolean preliminaryFieldsValid() { return fieldsValid(false); }
     @Override
-    public boolean fieldsValid() {
-        return false;
+    public boolean fieldsValid() { return fieldsValid(true); }
+
+    boolean fieldsValid(boolean preventEmpty) {
+        return validateNumTimepoints(preventEmpty)
+                && validateNumReplicates(preventEmpty)
+                && validateOutputFilename(preventEmpty)
+                && validateNumConditions(preventEmpty)
+                && validateNumStrains(preventEmpty)
+                && validateSampleLabelingRadioButtons();
     }
 
-    private boolean validateNumTimepoints(boolean preventEmpty) {
+    protected boolean fieldsValidExceptNumTimepoints() {
+        return validateNumReplicates(false)
+                && validateOutputFilename(false)
+                && validateNumConditions(false)
+                && validateNumStrains(false)
+                && validateSampleLabelingRadioButtons();
+    }
+
+    protected boolean fieldsValidExceptNumReplicates() {
+        return validateNumTimepoints(false)
+                && validateOutputFilename(false)
+                && validateNumConditions(false)
+                && validateNumStrains(false)
+                && validateSampleLabelingRadioButtons();
+    }
+
+    protected boolean fieldsValidExceptOutputFilename() {
+        return validateNumTimepoints(false)
+                && validateNumReplicates(false)
+                && validateNumConditions(false)
+                && validateNumStrains(false)
+                && validateSampleLabelingRadioButtons();
+    }
+
+    protected boolean fieldsValidExceptNumConditions() {
+        return validateNumTimepoints(false)
+                && validateNumReplicates(false)
+                && validateOutputFilename(false)
+                && validateNumStrains(false)
+                && validateSampleLabelingRadioButtons();
+    }
+
+    protected boolean fieldsValidExceptNumStrains() {
+        return validateNumTimepoints(false)
+                && validateNumReplicates(false)
+                && validateOutputFilename(false)
+                && validateNumConditions(false)
+                && validateSampleLabelingRadioButtons();
+    }
+
+    boolean validateNumTimepoints(boolean preventEmpty) {
         if (fields.getTimepointsController() == null || fields.getTimepointsController().usingNumDays()) {
-            return validateTextFieldByte(fields.getNumTimepointsTextField(), fields.getNumTimepointsErrorLabel(), preventEmpty);
+            if (validateTextFieldByte(fields.getNumTimepointsTextField(), fields.getNumTimepointsErrorLabel(), preventEmpty)) {
+                failedEmptyNumTimepoints = false;
+                return true;
+            } else {
+                if (preventEmpty && !validateTextFieldNotEmpty(fields.getNumTimepointsTextField(), fields.getNumTimepointsErrorLabel(), true)) {
+                    failedEmptyNumTimepoints = true;
+                }
+                return false;
+            }
         } else {
             guiLogger.clearError(fields.getNumTimepointsErrorLabel());
             config.setUsingNumDays(fields.getTimepointsController().usingNumDays());
@@ -43,140 +95,87 @@ public class EmptyInputSheetValidator extends AbstractValidator {
         }
     }
 
-    private boolean validateOutputFilename(boolean preventEmpty) {
-        return validateTextFieldFilename(fields.getOutputFilenameTextField(), fields.getStatusLabel(), preventEmpty);
-    }
-
-    private boolean checkOutputFilename(TextField textField, boolean failedEmptyBoolean, Label errorLabel) {
-        if (outputFilenameEmptyInputSheetsTextField.getText().isEmpty() && !failedEmptyOutputFilenameEmptyInputSheet) {
-            guiLogger.clearError(statusLabelEmptyInputSheets);
+    boolean validateOutputFilename(boolean preventEmpty) {
+        if (validateTextFieldFilename(fields.getOutputFilenameTextField(), fields.getStatusLabel(), preventEmpty)) {
+            failedEmptyOutputFilename = false;
             return true;
-        } else if (outputFilenameEmptyInputSheetsTextField.getText().isEmpty()){
-            guiLogger.errorOccurred(statusLabelEmptyInputSheets, "Error: Please enter an output filename");
-            return false;
-        } else if (!outputFilenameEmptyInputSheetsTextField.getText().endsWith(".xlsx")) {
-            guiLogger.errorOccurred(statusLabelEmptyInputSheets, "Error: Output filename must end in .xlsx");
-            return false;
         } else {
-            guiLogger.clearError(statusLabelEmptyInputSheets);
-            return true;
-        }
-    }
-
-    private boolean checkNumReplicatesEmptyInputSheet() {
-        if (numReplicatesEmptyInputSheetTextField.getText().isEmpty() && !failedEmptyNumReplicatesEmptyInputSheet) {
-            guiLogger.clearError(statusLabelEmptyInputSheets);
-            return true;
-        }
-        else if (numReplicatesEmptyInputSheetTextField.getText().isEmpty()) {
-            guiLogger.errorOccurred(statusLabelEmptyInputSheets, "Error: Please enter a number of replicates");
-            return false;
-        }
-        try {
-            long numReplicates = Long.parseLong(numReplicatesEmptyInputSheetTextField.getText());
-            if (numReplicates < 1){
-                guiLogger.errorOccurred(statusLabelEmptyInputSheets, "Error: Number must be > 0");
-                return false;
+            if (preventEmpty && !validateTextFieldNotEmpty(fields.getOutputFilenameTextField(), fields.getStatusLabel(), true)) {
+                failedEmptyOutputFilename = true;
             }
-            else if (numReplicates > 127) {
-                guiLogger.errorOccurred(statusLabelEmptyInputSheets, "Error: Number must be <= 127");
-                return false;
-            }
-            else {
-                guiLogger.clearError(statusLabelEmptyInputSheets);
-                return true;
-            }
-        } catch (NumberFormatException e) {
-            guiLogger.errorOccurred(statusLabelEmptyInputSheets, "Error: Invalid number: \"" + numReplicatesEmptyInputSheetTextField.getText() + "\"");
             return false;
         }
     }
 
-    private boolean checkNumConditionsEmptyInputSheet() {
-        if (conditionsController == null || conditionsController.usingNumConditions()) {
-            if (numConditionsTextField.getText().isEmpty() && !failedEmptyConditionsEmptyInputSheet) {
-                guiLogger.clearError(numConditionsErrorLabel);
+    boolean validateNumReplicates(boolean preventEmpty) {
+        if (validateTextFieldByte(fields.getNumReplicatesTextField(), fields.getStatusLabel(), preventEmpty)) {
+            failedEmptyNumReplicates = false;
+            return true;
+        } else {
+            if (preventEmpty && !validateTextFieldNotEmpty(fields.getNumReplicatesTextField(), fields.getStatusLabel(), true)) {
+                failedEmptyNumReplicates = true;
+            }
+            return false;
+        }
+    }
+
+    boolean validateNumConditions(boolean preventEmpty) {
+        if (fields.getConditionsController() == null || fields.getConditionsController().usingNumConditions()) {
+            if (validateTextFieldByte(fields.getNumConditionsTextField(), fields.getNumConditionsErrorLabel(), preventEmpty)) {
+                failedEmptyConditions = false;
                 return true;
-            } else if (numConditionsTextField.getText().isEmpty()) {
-                guiLogger.errorOccurred(numConditionsErrorLabel, "Error: Please enter a number of conditions");
-                return false;
             } else {
-                try {
-                    long numConditions = Long.parseLong(numConditionsTextField.getText());
-                    if (numConditions < 1) {
-                        guiLogger.errorOccurred(numConditionsErrorLabel, "Error: Number of conditions must be > 0");
-                        return false;
-                    } else if (numConditions > 127) {
-                        guiLogger.errorOccurred(numConditionsErrorLabel, "Error: Number of conditions must be <= 127");
-                        return false;
-                    } else {
-                        guiLogger.clearError(numConditionsErrorLabel);
-                        config.setNumConditions((byte) numConditions);
-                        return true;
-                    }
-                } catch (NumberFormatException e) {
-                    guiLogger.errorOccurred(numConditionsErrorLabel, "Error: Invalid number: \"" + numConditionsTextField.getText() + "\"");
-                    return false;
+                if (preventEmpty && !validateTextFieldNotEmpty(fields.getNumConditionsTextField(), fields.getNumConditionsErrorLabel(), true)) {
+                    failedEmptyConditions = true;
                 }
+                return false;
             }
         } else {
-            guiLogger.clearError(numConditionsErrorLabel);
-            config.setUsingNumConditions(conditionsController.usingNumConditions());
-            config.setConditions(conditionsController.getConditions());
+            guiLogger.clearError(fields.getNumConditionsErrorLabel());
+            config.setUsingNumConditions(fields.getConditionsController().usingNumConditions());
+            config.setConditions(fields.getConditionsController().getConditions());
             return true;
         }
     }
-    private boolean checkNumStrainsEmptyInputSheet() {
-        if (strainsController == null || strainsController.usingNumStrains()) {
-            if (numStrainsTextField.getText().isEmpty() && !failedEmptyStrainsEmptyInputSheet) {
-                guiLogger.clearError(numStrainErrorLabel);
+    boolean validateNumStrains(boolean preventEmpty) {
+        if (fields.getStrainsController() == null || fields.getStrainsController().usingNumStrains()) {
+            if (validateTextFieldByte(fields.getNumStrainsTextField(), fields.getNumStrainErrorLabel(), preventEmpty)) {
+                failedEmptyStrains = false;
                 return true;
-            } else if (numStrainsTextField.getText().isEmpty()) {
-                guiLogger.errorOccurred(numStrainErrorLabel, "Error: Please enter a number of strains");
-                return false;
             } else {
-                try {
-                    long numStrains = Long.parseLong(numStrainsTextField.getText());
-                    if (numStrains < 1) {
-                        guiLogger.errorOccurred(numStrainErrorLabel, "Error: Number of strains must be > 0");
-                        return false;
-                    } else if (numStrains > 127) {
-                        guiLogger.errorOccurred(numStrainErrorLabel, "Error: Number of strains must be <= 127");
-                        return false;
-                    } else {
-                        guiLogger.clearError(numStrainErrorLabel);
-                        config.setNumStrains((byte) numStrains);
-                        return true;
-                    }
-                } catch (NumberFormatException e) {
-                    guiLogger.errorOccurred(numStrainErrorLabel, "Error: Invalid number: \"" + numStrainsTextField.getText() + "\"");
-                    return false;
+                if (preventEmpty && !validateTextFieldNotEmpty(fields.getNumStrainsTextField(), fields.getNumStrainErrorLabel(), true)) {
+                    failedEmptyStrains = true;
                 }
+                return false;
             }
         } else {
-            guiLogger.clearError(numStrainErrorLabel);
-            config.setUsingNumStrains(strainsController.usingNumStrains());
-            config.setStrains(strainsController.getStrains());
+            guiLogger.clearError(fields.getNumStrainErrorLabel());
+            config.setUsingNumStrains(fields.getStrainsController().usingNumStrains());
+            config.setStrains(fields.getStrainsController().getStrains());
             return true;
         }
     }
 
-    private boolean checkSampleLabelingRadioButtons() {
-        if (!conditionLabelingRadioButton.isSelected() && !strainLabelingRadioButton.isSelected() && !conditionAndStrainLabelingRadioButton.isSelected()) {
-            guiLogger.errorOccurred(statusLabelEmptyInputSheets, "Error: Please select a sample labeling method");
+    boolean validateSampleLabelingRadioButtons() {
+        if (!fields.getStrainLabelingRadioButton().isSelected()
+                && !fields.getConditionLabelingRadioButton().isSelected()
+                && !fields.getConditionAndStrainLabelingRadioButton().isSelected()) {
+            guiLogger.errorOccurred(fields.getStatusLabel(), "Error: Please select a sample labeling option");
             return false;
+        } else {
+            guiLogger.clearError(fields.getStatusLabel());
+            return true;
         }
-        return true;
     }
 
     @Override
     boolean validateTextFieldNotEmpty(TextField textField, Label statusLabel, boolean preventEmpty) {
         boolean failedBoolean = switch (textField.getId()) {
-            case "numReplicatesEmptyInputSheetTextField" -> failedEmptyNumReplicatesEmptyInputSheet;
-            case "outputFilenameEmptyInputSheetsTextField" -> failedEmptyOutputFilenameEmptyInputSheet;
-            case "numConditionsTextField" -> failedEmptyConditionsEmptyInputSheet;
-            case "numStrainsTextField" -> failedEmptyStrainsEmptyInputSheet;
-            case "numTimepointsTextField" -> failedEmptyNumTimepointsEmptyInputSheet;
+            case "numReplicatesEmptyInputSheetTextField" -> failedEmptyNumReplicates;
+            case "outputFilenameEmptyInputSheetsTextField" -> failedEmptyOutputFilename;
+            case "numConditionsTextField" -> failedEmptyConditions;
+            case "numStrainsTextField" -> failedEmptyStrains;
+            case "numTimepointsTextField" -> failedEmptyNumTimepoints;
             default -> false;
         };
         if (textField.getText().isEmpty() && (preventEmpty || failedBoolean)) {
@@ -187,4 +186,14 @@ public class EmptyInputSheetValidator extends AbstractValidator {
             return true;
         }
     }
+
+    boolean failedEmptyNumTimepoints() { return failedEmptyNumTimepoints; }
+
+    boolean failedEmptyNumReplicates() { return failedEmptyNumReplicates; }
+
+    boolean failedEmptyOutputFilename() { return failedEmptyOutputFilename; }
+
+    boolean failedEmptyConditions() { return failedEmptyConditions; }
+
+    boolean failedEmptyStrains() { return failedEmptyStrains; }
 }

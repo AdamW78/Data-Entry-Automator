@@ -31,4 +31,5 @@ public class EmptyInputSheetFields extends AbstractFields {
     public TimepointsController getTimepointsController() { return controller.timepointsController; }
     public StrainsController getStrainsController() { return controller.strainsController; }
     public ConditionsController getConditionsController() { return controller.conditionsController; }
+    public RadioButton[] getSampleLabelingRadioButtons() { return controller.sampleLabelingRadioButtons; }
 }

@@ -3,7 +3,7 @@ package org.awdevelopment.smithlab;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.awdevelopment.smithlab.args.Arguments;
-import org.awdevelopment.smithlab.config.Config;
+import org.awdevelopment.smithlab.config.EmptyInputSheetConfig;
 import org.awdevelopment.smithlab.config.Mode;
 import org.awdevelopment.smithlab.config.OutputSheetsConfig;
 import org.awdevelopment.smithlab.data.experiment.Experiment;
@@ -24,13 +24,14 @@ public class MainApplication extends javafx.application.Application {
             Arguments arguments = new Arguments(args, LOGGER);
             try {
                 if (arguments.getMode() == Mode.GENERATE_EMPTY_INPUT_SHEET) {
-                    OutputSheetsConfig config = new OutputSheetsConfig(arguments, LOGGER);
-                    OutputGenerator outputGenerator = new OutputGenerator(config, LOGGER);
+                    EmptyInputSheetConfig config = new EmptyInputSheetConfig(arguments, LOGGER);
+                    OutputGenerator outputGenerator = new OutputGenerator(config);
                     outputGenerator.generateEmptyInputSheet();
                 } else if (arguments.getMode() == Mode.GENERATE_OUTPUT_SHEETS) {
+                    OutputSheetsConfig config = new OutputSheetsConfig(arguments, LOGGER);
+                    OutputGenerator outputGenerator = new OutputGenerator(config);
                     InputReader reader = new InputReader(config, LOGGER);
                     Experiment experiment = reader.readExperimentData();
-                    OutputGenerator outputGenerator = new OutputGenerator(config, LOGGER);
                     outputGenerator.generateOutput(experiment);
                 }
             } catch (Exception ignored) {
