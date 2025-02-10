@@ -10,6 +10,7 @@ public class SceneLoader {
     public static void loadScene(Stage stage, FXMLResourceType fxmlResourceType, LoggerHelper logger) {
         FXMLResource fxmlResource = FXMLResourceLoader.load(fxmlResourceType, logger);
         fxmlResource.controller().setLogger(logger);
+        fxmlResource.controller().setup();
         stage.setTitle(fxmlResourceType.getWindowTitle());
         stage.setScene(fxmlResource.scene());
         stage.show();
@@ -19,6 +20,7 @@ public class SceneLoader {
         FXMLResource fxmlResource = FXMLResourceLoader.load(fxmlResourceType, logger);
         fxmlResource.controller().setLogger(logger);
         ((AbstractLabelController) fxmlResource.controller()).setConfig(config);
+        fxmlResource.controller().setup();
         stage.setTitle(fxmlResourceType.getWindowTitle());
         stage.setScene(fxmlResource.scene());
         stage.show();

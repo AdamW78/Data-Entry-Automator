@@ -84,14 +84,11 @@ public class MainApplicationController extends AbstractController {
         super();
     }
 
-    public void initialize() {
+    public void initialize() {}
+
+    public void setup() {
         config = new ConfigManager(getLogger());
         guiLogger = new GUILogger(getLogger());
-        // Set up the radio buttons and choice boxes
-        radioButtonSetup();
-        choiceBoxSetup();
-        setupErrorLabelsOutputSheet();
-        updateFields();
         // Initialize support classes for generating output sheets
         outputSheetFields = new OutputSheetFields(this);
         outputSheetValidator = new OutputSheetValidator(outputSheetFields, guiLogger, config.getOutputSheetsConfig());
@@ -100,6 +97,10 @@ public class MainApplicationController extends AbstractController {
         emptyInputSheetFields = new EmptyInputSheetFields(this);
         emptyInputSheetValidator = new EmptyInputSheetValidator(emptyInputSheetFields, guiLogger, config.getEmptyInputSheetConfig());
         emptyInputSheetConfigUpdater = new EmptyInputSheetConfigUpdater(this, config.getEmptyInputSheetConfig());
+        // Set up the radio buttons and choice boxes
+        radioButtonSetup();
+        choiceBoxSetup();
+        setupErrorLabelsOutputSheet();
     }
 
     private void choiceBoxSetup() {
@@ -216,10 +217,6 @@ public class MainApplicationController extends AbstractController {
         outputSheetConfigUpdater.updateOutputFilename(null);
     }
 
-    public void updateFields() {
-        outputSheetConfigUpdater.updateFields();
-    }
-
     public void updateMode() {
         if (tabPane.getSelectionModel().getSelectedItem() == outputSheetsTab) {
             mode = Mode.GENERATE_OUTPUT_SHEETS;
@@ -272,6 +269,8 @@ public class MainApplicationController extends AbstractController {
             default -> emptyInputSheetValidator.fieldsValid();
         }
     }
+
+    public void updateFieldsOutputSheets() { outputSheetConfigUpdater.updateFields(); }
 
     public void openConditionsFXML() {
         emptyInputValidateFields();

@@ -15,20 +15,20 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.awdevelopment.smithlab.gui.controllers.main.MainApplicationController">
    <HBox alignment="CENTER" minHeight="40.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0">
-      <TabPane fx:id="tabPane" centerShape="false" onMouseClicked="#updateFields" prefHeight="40.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="tabPane" centerShape="false" onMouseClicked="#updateFieldsOutputSheets" prefHeight="40.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE">
          <Tab fx:id="outputSheetsTab" onSelectionChanged="#updateMode" text="Generate Output Sheet">
-            <AnchorPane minHeight="0.0" minWidth="0.0" onMouseClicked="#updateFields" prefHeight="302.0" prefWidth="600.0">
-               <HBox layoutX="1.0" layoutY="-1.0" onMouseClicked="#updateFields" prefHeight="374.0" prefWidth="600.0">
+            <AnchorPane minHeight="0.0" minWidth="0.0" onMouseClicked="#updateFieldsOutputSheets" prefHeight="302.0" prefWidth="600.0">
+               <HBox layoutX="1.0" layoutY="-1.0" onMouseClicked="#updateFieldsOutputSheets" prefHeight="374.0" prefWidth="600.0">
                   <VBox prefHeight="374.0" prefWidth="601.0" spacing="10.0">
-                     <VBox onMouseClicked="#updateFields" prefHeight="7.0" prefWidth="600.0" spacing="10.0">
+                     <VBox onMouseClicked="#updateFieldsOutputSheets" prefHeight="7.0" prefWidth="600.0" spacing="10.0">
                         <padding>
                            <Insets bottom="10.0" top="20.0" />
                         </padding>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFields" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFieldsOutputSheets" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
                            <padding>
                               <Insets left="10.0" />
                            </padding>
-                           <Label onMouseClicked="#updateFields" text="Input File:" textAlignment="CENTER">
+                           <Label onMouseClicked="#updateFieldsOutputSheets" text="Input File:" textAlignment="CENTER">
                               <HBox.margin>
                                  <Insets />
                               </HBox.margin></Label>
@@ -36,19 +36,19 @@
                            <Button fx:id="inputFileBrowseButton" mnemonicParsing="false" onAction="#browseForInputFile" prefHeight="26.0" prefWidth="70.0" text="Browse..." />
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                           <Label fx:id="inputFileExistsLabel" onMouseClicked="#updateFields" text="Label" />
+                           <Label fx:id="inputFileExistsLabel" onMouseClicked="#updateFieldsOutputSheets" text="Label" />
                         </HBox>
                      </VBox>
                      <VBox prefWidth="600.0" spacing="10.0">
                         <padding>
                            <Insets top="10.0" />
                         </padding>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFields" prefHeight="2.0" prefWidth="600.0" spacing="5.0">
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFieldsOutputSheets" prefHeight="2.0" prefWidth="600.0" spacing="5.0">
                            <padding>
                               <Insets left="10.0" />
                            </padding>
-                           <Label onMouseClicked="#updateFields" text="Output Style:" />
-                           <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFields" prefWidth="514.0" spacing="30.0">
+                           <Label onMouseClicked="#updateFieldsOutputSheets" text="Output Style:" />
+                           <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFieldsOutputSheets" prefWidth="514.0" spacing="30.0">
                               <padding>
                                  <Insets left="30.0" />
                               </padding>
@@ -66,10 +66,10 @@
                         <padding>
                            <Insets bottom="10.0" top="10.0" />
                         </padding>
-                        <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFields" prefWidth="600.0" spacing="5.0">
-                           <Label onMouseClicked="#updateFields" prefHeight="18.0" prefWidth="95.0" text="Output Filename:" textAlignment="CENTER" />
+                        <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFieldsOutputSheets" prefWidth="600.0" spacing="5.0">
+                           <Label onMouseClicked="#updateFieldsOutputSheets" prefHeight="18.0" prefWidth="95.0" text="Output Filename:" textAlignment="CENTER" />
                            <TextField fx:id="outputFileTextField" onKeyPressed="#updateOutputFilename" onMouseClicked="#updateInputReplicatesFields" prefHeight="26.0" prefWidth="312.0" promptText="Name for output file (.xlsx)" />
-                           <CheckBox fx:id="addSheetsToInputFileCheckbox" mnemonicParsing="false" onAction="#handleAddSheetsCheckbox" onMouseClicked="#updateFields" text="Add Sheets to Input File?" />
+                           <CheckBox fx:id="addSheetsToInputFileCheckbox" mnemonicParsing="false" onAction="#handleAddSheetsCheckbox" onMouseClicked="#updateFieldsOutputSheets" text="Add Sheets to Input File?" />
                            <padding>
                               <Insets left="10.0" />
                            </padding>
@@ -78,24 +78,24 @@
                            <Label fx:id="outputFilenameErrorLabel" text="Label" />
                         </HBox>
                      </VBox>
-                     <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFields" prefHeight="65.0" prefWidth="600.0" spacing="5.0">
+                     <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFieldsOutputSheets" prefHeight="65.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
-                        <Label onMouseClicked="#updateFields" text="Number of Replicates:" />
+                        <Label onMouseClicked="#updateFieldsOutputSheets" text="Number of Replicates:" />
                         <TextField fx:id="numReplicatesTextField" onKeyPressed="#updateNumReplicates" onMouseClicked="#updateInputOutputFields" prefHeight="26.0" prefWidth="202.0" promptText="# of replicates" />
                         <Label fx:id="replicatesErrorLabelOutputSheet" text="Label" />
                      </HBox>
-                     <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFields" prefHeight="95.0" prefWidth="600.0" spacing="5.0">
+                     <HBox alignment="CENTER_LEFT" onMouseClicked="#updateFieldsOutputSheets" prefHeight="95.0" prefWidth="600.0" spacing="5.0">
                         <padding>
                            <Insets left="10.0" />
                         </padding>
-                        <Label onMouseClicked="#updateFields" text="Sample Sorting Method:" />
-                        <ChoiceBox fx:id="sampleSortingMethodChoiceBox" onAction="#updateSampleSortingMethod" onMouseClicked="#updateFields" prefWidth="150.0" />
+                        <Label onMouseClicked="#updateFieldsOutputSheets" text="Sample Sorting Method:" />
+                        <ChoiceBox fx:id="sampleSortingMethodChoiceBox" onAction="#updateSampleSortingMethod" onMouseClicked="#updateFieldsOutputSheets" prefWidth="150.0" />
                      </HBox>
                      <VBox prefHeight="200.0" prefWidth="100.0">
-                        <HBox alignment="CENTER" onMouseClicked="#updateFields" prefHeight="64.0" prefWidth="600.0">
-                           <Button mnemonicParsing="false" onAction="#generateOutput" onMouseClicked="#updateFields" text="Generate" />
+                        <HBox alignment="CENTER" onMouseClicked="#updateFieldsOutputSheets" prefHeight="64.0" prefWidth="600.0">
+                           <Button mnemonicParsing="false" onAction="#generateOutput" onMouseClicked="#updateFieldsOutputSheets" text="Generate" />
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                            <Label fx:id="statusLabelOutputSheet" text="Label" />

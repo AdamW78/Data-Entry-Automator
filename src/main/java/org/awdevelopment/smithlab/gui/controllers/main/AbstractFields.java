@@ -1,4 +1,4 @@
 package org.awdevelopment.smithlab.gui.controllers.main;
 
-public class AbstractFields {
+public abstract class AbstractFields {
 }

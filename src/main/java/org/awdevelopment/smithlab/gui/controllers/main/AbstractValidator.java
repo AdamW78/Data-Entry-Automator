@@ -4,6 +4,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import org.awdevelopment.smithlab.config.AbstractConfig;
 
+import java.io.File;
+
 public abstract class AbstractValidator {
 
     private final AbstractFields fields;
@@ -21,6 +23,19 @@ public abstract class AbstractValidator {
     public abstract boolean fieldsValid();
 
     abstract boolean validateTextFieldNotEmpty(TextField textField, Label statusLabel, boolean preventEmpty);
+
+    protected boolean validateTextFieldFileExists(TextField textField, Label statusLabel, boolean preventEmpty) {
+        if (!validateTextFieldFilename(textField, statusLabel, preventEmpty)) return false;
+        String filePath = textField.getText();
+        File file = new File(filePath);
+        if (!file.exists()) {
+            guiLogger.errorOccurred(statusLabel, "Error: File does not exist");
+            return false;
+        } else {
+            guiLogger.clearError(statusLabel);
+            return true;
+        }
+    }
 
     protected boolean validateTextFieldFilename(TextField textField, Label statusLabel, boolean preventEmpty) {
         if (!validateTextFieldNotEmpty(textField, statusLabel, preventEmpty)) return false;

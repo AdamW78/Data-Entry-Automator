@@ -52,7 +52,7 @@ public class OutputSheetValidator extends AbstractValidator {
     }
 
     boolean inputFileTextFieldValid(boolean preventEmpty) {
-        return validateTextFieldFilename(fields.getInputFileTextField(),
+        return validateTextFieldFileExists(fields.getInputFileTextField(),
                 fields.getInputFileExistsLabel(), preventEmpty);
     }
 

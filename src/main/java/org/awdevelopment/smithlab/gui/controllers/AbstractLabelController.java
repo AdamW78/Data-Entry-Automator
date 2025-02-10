@@ -2,7 +2,7 @@ package org.awdevelopment.smithlab.gui.controllers;
 
 import org.awdevelopment.smithlab.config.EmptyInputSheetConfig;
 
-public class AbstractLabelController extends AbstractController {
+public abstract class AbstractLabelController extends AbstractController {
 
     private EmptyInputSheetConfig config;
 

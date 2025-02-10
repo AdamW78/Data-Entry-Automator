@@ -15,6 +15,9 @@ public class StrainsController extends AbstractLabelController {
         strains = new HashSet<>();
     }
 
+    @Override
+    public void setup() {}
+
     public boolean usingNumStrains() { return usingNumStrains; }
 
     public void setUsingNumStrains(boolean usingNumStrains) { this.usingNumStrains = usingNumStrains; }

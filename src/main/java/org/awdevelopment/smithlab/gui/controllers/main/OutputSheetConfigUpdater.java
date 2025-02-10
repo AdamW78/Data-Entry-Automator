@@ -14,7 +14,7 @@ import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 import java.io.File;
 
-public class OutputSheetConfigUpdater {
+public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
 
     MainApplicationController controller;
     private final OutputSheetsConfig config;
@@ -45,7 +45,7 @@ public class OutputSheetConfigUpdater {
     }
 
     public void handleRadioButtonPressOutputSheets(ActionEvent actionEvent) {
-        controller.updateFields();
+        updateFields();
         RadioButton radioButton = (RadioButton) actionEvent.getSource();
         for (RadioButton otherRadioButton : fields.getRadioButtons()) if (!otherRadioButton.equals(radioButton)) otherRadioButton.setSelected(false);
         OutputType oldOutputType = config.outputType();
@@ -58,7 +58,7 @@ public class OutputSheetConfigUpdater {
     }
 
     public void handleAddSheetsCheckbox() {
-        controller.updateFields();
+        updateFields();
         if (fields.getAddSheetsToInputFileCheckbox().isSelected()) {
             fields.getOutputFileTextField().setDisable(true);
             config.setWriteToDifferentFile(false);
@@ -72,29 +72,22 @@ public class OutputSheetConfigUpdater {
         }
     }
 
-    private void updateTextField(TextField textField, ConfigOption option, KeyEvent keyEvent, Label errorLabel, boolean failedBoolean, boolean byteParse, boolean fileExists) {
+    void updateTextField(TextField textField, ConfigOption option, KeyEvent keyEvent, Label errorLabel, boolean failedBoolean, boolean byteParse, boolean fileExists) {
         if (!byteParse && !fileExists) config.set(option, textField.getText());
-        if (textField.getText().isEmpty() && !failedBoolean)  guiLogger.clearError(errorLabel);
-        if (    keyEvent == null
+        if (textField.getText().isEmpty() && !failedBoolean) guiLogger.clearError(errorLabel);
+        if (keyEvent == null
                 || !(textField.getScene().focusOwnerProperty().get().getId().equals(textField.getId()))
                 || keyEvent.getCode() == KeyCode.ENTER
                 || keyEvent.getCode() == KeyCode.TAB
         ) {
-            switch (textField.getId()) {
+            boolean validatedSuccessfully = switch (textField.getId()) {
                 case "numReplicatesTextField" -> validator.numReplicatesTextFieldValid(failedBoolean);
                 case "outputFileTextField" -> validator.outputFilenameTextFieldValid(failedBoolean);
                 case "inputFileTextField" -> validator.inputFileTextFieldValid(failedBoolean);
-            }
-            if (byteParse) config.set(option, Byte.parseByte(textField.getText()));
-            if (fileExists) {
-                File file = new File(textField.getText());
-                if (file.exists()) {
-                    guiLogger.clearError(errorLabel);
-                    config.set(option, textField.getText());
-                } else {
-                    guiLogger.errorOccurred(errorLabel, "Error: File does not exist");
-                }
-            }
+                default -> throw new IllegalStateException("Unexpected value: " + textField.getId());
+            };
+            if (byteParse && validatedSuccessfully) config.set(option, Byte.parseByte(textField.getText()));
+            if (fileExists && validatedSuccessfully) config.set(option, textField.getText());
         }
     }
 

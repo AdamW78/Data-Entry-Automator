@@ -22,7 +22,7 @@ public class FXMLResourceLoader {
             controller = loader.getController();
         } catch (IOException e) {
             LOGGER.atFatal("Failed to load FXML resource: \"" + fxmlResource+"\"", e);
-            throw new FailedToLoadFXMLException(fxmlResource);
+            throw new FailedToLoadFXMLException(fxmlResource, e);
         }
         return new FXMLResource(scene, controller);
     }

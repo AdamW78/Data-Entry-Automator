@@ -13,6 +13,9 @@ public class TimepointsController extends AbstractLabelController {
         days = new HashSet<>();
     }
 
+    @Override
+    public void setup() {}
+
     public boolean usingNumDays() { return usingNumDays; }
     private void addDay(byte day) { days.add(day); }
     private void removeDay(byte day) { days.remove(day); }
