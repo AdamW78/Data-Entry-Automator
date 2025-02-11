@@ -22,13 +22,13 @@ import org.awdevelopment.smithlab.io.input.InputReader;
 import org.awdevelopment.smithlab.io.output.OutputGenerator;
 
 public class MainApplicationController extends AbstractController {
-
     private ConfigManager config;
 
     // EMPTY INPUT SHEET
     @FXML protected Label numConditionsErrorLabel;
     @FXML protected Label numTimepointsErrorLabel;
     @FXML protected Label numStrainErrorLabel;
+    @FXML protected Label numReplicatesErrorLabelEmptyInputSheet;
     @FXML protected TextField numConditionsTextField;
     @FXML protected TextField numStrainsTextField;
     @FXML protected HBox strainsHBox;

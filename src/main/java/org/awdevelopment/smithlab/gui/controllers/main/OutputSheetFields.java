@@ -5,10 +5,21 @@ import org.awdevelopment.smithlab.config.SortOption;
 
 public class OutputSheetFields extends AbstractFields{
 
+    private ValidatableField inputFileTextField;
+    private ValidatableField outputFileTextField;
+    private ValidatableField numReplicatesTextField;
+    private ValidatableField sampleSortingMethodChoiceBox;
+    private ValidatableField outputStyleRadioButtons;
+
     private final MainApplicationController controller;
 
     OutputSheetFields(MainApplicationController controller) {
         this.controller = controller;
+        this.inputFileTextField = new ValidatableField(controller.inputFileTextField);
+        this.outputFileTextField = new ValidatableField(controller.outputFileTextField);
+        this.numReplicatesTextField = new ValidatableField(controller.numReplicatesTextField);
+        this.sampleSortingMethodChoiceBox = new ValidatableField(controller.sampleSortingMethodChoiceBox);
+        this.outputStyleRadioButtons = new ValidatableField(controller.radioButtons);
     }
 
     public Label getStatusLabelOutputSheet() {
@@ -39,13 +50,9 @@ public class OutputSheetFields extends AbstractFields{
         return controller.emptyInputSheetTab;
     }
 
-    public RadioButton getOutputStylePrismRadioButton() {
-        return controller.outputStylePrismRadioButton;
-    }
+    public RadioButton getOutputStylePrismRadioButton() { return controller.outputStylePrismRadioButton; }
 
-    public TextField getInputFileTextField() {
-        return controller.inputFileTextField;
-    }
+    public ValidatableField getInputFileTextField() { return inputFileTextField; }
 
     public Button getInputFileBrowseButton() {
         return controller.inputFileBrowseButton;
@@ -67,24 +74,24 @@ public class OutputSheetFields extends AbstractFields{
         return controller.outputStyleBothRadioButton;
     }
 
-    public TextField getOutputFileTextField() {
-        return controller.outputFileTextField;
+    public ValidatableField getOutputFileTextField() {
+        return outputFileTextField;
     }
 
     public CheckBox getAddSheetsToInputFileCheckbox() {
         return controller.addSheetsToInputFileCheckbox;
     }
 
-    public TextField getNumReplicatesTextField() {
-        return controller.numReplicatesTextField;
+    public ValidatableField getNumReplicatesTextField() {
+        return numReplicatesTextField;
     }
 
-    public ChoiceBox<SortOption> getSampleSortingMethodChoiceBox() {
-        return controller.sampleSortingMethodChoiceBox;
+    public ValidatableField getSampleSortingMethodChoiceBox() {
+        return sampleSortingMethodChoiceBox;
     }
 
-    public RadioButton[] getRadioButtons() {
-        return controller.radioButtons;
+    public ValidatableField getRadioButtons() {
+        return outputStyleRadioButtons;
     }
 }
 

@@ -139,13 +139,13 @@
                         </padding>
                         <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Number of Conditions" />
                         <TextField fx:id="numConditionsTextField" onKeyPressed="#updateNumConditionsEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="102.0" promptText="# of conditions" />
-                        <Label text="Or:">
+                        <Label onMouseClicked="#emptyInputValidateFields" text="Or:">
                            <padding>
                               <Insets left="5.0" right="5.0" />
                            </padding>
                         </Label>
                         <Button mnemonicParsing="false" onAction="#openConditionsFXML" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="120.0" text="Add Conditions..." />
-                        <Label fx:id="numConditionsErrorLabel" text="Label" />
+                        <Label fx:id="numConditionsErrorLabel" onMouseClicked="#emptyInputValidateFields" text="Label" />
                      </HBox>
                      <HBox fx:id="strainsHBox" alignment="CENTER_LEFT" disable="true" onMouseClicked="#emptyInputValidateFields" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
                         <padding>
@@ -153,13 +153,13 @@
                         </padding>
                         <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Number of Strains" />
                         <TextField fx:id="numStrainsTextField" onKeyPressed="#updateNumStrainsEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="102.0" promptText="# of strains" />
-                        <Label text="Or:">
+                        <Label onMouseClicked="#emptyInputValidateFields" text="Or:">
                            <padding>
                               <Insets left="5.0" right="5.0" />
                            </padding>
                         </Label>
                         <Button mnemonicParsing="false" onAction="#openStrainsFXML" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="120.0" text="Add Strains..." />
-                        <Label fx:id="numStrainErrorLabel" text="Label" />
+                        <Label fx:id="numStrainErrorLabel" onMouseClicked="#emptyInputValidateFields" text="Label" />
                      </HBox>
                      <HBox alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
                         <padding>
@@ -167,6 +167,7 @@
                         </padding>
                         <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Number of Replicates:" />
                         <TextField fx:id="numReplicatesEmptyInputSheetTextField" onKeyPressed="#updateNumReplicateEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="102.0" promptText="# of replicates" />
+                        <Label fx:id="numReplicatesErrorLabelEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" text="Label" />
                      </HBox>
                      <HBox alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="62.0" prefWidth="600.0" spacing="5.0">
                         <padding>
@@ -174,13 +175,13 @@
                         </padding>
                         <Label onMouseClicked="#emptyInputValidateFields" prefHeight="18.0" prefWidth="128.0" text="Number of Timepoints:" />
                         <TextField fx:id="numTimepointsTextField" onKeyPressed="#updateNumTimepointsEmptyInputSheet" onMouseClicked="#emptyInputValidateFields" prefHeight="26.0" prefWidth="102.0" promptText="# of timepoints" />
-                        <Label text="Or:">
+                        <Label onMouseClicked="#emptyInputValidateFields" text="Or:">
                            <padding>
                               <Insets left="5.0" right="5.0" />
                            </padding>
                         </Label>
                         <Button mnemonicParsing="false" onAction="#openTimepointsFXML" prefHeight="26.0" prefWidth="120.0" text="Add Timepoints..." />
-                        <Label fx:id="numTimepointsErrorLabel" text="Label" />
+                        <Label fx:id="numTimepointsErrorLabel" onMouseClicked="#emptyInputValidateFields" text="Label" />
                      </HBox>
                      <HBox alignment="CENTER_LEFT" onMouseClicked="#emptyInputValidateFields" prefHeight="54.0" prefWidth="600.0" spacing="5.0">
                         <padding>

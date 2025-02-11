@@ -1,17 +1,16 @@
 package org.awdevelopment.smithlab.gui.controllers.main;
 
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import org.awdevelopment.smithlab.config.OutputSheetsConfig;
+import org.awdevelopment.smithlab.config.SortOption;
 
 public class OutputSheetValidator extends AbstractValidator {
 
     private final OutputSheetFields fields;
     private final GUILogger guiLogger;
     private final OutputSheetsConfig config;
-    private boolean failedEmptyReplicates = false;
-    private boolean failedEmptyOutputFilename = false;
-    private boolean failedEmptyInputFile = false;
 
     protected OutputSheetValidator(OutputSheetFields fields, GUILogger guiLogger, OutputSheetsConfig config) {
         super(fields, guiLogger, config);
@@ -35,14 +34,10 @@ public class OutputSheetValidator extends AbstractValidator {
     }
 
     @Override
-    boolean validateTextFieldNotEmpty(TextField textField, Label statusLabel, boolean preventEmpty) {
-        boolean failedBoolean = switch (textField.getId()) {
-            case "numReplicatesTextField" -> failedEmptyReplicates;
-            case "outputFilenameTextField" -> failedEmptyOutputFilename;
-            case "outputFilenameEmptyInputSheetsTextField" -> failedEmptyInputFile;
-            default -> false;
-        };
-        if (textField.getText().isEmpty() && (preventEmpty || failedBoolean)) {
+    boolean validateTextFieldNotEmpty(ValidatableField field, Label statusLabel, boolean preventEmpty) {
+        TextField textField = (TextField) field.getControl();
+        if (!field.beenTouched() && !preventEmpty) return true;
+        else if (textField.getText().isEmpty() && (preventEmpty || field.hasFailedEmptyCheck())) {
             guiLogger.errorOccurred(statusLabel, "Error: Please enter a value");
             return false;
         } else {
@@ -65,13 +60,14 @@ public class OutputSheetValidator extends AbstractValidator {
     boolean numReplicatesTextFieldValid(boolean preventEmpty) {
         if (validateTextFieldByte(fields.getNumReplicatesTextField(),
                 fields.getReplicatesErrorLabelOutputSheet(), preventEmpty)) {
-            config.setNumberOfReplicates(Byte.parseByte(fields.getNumReplicatesTextField().getText()));
+            config.setNumberOfReplicates(Byte.parseByte(((TextField) fields.getNumReplicatesTextField().getControl()).getText()));
             return true;
         } else return false;
     }
 
+    @SuppressWarnings("unchecked")
     boolean sampleSortingValid() {
-        return fields.getSampleSortingMethodChoiceBox().getValue() != null;
+        return ((ChoiceBox<SortOption>) fields.getSampleSortingMethodChoiceBox().getControl()).getValue() != null;
     }
 
     boolean outputTypeValid() {
@@ -80,9 +76,4 @@ public class OutputSheetValidator extends AbstractValidator {
                 ^ fields.getOutputStyleRawRadioButton().isSelected()
                 ^ fields.getOutputStyleBothRadioButton().isSelected();
     }
-
-    boolean failedEmptyReplicates() { return failedEmptyReplicates; }
-    boolean failedEmptyOutputFilename() { return failedEmptyOutputFilename; }
-    boolean failedEmptyInputFile() { return failedEmptyInputFile; }
-
 }

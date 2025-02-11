@@ -78,11 +78,11 @@ public class EmptyInputSheetValidator extends AbstractValidator {
 
     boolean validateNumTimepoints(boolean preventEmpty) {
         if (fields.getTimepointsController() == null || fields.getTimepointsController().usingNumDays()) {
-            if (validateTextFieldByte(fields.getNumTimepointsTextField(), fields.getNumTimepointsErrorLabel(), preventEmpty)) {
+            if (validateTextFieldByte(fields.getNumTimepointsTextField(), preventEmpty)) {
                 failedEmptyNumTimepoints = false;
                 return true;
             } else {
-                if (preventEmpty && !validateTextFieldNotEmpty(fields.getNumTimepointsTextField(), fields.getNumTimepointsErrorLabel(), true)) {
+                if (preventEmpty && !validateTextFieldNotEmpty(fields.getNumTimepointsTextField(),true)) {
                     failedEmptyNumTimepoints = true;
                 }
                 return false;
@@ -100,7 +100,7 @@ public class EmptyInputSheetValidator extends AbstractValidator {
             failedEmptyOutputFilename = false;
             return true;
         } else {
-            if (preventEmpty && !validateTextFieldNotEmpty(fields.getOutputFilenameTextField(), fields.getStatusLabel(), true)) {
+            if (preventEmpty && !validateTextFieldNotEmpty(fields.getOutputFilenameTextField(),true)) {
                 failedEmptyOutputFilename = true;
             }
             return false;
@@ -112,7 +112,7 @@ public class EmptyInputSheetValidator extends AbstractValidator {
             failedEmptyNumReplicates = false;
             return true;
         } else {
-            if (preventEmpty && !validateTextFieldNotEmpty(fields.getNumReplicatesTextField(), fields.getStatusLabel(), true)) {
+            if (preventEmpty && !validateTextFieldNotEmpty(fields.getNumReplicatesTextField(),true)) {
                 failedEmptyNumReplicates = true;
             }
             return false;
@@ -169,16 +169,9 @@ public class EmptyInputSheetValidator extends AbstractValidator {
     }
 
     @Override
-    boolean validateTextFieldNotEmpty(TextField textField, Label statusLabel, boolean preventEmpty) {
-        boolean failedBoolean = switch (textField.getId()) {
-            case "numReplicatesEmptyInputSheetTextField" -> failedEmptyNumReplicates;
-            case "outputFilenameEmptyInputSheetsTextField" -> failedEmptyOutputFilename;
-            case "numConditionsTextField" -> failedEmptyConditions;
-            case "numStrainsTextField" -> failedEmptyStrains;
-            case "numTimepointsTextField" -> failedEmptyNumTimepoints;
-            default -> false;
-        };
-        if (textField.getText().isEmpty() && (preventEmpty || failedBoolean)) {
+    boolean validateTextFieldNotEmpty(ValidatableField field, Label statusLabel, boolean preventEmpty) {
+        TextField textField = (TextField) field.getControl();
+        if (textField.getText().isEmpty() && (preventEmpty || field.hasFailedEmptyCheck())) {
             guiLogger.errorOccurred(statusLabel, "Error: Please enter a value");
             return false;
         } else {
@@ -186,14 +179,4 @@ public class EmptyInputSheetValidator extends AbstractValidator {
             return true;
         }
     }
-
-    boolean failedEmptyNumTimepoints() { return failedEmptyNumTimepoints; }
-
-    boolean failedEmptyNumReplicates() { return failedEmptyNumReplicates; }
-
-    boolean failedEmptyOutputFilename() { return failedEmptyOutputFilename; }
-
-    boolean failedEmptyConditions() { return failedEmptyConditions; }
-
-    boolean failedEmptyStrains() { return failedEmptyStrains; }
 }

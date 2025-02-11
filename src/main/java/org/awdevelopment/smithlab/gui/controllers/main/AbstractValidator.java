@@ -22,51 +22,56 @@ public abstract class AbstractValidator {
 
     public abstract boolean fieldsValid();
 
-    abstract boolean validateTextFieldNotEmpty(TextField textField, Label statusLabel, boolean preventEmpty);
+    abstract boolean validateTextFieldNotEmpty(ValidatableField textField, boolean preventEmpty);
 
-    protected boolean validateTextFieldFileExists(TextField textField, Label statusLabel, boolean preventEmpty) {
-        if (!validateTextFieldFilename(textField, statusLabel, preventEmpty)) return false;
+    protected boolean validateTextFieldFileExists(ValidatableField field, boolean preventEmpty) {
+        if (!validateTextFieldFilename(field, preventEmpty)) return false;
+        TextField textField = getTextField(field);
         String filePath = textField.getText();
         File file = new File(filePath);
         if (!file.exists()) {
-            guiLogger.errorOccurred(statusLabel, "Error: File does not exist");
+            guiLogger.errorOccurred(field.getErrorLabel(), "Error: File does not exist");
             return false;
         } else {
-            guiLogger.clearError(statusLabel);
+            guiLogger.clearError(field.getErrorLabel());
             return true;
         }
     }
 
-    protected boolean validateTextFieldFilename(TextField textField, Label statusLabel, boolean preventEmpty) {
-        if (!validateTextFieldNotEmpty(textField, statusLabel, preventEmpty)) return false;
+    protected boolean validateTextFieldFilename(ValidatableField field, boolean preventEmpty) {
+        if (!validateTextFieldNotEmpty(field, preventEmpty)) return false;
+        TextField textField = getTextField(field);
         if (!textField.getText().endsWith(".xlsx")) {
-            guiLogger.errorOccurred(statusLabel, "Error: Filename must end in .xlsx");
+            guiLogger.errorOccurred(field.getErrorLabel(), "Error: Filename must end in .xlsx");
             return false;
         } else {
-            guiLogger.clearError(statusLabel);
+            guiLogger.clearError(field.getErrorLabel());
             return true;
         }
     }
 
-    protected boolean validateTextFieldByte(TextField textField, Label statusLabel, boolean preventEmpty) {
-        if (!validateTextFieldNotEmpty(textField, statusLabel, preventEmpty)) return false;
+    protected boolean validateTextFieldByte(ValidatableField field, boolean preventEmpty) {
+        if (!validateTextFieldNotEmpty(field, preventEmpty)) return false;
+        TextField textField = getTextField(field);
         try {
             long longValue = Long.parseLong(textField.getText());
             if (longValue <= 0) {
-                guiLogger.errorOccurred(statusLabel, "Error: Must be a value > 0");
+                guiLogger.errorOccurred(field.getErrorLabel(), "Error: Must be a value > 0");
                 return false;
             } else if (longValue > Byte.MAX_VALUE) {
-                guiLogger.errorOccurred(statusLabel, "Error: Must be a value <= " + Byte.MAX_VALUE);
+                guiLogger.errorOccurred(field.getErrorLabel(), "Error: Must be a value <= " + Byte.MAX_VALUE);
                 return false;
             } else {
-                guiLogger.clearError(statusLabel);
+                guiLogger.clearError(field.getErrorLabel());
                 return true;
             }
         } catch (NumberFormatException e) {
-            guiLogger.errorOccurred(statusLabel, "Error: Please enter a valid number");
+            guiLogger.errorOccurred(field.getErrorLabel(), "Error: Please enter a valid number");
             return false;
         }
     }
+
+    TextField getTextField(ValidatableField field) { return (TextField) field.getControl(); }
 
     GUILogger guiLogger() { return guiLogger; }
 

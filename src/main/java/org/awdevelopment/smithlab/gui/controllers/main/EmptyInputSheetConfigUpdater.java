@@ -1,6 +1,7 @@
 package org.awdevelopment.smithlab.gui.controllers.main;
 
 import javafx.event.ActionEvent;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
@@ -9,6 +10,7 @@ import javafx.scene.input.KeyEvent;
 import org.awdevelopment.smithlab.config.ConfigOption;
 import org.awdevelopment.smithlab.config.EmptyInputSheetConfig;
 import org.awdevelopment.smithlab.config.SampleLabelingType;
+import org.awdevelopment.smithlab.config.SortOption;
 
 public class EmptyInputSheetConfigUpdater extends AbstractConfigUpdater {
 
@@ -37,59 +39,25 @@ public class EmptyInputSheetConfigUpdater extends AbstractConfigUpdater {
     }
 
     public void updateNumReplicates(KeyEvent keyEvent) {
-        controller.emptyInputValidateFields();
-        if (fields.getNumReplicatesTextField().getText().isEmpty()&& !validator.failedEmptyNumReplicates())
-            guiLogger.clearError(fields.getStatusLabel());
-        if (    keyEvent == null
-                || !(fields.getNumReplicatesTextField().getScene().focusOwnerProperty().get().getId().equals("numReplicatesEmptyInputSheetTextField"))
-                || keyEvent.getCode() == KeyCode.ENTER
-                || keyEvent.getCode() == KeyCode.TAB
-        ) {
-            validator.validateNumReplicates(false);
-        }
+        updateTextField(fields.getNumReplicatesTextField(), ConfigOption.NUMBER_OF_REPLICATES, keyEvent);
     }
 
     public void updateNumTimepoints(KeyEvent keyEvent) {
-        controller.emptyInputValidateFields();
-        if (fields.getNumTimepointsTextField().getText().isEmpty() && !validator.failedEmptyNumTimepoints())
-            guiLogger.clearError(fields.getStatusLabel());
-        if (    keyEvent == null
-                || !(fields.getNumTimepointsTextField().getScene().focusOwnerProperty().get().getId().equals("numTimepointsEmptyInputSheetTextField"))
-                || keyEvent.getCode() == KeyCode.ENTER
-                || keyEvent.getCode() == KeyCode.TAB
-        ) {
-            validator.validateNumTimepoints(false);
-        }
+        updateTextField(fields.getNumTimepointsTextField(), ConfigOption.NUM_DAYS, keyEvent);
     }
 
     public void updateNumConditions(KeyEvent keyEvent) {
-        controller.emptyInputValidateFields();
-        if(fields.getNumConditionsTextField().getText().isEmpty() && !validator.failedEmptyConditions()) guiLogger.clearError(fields.getStatusLabel());
-        if (    keyEvent == null
-                || !(fields.getNumConditionsTextField().getScene().focusOwnerProperty().get().getId().equals("numConditionsTextField"))
-                || keyEvent.getCode() == KeyCode.ENTER
-                || keyEvent.getCode() == KeyCode.TAB
-        ) {
-            validator.validateNumConditions(false);
-        }
+        updateTextField(fields.getNumConditionsTextField(), ConfigOption.NUM_CONDITIONS, keyEvent);
     }
 
     public void updateNumStrains(KeyEvent keyEvent) {
-        controller.emptyInputValidateFields();
-        if(fields.getNumStrainsTextField().getText().isEmpty() && !validator.failedEmptyStrains()) guiLogger.clearError(fields.getStatusLabel());
-        if (    keyEvent == null
-                || !(fields.getNumStrainsTextField().getScene().focusOwnerProperty().get().getId().equals("numStrainsTextField"))
-                || keyEvent.getCode() == KeyCode.ENTER
-                || keyEvent.getCode() == KeyCode.TAB
-        ) {
-            validator.validateNumStrains(false);
-        }
+        updateTextField(fields.getNumStrainsTextField(), ConfigOption.NUM_STRAINS, keyEvent);
     }
 
     public void updateSampleLabelingRadioButtons(ActionEvent actionEvent) {
         controller.emptyInputValidateFields();
         RadioButton selectedRadioButton = (RadioButton) actionEvent.getSource();
-        for (RadioButton radioButton : fields.getSampleLabelingRadioButtons())
+        for (RadioButton radioButton : ((RadioButton[]) fields.getSampleLabelingRadioButtons().getControls()))
             if (!radioButton.equals(selectedRadioButton)) radioButton.setSelected(false);
         switch (selectedRadioButton.getId()) {
             case "conditionLabelingRadioButton" -> {
@@ -111,29 +79,36 @@ public class EmptyInputSheetConfigUpdater extends AbstractConfigUpdater {
         validator.validateSampleLabelingRadioButtons();
     }
 
+    @SuppressWarnings("unchecked")
     public void updateSampleSortingMethod() {
-        config.setSortOption(fields.getSampleSortingMethodChoiceBox().getValue());
+        config.setSortOption(((ChoiceBox<SortOption>) fields.getSampleSortingMethodChoiceBox().getControl()).getValue());
     }
 
     @Override
-    void updateTextField(TextField textField, ConfigOption option, KeyEvent keyEvent, Label errorLabel, boolean failedBoolean, boolean byteParse, boolean fileExists) {
-        if (!byteParse && !fileExists) config.set(option, textField.getText());
-        if (textField.getText().isEmpty() && !failedBoolean) guiLogger.clearError(errorLabel);
+    void updateTextField(ValidatableField field, ConfigOption option, KeyEvent keyEvent) {
+        controller.emptyInputValidateFields();
+        TextField textField = (TextField) field.getControl();
+        if (textField.getText().isEmpty() && !field.hasFailedEmptyCheck()) guiLogger.clearError(field.getErrorLabel());
+        if (keyEvent != null) { field.touch(); }
         if (keyEvent == null
                 || !(textField.getScene().focusOwnerProperty().get().getId().equals(textField.getId()))
                 || keyEvent.getCode() == KeyCode.ENTER
                 || keyEvent.getCode() == KeyCode.TAB
         ) {
             boolean validatedSuccessfully = switch (textField.getId()) {
-                case "numReplicatesEmptyInputSheetTextField" -> validator.validateNumReplicates(failedBoolean);
-                case "outputFilenameEmptyInputSheetsTextField" -> validator.validateOutputFilename(failedBoolean);
-                case "numConditionsTextField" -> validator.validateNumConditions(failedBoolean);
-                case "numStrainsTextField" -> validator.validateNumStrains(failedBoolean);
-                case "numTimepointsTextField" -> validator.validateNumTimepoints(failedBoolean);
+                case "numReplicatesEmptyInputSheetTextField" -> validator.validateNumReplicates(field.hasFailedEmptyCheck());
+                case "outputFilenameEmptyInputSheetsTextField" -> validator.validateOutputFilename(field.hasFailedEmptyCheck());
+                case "numConditionsTextField" -> validator.validateNumConditions(field.hasFailedEmptyCheck());
+                case "numStrainsTextField" -> validator.validateNumStrains(field.hasFailedEmptyCheck());
+                case "numTimepointsTextField" -> validator.validateNumTimepoints(field.hasFailedEmptyCheck());
                 default -> throw new IllegalStateException("Unexpected value: " + textField.getId());
             };
-            if (byteParse && validatedSuccessfully) config.set(option, Byte.parseByte(textField.getText()));
-            if (fileExists && validatedSuccessfully) config.set(option, textField.getText());
+            if (validatedSuccessfully) {
+                switch (field.getFieldType()) {
+                    case BYTE -> config.set(option, Byte.parseByte(textField.getText()));
+                    case FILENAME, STRING -> config.set(option, textField.getText());
+                    default -> throw new IllegalStateException("Unexpected value: " + field.getFieldType());}
+            }
         }
     }
 

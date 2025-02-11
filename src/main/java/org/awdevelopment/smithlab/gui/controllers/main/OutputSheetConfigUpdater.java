@@ -1,6 +1,7 @@
 package org.awdevelopment.smithlab.gui.controllers.main;
 
 import javafx.event.ActionEvent;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
@@ -9,6 +10,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import org.awdevelopment.smithlab.config.ConfigOption;
 import org.awdevelopment.smithlab.config.OutputSheetsConfig;
+import org.awdevelopment.smithlab.config.SortOption;
 import org.awdevelopment.smithlab.io.output.formats.OutputType;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
@@ -39,7 +41,7 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
         File inputFile = fileChooser.showOpenDialog(fields.getInputFileBrowseButton().getScene().getWindow());
         if (inputFile != null) {
             LOGGER.atDebug("Selected input file: " + inputFile.getAbsolutePath());
-            fields.getInputFileTextField().setText(inputFile.getAbsolutePath());
+            ((TextField) fields.getInputFileTextField().getControl()).setText(inputFile.getAbsolutePath());
             updateInputFile(null);
         }
     }
@@ -47,7 +49,7 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
     public void handleRadioButtonPressOutputSheets(ActionEvent actionEvent) {
         updateFields();
         RadioButton radioButton = (RadioButton) actionEvent.getSource();
-        for (RadioButton otherRadioButton : fields.getRadioButtons()) if (!otherRadioButton.equals(radioButton)) otherRadioButton.setSelected(false);
+        for (RadioButton otherRadioButton : ((RadioButton[]) fields.getRadioButtons().getControls())) if (!otherRadioButton.equals(radioButton)) otherRadioButton.setSelected(false);
         OutputType oldOutputType = config.outputType();
         if (fields.getOutputStylePrismRadioButton().isSelected()) config.setOutputType(OutputType.PRISM);
         else if (fields.getOutputStyleTestsRadioButton().isSelected()) config.setOutputType(OutputType.STATISTICAL_TESTS);
@@ -60,15 +62,15 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
     public void handleAddSheetsCheckbox() {
         updateFields();
         if (fields.getAddSheetsToInputFileCheckbox().isSelected()) {
-            fields.getOutputFileTextField().setDisable(true);
+            fields.getOutputFileTextField().getControl().setDisable(true);
             config.setWriteToDifferentFile(false);
-            config.setOutputFilename(fields.getInputFileTextField().getText());
+            config.setOutputFilename(((TextField) fields.getInputFileTextField().getControl()).getText());
             if (!fields.getOutputFilenameErrorLabel().getText().isEmpty())
                 guiLogger.clearError(fields.getOutputFilenameErrorLabel());
         } else {
-            fields.getOutputFileTextField().setDisable(false);
+            fields.getOutputFileTextField().getControl().setDisable(false);
             config.setWriteToDifferentFile(true);
-            config.setOutputFilename(fields.getOutputFileTextField().getText());
+            config.setOutputFilename(((TextField) fields.getOutputFileTextField().getControl()).getText());
         }
     }
 
@@ -92,27 +94,28 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
     }
 
     public void updateNumReplicates(KeyEvent keyEvent) {
-        updateTextField(fields.getNumReplicatesTextField(), ConfigOption.NUMBER_OF_REPLICATES, keyEvent,
+        updateTextField(((TextField) fields.getNumReplicatesTextField().getControl()), ConfigOption.NUMBER_OF_REPLICATES, keyEvent,
                 fields.getReplicatesErrorLabelOutputSheet(), validator.failedEmptyReplicates(),
                 true, false);
     }
 
 
     public void updateOutputFilename(KeyEvent keyEvent) {
-        updateTextField(fields.getOutputFileTextField(), ConfigOption.OUTPUT_FILE, keyEvent,
+        updateTextField(((TextField) fields.getOutputFileTextField().getControl()), ConfigOption.OUTPUT_FILE, keyEvent,
                 fields.getOutputFilenameErrorLabel(), validator.failedEmptyOutputFilename(),
                 false, false);
     }
 
     public void updateInputFile(KeyEvent keyEvent) {
-        updateTextField(fields.getInputFileTextField(), ConfigOption.INPUT_FILE, keyEvent,
+        updateTextField(((TextField) fields.getInputFileTextField().getControl()), ConfigOption.INPUT_FILE, keyEvent,
                 fields.getInputFileExistsLabel(), validator.failedEmptyInputFile(),
                 false, true);
     }
 
 
+    @SuppressWarnings("unchecked")
     public void updateSampleSortingMethod() {
-        config.set(ConfigOption.SORT_OPTION, fields.getSampleSortingMethodChoiceBox().getValue());
+        config.set(ConfigOption.SORT_OPTION, ((ChoiceBox<SortOption>) fields.getSampleSortingMethodChoiceBox().getControl()).getValue());
     }
 
     public void updateFields() {
