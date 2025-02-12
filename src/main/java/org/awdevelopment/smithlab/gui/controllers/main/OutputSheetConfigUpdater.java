@@ -38,7 +38,7 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
         File inputFile = fileChooser.showOpenDialog(fields.getInputFileBrowseButton().getScene().getWindow());
         if (inputFile != null) {
             LOGGER.atDebug("Selected input file with path: \"" + inputFile.getAbsolutePath() + "\"");
-            ((TextField) fields.getInputFileTextField().getControl()).setText(inputFile.getAbsolutePath());
+            ((TextField) fields.getInputFileTextField().getControlID()).setText(inputFile.getAbsolutePath());
             fields.getInputFileTextField().setStatus(FieldStatus.EDITED_NOT_VALIDATED);
             updateInputFile(null);
         }
@@ -47,7 +47,7 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
     public void handleRadioButtonPressOutputSheets(ActionEvent actionEvent) {
         updateFields();
         RadioButton radioButton = (RadioButton) actionEvent.getSource();
-        for (RadioButton otherRadioButton : ((RadioButton[]) fields.getRadioButtons().getControls())) if (!otherRadioButton.equals(radioButton)) otherRadioButton.setSelected(false);
+        for (RadioButton otherRadioButton : ((RadioButton[]) fields.getRadioButtons().getControlIDs())) if (!otherRadioButton.equals(radioButton)) otherRadioButton.setSelected(false);
         OutputType oldOutputType = config.outputType();
         if (fields.getOutputStylePrismRadioButton().isSelected()) config.setOutputType(OutputType.PRISM);
         else if (fields.getOutputStyleTestsRadioButton().isSelected()) config.setOutputType(OutputType.STATISTICAL_TESTS);
@@ -60,16 +60,16 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
     public void handleAddSheetsCheckbox() {
         updateFields();
         if (fields.getAddSheetsToInputFileCheckbox().isSelected()) {
-            fields.getOutputFileTextField().getControl().setDisable(true);
+            fields.getOutputFileTextField().getControlID().setDisable(true);
             config.setWriteToDifferentFile(false);
-            config.setOutputFilename(((TextField) fields.getInputFileTextField().getControl()).getText());
+            config.setOutputFilename(((TextField) fields.getInputFileTextField().getControlID()).getText());
             if (!fields.getOutputFilenameErrorLabel().getText().isEmpty())
                 guiLogger.clearError(fields.getOutputFilenameErrorLabel());
             LOGGER.atDebug("Add sheets to input file checkbox selected - output file text field disabled.");
         } else {
-            fields.getOutputFileTextField().getControl().setDisable(false);
+            fields.getOutputFileTextField().getControlID().setDisable(false);
             config.setWriteToDifferentFile(true);
-            config.setOutputFilename(((TextField) fields.getOutputFileTextField().getControl()).getText());
+            config.setOutputFilename(((TextField) fields.getOutputFileTextField().getControlID()).getText());
             LOGGER.atDebug("Add sheets to input file checkbox deselected - output file text field enabled.");
         }
     }
@@ -81,7 +81,7 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
     public void updateInputFile(KeyEvent keyEvent) { updateTextField(fields.getInputFileTextField(), ConfigOption.INPUT_FILE, keyEvent); }
 
     @SuppressWarnings("unchecked")
-    public void updateSampleSortingMethod() { config.set(ConfigOption.SORT_OPTION, ((ChoiceBox<SortOption>) fields.getSampleSortingMethodChoiceBox().getControl()).getValue()); }
+    public void updateSampleSortingMethod() { config.set(ConfigOption.SORT_OPTION, ((ChoiceBox<SortOption>) fields.getSampleSortingMethodChoiceBox().getControlID()).getValue()); }
 
     public void updateFields() {
         updateNumReplicates(null);

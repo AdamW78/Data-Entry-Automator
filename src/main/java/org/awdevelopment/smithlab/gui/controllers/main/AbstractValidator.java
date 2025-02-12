@@ -1,41 +1,46 @@
 package org.awdevelopment.smithlab.gui.controllers.main;
 
 import javafx.scene.control.TextField;
+import org.awdevelopment.smithlab.config.Mode;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 import java.io.File;
 
 public abstract class AbstractValidator {
 
+    private final Mode mode;
     public LoggerHelper LOGGER() { return LOGGER; }
     private final LoggerHelper LOGGER;
     private final GUILogger guiLogger;
-    private final ValidatableField[] fields;
+    private final AbstractFields fields;
+    private final ValidatableField[] validatableFields;
 
-    protected AbstractValidator(LoggerHelper logger, GUILogger guiLogger, ValidatableField[] fields) {
+    protected AbstractValidator(LoggerHelper logger, GUILogger guiLogger, AbstractFields fields, Mode mode) {
         this.guiLogger = guiLogger;
+        this.validatableFields = fields.getValidatableFields();
         this.fields = fields;
         this.LOGGER = logger;
+        this.mode = mode;
     }
 
     public void preliminaryFieldsValid() {
         LOGGER.atTrace("Checking if all fields are valid (empty/untouched fields are okay)...");
-        for (ValidatableField field : fields) {
-            if (field.status() == FieldStatus.EDITED_NOT_VALIDATED) validateTextFieldByID(field.getControl().getId());
+        for (ValidatableField field : validatableFields) {
+            if (field.status() == FieldStatus.EDITED_NOT_VALIDATED) validateTextFieldByID(field.getControlID());
         }
     }
 
     public boolean fieldsValid() {
         LOGGER.atDebug("Checking if all fields are valid...");
-        for (ValidatableField field : fields) {
+        for (ValidatableField field : validatableFields) {
             if (field.status() == FieldStatus.UNTOUCHED && (field.getFieldType() == FieldType.BYTE
                     || field.getFieldType() == FieldType.STRING || field.getFieldType() == FieldType.FILENAME
                     || field.getFieldType() == FieldType.EXISTING_FILE)) {
                 field.setStatus(FieldStatus.EMPTY);
-                validateTextFieldByID(field.getControl().getId());
+                validateTextFieldByID(field.getControlID());
             }
             if (field.status() == FieldStatus.INVALID || field.status() == FieldStatus.EMPTY) {
-                LOGGER.atDebug("Field with id: \"" + field.getControl().getId() + "\" is invalid or empty.");
+                LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is invalid or empty.");
                 LOGGER.atDebug("Field status: " + field.status());
                 LOGGER.atDebug("Output will not be generated!");
                 return false;
@@ -48,14 +53,14 @@ public abstract class AbstractValidator {
 
     void validateTextFieldNotEmpty(ValidatableField field) {
         if (field.status() == FieldStatus.UNTOUCHED) return;
-        TextField textField = (TextField) field.getControl();
+        TextField textField = getTextField(field);
         if (textField.getText().isEmpty()) {
             field.setStatus(FieldStatus.INVALID);
             guiLogger.errorOccurred(field.getErrorLabel(), "Error: Please enter a value");
-            LOGGER.atDebug("Field with id: \"" + field.getControl().getId() + "\" is empty.");
+            LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is empty.");
         } else {
             guiLogger.clearError(field.getErrorLabel());
-            LOGGER.atDebug("Field with id: \"" + field.getControl().getId() + "\" is not empty.");
+            LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is not empty.");
             field.setStatus(FieldStatus.READY);
         }
     }
@@ -100,24 +105,32 @@ public abstract class AbstractValidator {
             long longValue = Long.parseLong(textField.getText());
             if (longValue <= 0) {
                 guiLogger.errorOccurred(field.getErrorLabel(), "Error: Must be a value > 0");
-                LOGGER.atDebug("Field with id: \"" + field.getControl().getId() + "\" is <= 0.");
+                LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is <= 0.");
                 field.setStatus(FieldStatus.INVALID);
             } else if (longValue > Byte.MAX_VALUE) {
                 guiLogger.errorOccurred(field.getErrorLabel(), "Error: Must be a value <= " + Byte.MAX_VALUE);
-                LOGGER.atDebug("Field with id: \"" + field.getControl().getId() + "\" is > " + Byte.MAX_VALUE + ".");
+                LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is > " + Byte.MAX_VALUE + ".");
                 field.setStatus(FieldStatus.INVALID);
             } else {
                 guiLogger.clearError(field.getErrorLabel());
-                LOGGER.atDebug("Field with id: \"" + field.getControl().getId() + "\" has a valid positive byte-value.");
+                LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" has a valid positive byte-value.");
                 field.setStatus(FieldStatus.READY);
             }
         } catch (NumberFormatException e) {
             guiLogger.errorOccurred(field.getErrorLabel(), "Error: Please enter a valid number");
-            LOGGER.atDebug("Field with id: \"" + field.getControl().getId() + "\" is not a valid number: \"" + textField.getText() + "\"");
+            LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is not a valid number: \"" + textField.getText() + "\"");
             field.setStatus(FieldStatus.INVALID);
         }
     }
 
-    TextField getTextField(ValidatableField field) { return (TextField) field.getControl(); }
+    TextField getTextField(ValidatableField field) {
+        try {
+            return (TextField) fields.getControlByIDAndMode(field.getControlID(), mode);
+        } catch (IllegalFieldAccessException e) {
+            LOGGER.atError("Error occurred while validating text field with id: \"" + field.getControlID() + "\"", e);
+            System.exit(1);
+            return null;
+        }
+    }
 
 }

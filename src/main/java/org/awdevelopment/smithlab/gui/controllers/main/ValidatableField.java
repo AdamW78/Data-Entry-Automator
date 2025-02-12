@@ -1,36 +1,38 @@
 package org.awdevelopment.smithlab.gui.controllers.main;
 
+import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
-import org.awdevelopment.smithlab.gui.controllers.AbstractLabelController;
+
+import java.util.Arrays;
 
 public class ValidatableField {
 
-    private final Control control;
+    private final String controlID;
     private final Label errorLabel;
-    private final Control[] controls;
+    private final String[] controlIDs;
     private final FieldType fieldType;
     private FieldStatus fieldStatus;
 
-    private ValidatableField(Control control, Control[] controls, Label errorLabel, FieldType fieldType, FieldStatus fieldStatus) {
-        this.control = control;
-        this.controls = controls;
+    private ValidatableField(String controlID, String[] controlIDs, Label errorLabel, FieldType fieldType, FieldStatus fieldStatus) {
+        this.controlID = controlID;
+        this.controlIDs = controlIDs;
         this.errorLabel = errorLabel;
         this.fieldType = fieldType;
         this.fieldStatus = fieldStatus;
     }
 
     public ValidatableField(Control control, Label errorLabel, FieldType fieldType) {
-        this(control, null, errorLabel, fieldType, FieldStatus.UNTOUCHED);
+        this(control.getId(), null, errorLabel, fieldType, FieldStatus.UNTOUCHED);
     }
 
     public ValidatableField(Control[] controls, Label errorLabel, FieldType fieldType) {
-        this(null, controls, errorLabel, fieldType, FieldStatus.UNTOUCHED);
+        this(null, Arrays.stream(controls).map(Node::getId).toArray(String[]::new), errorLabel, fieldType, FieldStatus.UNTOUCHED);
     }
 
-    public Control getControl() { return control; }
+    public String getControlID() { return controlID;  }
 
-    public Control[] getControls() { return controls; }
+    public String[] getControlIDs() { return controlIDs;  }
 
     public Label getErrorLabel() { return errorLabel; }
 

@@ -13,14 +13,7 @@ public class EmptyInputSheetValidator extends AbstractValidator {
     private final EmptyInputSheetConfig config;
 
     public EmptyInputSheetValidator(EmptyInputSheetFields fields, GUILogger guiLogger, EmptyInputSheetConfig config) {
-        super(config.LOGGER(), guiLogger, new ValidatableField[] {
-                fields.getNumTimepointsTextField(),
-                fields.getNumReplicatesTextField(),
-                fields.getOutputFilenameTextField(),
-                fields.getNumConditionsTextField(),
-                fields.getNumStrainsTextField(),
-                fields.getSampleSortingMethodChoiceBox(),
-                fields.getSampleLabelingRadioButtons() });
+        super(config.LOGGER(), guiLogger, fields, config.mode());
         this.fields = fields;
         this.guiLogger = guiLogger;
         this.config = config;
@@ -67,7 +60,7 @@ public class EmptyInputSheetValidator extends AbstractValidator {
     }
 
     private void validateRadioButtonToggledField(ValidatableField field, AbstractLabelController controller, String disableRadioButtonID) {
-        if (field.getControl().getId().equals(disableRadioButtonID)) {
+        if (field.getControlID().equals(disableRadioButtonID)) {
             field.setStatus(FieldStatus.READY);
             guiLogger.clearError(field.getErrorLabel());
         } else validateControllerConnectedField(field, controller);

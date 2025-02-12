@@ -7,15 +7,12 @@ import org.awdevelopment.smithlab.config.SortOption;
 public class OutputSheetValidator extends AbstractValidator {
 
     private final OutputSheetFields fields;
+    private final OutputSheetsConfig config;
 
     protected OutputSheetValidator(OutputSheetFields fields, GUILogger guiLogger, OutputSheetsConfig config) {
-        super(config.LOGGER(), guiLogger, new ValidatableField[] {
-                fields.getInputFileTextField(),
-                fields.getOutputFileTextField(),
-                fields.getNumReplicatesTextField(),
-                fields.getSampleSortingMethodChoiceBox(),
-                fields.getRadioButtons() });
+        super(config.LOGGER(), guiLogger, fields, config.mode());
         this.fields = fields;
+        this.config = config;
     }
 
     void inputFileTextFieldValid() { validateTextFieldFileExists(fields.getInputFileTextField()); }
@@ -29,9 +26,15 @@ public class OutputSheetValidator extends AbstractValidator {
 
     @SuppressWarnings("unchecked")
     void sampleSortingValid() {
-        if (((ChoiceBox<SortOption>) fields.getSampleSortingMethodChoiceBox().getControl()).getValue() != null) {
-            fields.getSampleSortingMethodChoiceBox().setStatus(FieldStatus.READY);
-        } else fields.getSampleSortingMethodChoiceBox().setStatus(FieldStatus.INVALID);
+        try {
+            if (((ChoiceBox<SortOption>) fields.getControlByIDAndMode("sampleSortingMethodChoiceBox", config.mode())).getValue() != null) {
+                fields.getSampleSortingMethodChoiceBox().setStatus(FieldStatus.READY);
+            } else fields.getSampleSortingMethodChoiceBox().setStatus(FieldStatus.INVALID);
+        } catch (IllegalFieldAccessException e) {
+            LOGGER().atError("Error occurred while validating sample sorting method choice box.");
+            LOGGER().atError(e.getMessage());
+            System.exit(1);
+        }
     }
 
     void outputTypeValid() {

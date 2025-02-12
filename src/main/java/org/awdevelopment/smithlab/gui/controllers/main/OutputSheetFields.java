@@ -13,12 +13,17 @@ public class OutputSheetFields extends AbstractFields{
     private final MainApplicationController controller;
 
     OutputSheetFields(MainApplicationController controller) {
+        super(controller, new ValidatableField[]{ new ValidatableField(controller.inputFileTextField, controller.inputFileExistsLabel, FieldType.EXISTING_FILE),
+                new ValidatableField(controller.outputFileTextField, controller.outputFilenameErrorLabel, FieldType.FILENAME),
+                new ValidatableField(controller.numReplicatesTextField, controller.replicatesErrorLabelOutputSheet, FieldType.BYTE),
+                new ValidatableField(controller.sampleSortingMethodChoiceBox, controller.statusLabelOutputSheet, FieldType.CHOICE_BOX),
+                new ValidatableField(controller.outputStyleRadioButtons, controller.outputStyleErrorLabel, FieldType.RADIO_BUTTONS)});
         this.controller = controller;
-        this.inputFileTextField = new ValidatableField(controller.inputFileTextField, controller.inputFileExistsLabel, FieldType.EXISTING_FILE);
-        this.outputFileTextField = new ValidatableField(controller.outputFileTextField, controller.outputFilenameErrorLabel, FieldType.FILENAME);
-        this.numReplicatesTextField = new ValidatableField(controller.numReplicatesTextField, controller.replicatesErrorLabelOutputSheet, FieldType.BYTE);
-        this.sampleSortingMethodChoiceBox = new ValidatableField(controller.sampleSortingMethodChoiceBox, controller.statusLabelOutputSheet, FieldType.CHOICE_BOX);
-        this.outputStyleRadioButtons = new ValidatableField(controller.outputStyleRadioButtons, controller.outputStyleErrorLabel, FieldType.RADIO_BUTTONS);
+        this.inputFileTextField = super.getValidatableFields()[0];
+        this.outputFileTextField = super.getValidatableFields()[1];
+        this.numReplicatesTextField = super.getValidatableFields()[2];
+        this.sampleSortingMethodChoiceBox = super.getValidatableFields()[3];
+        this.outputStyleRadioButtons = super.getValidatableFields()[4];
     }
 
     public Label getStatusLabelOutputSheet() {
@@ -82,7 +87,12 @@ public class OutputSheetFields extends AbstractFields{
     }
 
     public RadioButton getSelectedRadioButton() {
-        for (RadioButton radioButton : ((RadioButton[]) outputStyleRadioButtons.getControls())) {
+        String[] radioButtons = {"outputStylePrismRadioButton", "outputStyleTestsRadioButton", "outputStyleRawRadioButton", "outputStyleBothRadioButton"};
+        RadioButton[] radioButtonArray = new RadioButton[radioButtons.length];
+        for (int i = 0; i < radioButtons.length; i++) {
+            radioButtonArray[i] = (RadioButton) controller.getControlByID(radioButtons[i]);
+        }
+        for (RadioButton radioButton : radioButtonArray) {
             if (radioButton.isSelected()) {
                 return radioButton;
             }

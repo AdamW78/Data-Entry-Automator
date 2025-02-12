@@ -1,5 +1,6 @@
 package org.awdevelopment.smithlab.gui.controllers.main;
 
+import javafx.scene.control.Control;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -11,12 +12,14 @@ public abstract class AbstractConfigUpdater {
 
     private final AbstractConfig config;
     private final AbstractValidator validator;
+    private final AbstractFields fields;
     LoggerHelper LOGGER() { return LOGGER; }
     private final LoggerHelper LOGGER;
 
-    AbstractConfigUpdater(AbstractConfig config, AbstractValidator validator) {
+    AbstractConfigUpdater(AbstractConfig config, AbstractValidator validator, AbstractFields fields) {
         this.config = config;
         this.validator = validator;
+        this.fields = fields;
         this.LOGGER = config.LOGGER();
     }
 
@@ -24,28 +27,36 @@ public abstract class AbstractConfigUpdater {
 
     public abstract void updateSampleSortingMethod();
 
-    void updateTextField(ValidatableField field, ConfigOption option, KeyEvent keyEvent) {
+    void updateTextField(ValidatableField validatableField, ConfigOption option, KeyEvent keyEvent) {
         // If doing normal typing in properly marked field, exit early
-        if (field.status() == FieldStatus.EDITED_NOT_VALIDATED && (field.getControl().isFocused()
-                && !(((TextField) field.getControl()).getText().isEmpty()) && keyEvent.getCode() != KeyCode.ENTER
-                && keyEvent.getCode() != KeyCode.TAB))
+        Control field; TextField textField;
+        try {
+            field = fields.getControlByIDAndMode(validatableField.getControlID(), config.mode());
+            textField = getTextField(validatableField);
+
+        } catch (IllegalFieldAccessException | ClassCastException e) {
+            LOGGER.atFatal("Error while trying to update text field with id \"" + validatableField.getControlID() + "\": ", e);
+            System.exit(1);
             return;
+        }
+        boolean fieldIsFocused = field.isFocused();
+        if (validatableField.status() == FieldStatus.EDITED_NOT_VALIDATED && (fieldIsFocused
+                && !(((TextField) field).getText().isEmpty()) && keyEvent.getCode() != KeyCode.ENTER
+                && keyEvent.getCode() != KeyCode.TAB)) return;
         LOGGER.atDebug("");
-        LOGGER.atDebug("Begin process of updating stored value for field with id: \"" + field.getControl().getId() + "\"...");
-        TextField textField = (TextField) field.getControl();
-        boolean fieldIsFocused = textField.isFocused();
+        LOGGER.atDebug("Begin process of updating stored value for field with id: \"" + validatableField.getControlID() + "\"...");
         if (fieldIsFocused) LOGGER.atDebug("Field is focused.");
         else LOGGER.atDebug("Field is not focused.");
-        switch (field.status()) {
+        switch (validatableField.status()) {
             case EDITED_NOT_VALIDATED -> {
                 LOGGER.atDebug("Field status: Edited but not validated.");
                 if (!fieldIsFocused) {
                     LOGGER.atDebug("Validating...");
-                    validator.validateTextFieldByID(field.getControl().getId());
-                    updateIfValidated(field, option);
+                    validator.validateTextFieldByID(validatableField.getControlID());
+                    updateIfValidated(validatableField, option);
                 } else if (textField.getText().isEmpty()) {
                     LOGGER.atDebug("Field is empty, setting field status to empty.");
-                    field.setStatus(FieldStatus.EMPTY);
+                    validatableField.setStatus(FieldStatus.EMPTY);
                 }
             }
             case EMPTY -> {
@@ -53,14 +64,14 @@ public abstract class AbstractConfigUpdater {
                 if (fieldIsFocused) {
                     if (keyEvent != null && !keyEvent.getText().isEmpty()) {
                         LOGGER.atDebug("Key event is not null and is non-empty, setting field status to edited but not validated.");
-                        field.setStatus(FieldStatus.EDITED_NOT_VALIDATED);
+                        validatableField.setStatus(FieldStatus.EDITED_NOT_VALIDATED);
                     } else {
                         LOGGER.atDebug("Key event is null or empty, field status remains empty.");
-                        field.setStatus(FieldStatus.EMPTY);
+                        validatableField.setStatus(FieldStatus.EMPTY);
                     }
                 } else {
                     LOGGER.atDebug("Field is empty. Running validation to produce error message (field status will be set to invalid).");
-                    validator.validateTextFieldByID(field.getControl().getId());
+                    validator.validateTextFieldByID(validatableField.getControlID());
                 }
             }
             case INVALID -> {
@@ -69,8 +80,8 @@ public abstract class AbstractConfigUpdater {
                     LOGGER.atDebug("Field will remain invalid.");
                 } else if (keyEvent != null && !keyEvent.getText().isEmpty()) {
                     LOGGER.atDebug("Key event is not null and is non-empty, validating field...");
-                    validator.validateTextFieldByID(field.getControl().getId());
-                    updateIfValidated(field, option);
+                    validator.validateTextFieldByID(validatableField.getControlID());
+                    updateIfValidated(validatableField, option);
                 }
             }
             case READY -> {
@@ -78,10 +89,10 @@ public abstract class AbstractConfigUpdater {
                 if (fieldIsFocused) {
                     if (keyEvent != null && !keyEvent.getText().isEmpty()) {
                         LOGGER.atDebug("Key event is not null and is non-empty, setting field status to edited but not validated.");
-                        field.setStatus(FieldStatus.EDITED_NOT_VALIDATED);
+                        validatableField.setStatus(FieldStatus.EDITED_NOT_VALIDATED);
                     } else {
                         LOGGER.atDebug("Key event is null or empty, field status remains ready.");
-                        field.setStatus(FieldStatus.READY);
+                        validatableField.setStatus(FieldStatus.READY);
                     }
                 } else LOGGER.atDebug("Field is not focused, skipping validation as field is ready...");
             }
@@ -90,10 +101,10 @@ public abstract class AbstractConfigUpdater {
                 if (fieldIsFocused) {
                     if (keyEvent != null && !keyEvent.getText().isEmpty()) {
                         LOGGER.atDebug("Key event is not null and is non-empty, setting field status to edited but not validated.");
-                        field.setStatus(FieldStatus.EDITED_NOT_VALIDATED);
+                        validatableField.setStatus(FieldStatus.EDITED_NOT_VALIDATED);
                     } else {
                         LOGGER.atDebug("Key event is null or empty, field status remains untouched.");
-                        field.setStatus(FieldStatus.UNTOUCHED);
+                        validatableField.setStatus(FieldStatus.UNTOUCHED);
                     }
                 } else LOGGER.atDebug("Field is not focused, skipping validation as field is untouched...");
             }
@@ -115,5 +126,13 @@ public abstract class AbstractConfigUpdater {
         }
     }
 
-    TextField getTextField(ValidatableField field) { return (TextField) field.getControl(); }
+    TextField getTextField(ValidatableField field) {
+        try {
+            return (TextField) fields.getControlByIDAndMode(field.getControlID(), config.mode());
+        } catch (IllegalFieldAccessException e) {
+            LOGGER.atFatal("Error while trying to get text field with id \"" + field.getControlID() + "\": ", e);
+            System.exit(1);
+            return null;
+        }
+    }
 }

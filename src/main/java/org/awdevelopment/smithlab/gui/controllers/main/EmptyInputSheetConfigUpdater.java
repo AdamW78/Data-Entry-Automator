@@ -16,7 +16,7 @@ public class EmptyInputSheetConfigUpdater extends AbstractConfigUpdater {
     private final EmptyInputSheetValidator validator;
 
     EmptyInputSheetConfigUpdater(MainApplicationController controller, EmptyInputSheetConfig config) {
-        super(config, controller.emptyInputSheetValidator);
+        super(config, controller.emptyInputSheetValidator, controller.emptyInputSheetFields);
         this.config = config;
         this.fields = controller.emptyInputSheetFields;
         this.validator = controller.emptyInputSheetValidator;
@@ -52,9 +52,15 @@ public class EmptyInputSheetConfigUpdater extends AbstractConfigUpdater {
     }
 
     public void updateSampleLabelingRadioButtons(ActionEvent actionEvent) {
-        RadioButton selectedRadioButton = (RadioButton) actionEvent.getSource();
-        for (RadioButton radioButton : ((RadioButton[]) fields.getSampleLabelingRadioButtons().getControls()))
-            if (!radioButton.equals(selectedRadioButton)) radioButton.setSelected(false);
+        RadioButton selectedRadioButton = fields.getSelectedRadioButton();
+        RadioButton[] radioButtons = new RadioButton[] { fields.getConditionLabelingRadioButton(), fields.getStrainLabelingRadioButton(), fields.getConditionAndStrainLabelingRadioButton() };
+        for (RadioButton radioButton : radioButtons) {
+            if (radioButton.getId().equals(selectedRadioButton.getId())) {
+                selectedRadioButton.setSelected(true);
+                continue;
+            }
+            radioButton.setSelected(false);
+        }
         switch (selectedRadioButton.getId()) {
             case "conditionLabelingRadioButton" -> {
                 config.setSampleLabelingType(SampleLabelingType.CONDITION);
@@ -77,7 +83,16 @@ public class EmptyInputSheetConfigUpdater extends AbstractConfigUpdater {
 
     @SuppressWarnings("unchecked")
     public void updateSampleSortingMethod() {
-        config.setSortOption(((ChoiceBox<SortOption>) fields.getSampleSortingMethodChoiceBox().getControl()).getValue());
+        String id = "sampleSortingMethodChoiceBox";
+        ChoiceBox<SortOption> choiceBox;
+        try {
+            choiceBox = (ChoiceBox<SortOption>) fields.getControlByIDAndMode(id, config.mode());
+        } catch (IllegalFieldAccessException e) {
+            LOGGER().atFatal("Error occurred while updating sample sorting method choice box.", e);
+            System.exit(1);
+            return;
+        }
+        config.setSortOption(choiceBox.getValue());
     }
 
     public void handleIncludeBaselineColumn() {

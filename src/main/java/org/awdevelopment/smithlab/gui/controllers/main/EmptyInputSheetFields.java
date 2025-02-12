@@ -19,14 +19,22 @@ public class EmptyInputSheetFields extends AbstractFields {
     private final ValidatableField sampleSortingMethodChoiceBox;
 
     EmptyInputSheetFields(MainApplicationController controller) {
+        super(controller, new ValidatableField[] { new ValidatableField(controller.numTimepointsTextField, controller.timepointsAddedLabel, FieldType.BYTE),
+                new ValidatableField(controller.numConditionsTextField, controller.numConditionsErrorLabel, FieldType.BYTE),
+                new ValidatableField(controller.numStrainsTextField, controller.numStrainErrorLabel, FieldType.BYTE),
+                new ValidatableField(controller.numReplicatesEmptyInputSheetTextField, controller.numReplicatesErrorLabelEmptyInputSheet, FieldType.BYTE),
+                new ValidatableField(controller.outputFilenameEmptyInputSheetTextField, controller.statusLabelEmptyInputSheet, FieldType.FILENAME),
+                new ValidatableField(controller.sampleSortingMethodEmptyInputSheetChoiceBox, controller.statusLabelEmptyInputSheet, FieldType.CHOICE_BOX),
+                new ValidatableField(controller.sampleLabelingRadioButtons, controller.statusLabelEmptyInputSheet, FieldType.RADIO_BUTTONS) });
+        this.numTimepointsTextField = super.getValidatableFields()[0];
+        this.numConditionsTextField = super.getValidatableFields()[1];
+        this.numStrainsTextField = super.getValidatableFields()[2];
+        this.numReplicatesTextField = super.getValidatableFields()[3];
+        this.outputFilenameTextField = super.getValidatableFields()[4];
+        this.sampleSortingMethodChoiceBox = super.getValidatableFields()[5];
+        this.sampleLabelingRadioButtons = super.getValidatableFields()[6];
         this.controller = controller;
-        this.numTimepointsTextField = new ValidatableField(controller.numTimepointsTextField, controller.timepointsAddedLabel, FieldType.BYTE);
-        this.numConditionsTextField = new ValidatableField(controller.numConditionsTextField, controller.numConditionsErrorLabel, FieldType.BYTE);
-        this.numStrainsTextField = new ValidatableField(controller.numStrainsTextField, controller.numStrainErrorLabel, FieldType.BYTE);
-        this.numReplicatesTextField = new ValidatableField(controller.numReplicatesEmptyInputSheetTextField, controller.numReplicatesErrorLabelEmptyInputSheet, FieldType.BYTE);
-        this.outputFilenameTextField = new ValidatableField(controller.outputFilenameEmptyInputSheetTextField, controller.statusLabelEmptyInputSheet, FieldType.FILENAME);
-        this.sampleLabelingRadioButtons = new ValidatableField(controller.sampleLabelingRadioButtons, controller.statusLabelEmptyInputSheet, FieldType.RADIO_BUTTONS);
-        this.sampleSortingMethodChoiceBox = new ValidatableField(controller.sampleSortingMethodEmptyInputSheetChoiceBox, controller.statusLabelEmptyInputSheet, FieldType.CHOICE_BOX);
+
     }
 
     public ValidatableField getNumTimepointsTextField() { return numTimepointsTextField; }
@@ -52,8 +60,9 @@ public class EmptyInputSheetFields extends AbstractFields {
     public StrainsController getStrainsController() { return controller.strainsController; }
     public ConditionsController getConditionsController() { return controller.conditionsController; }
     public RadioButton getSelectedRadioButton() {
-        for (RadioButton radioButton : ((RadioButton[]) sampleLabelingRadioButtons.getControls()))
-            if (radioButton.isSelected()) return radioButton;
+        String[] radioButtonIDs = new String[] { "conditionLabelingRadioButton", "strainLabelingRadioButton", "conditionAndStrainLabelingRadioButton" };
+        for (String radioButtonID : radioButtonIDs)
+            if (((RadioButton) controller.getControlByID(radioButtonID)).isSelected()) return (RadioButton) controller.getControlByID(radioButtonID);
         return null;
     }
 }

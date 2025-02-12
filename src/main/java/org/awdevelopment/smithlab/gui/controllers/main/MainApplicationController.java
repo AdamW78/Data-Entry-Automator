@@ -96,10 +96,14 @@ public class MainApplicationController extends AbstractController {
         outputSheetFields = new OutputSheetFields(this);
         outputSheetValidator = new OutputSheetValidator(outputSheetFields, guiLogger, config.getOutputSheetsConfig());
         outputSheetConfigUpdater = new OutputSheetConfigUpdater(this, config.getOutputSheetsConfig());
+        outputSheetFields.getSampleSortingMethodChoiceBox().setStatus(FieldStatus.READY);
+        outputSheetFields.getRadioButtons().setStatus(FieldStatus.READY);
         // Initialize support classes for generating empty input sheets
         emptyInputSheetFields = new EmptyInputSheetFields(this);
         emptyInputSheetValidator = new EmptyInputSheetValidator(emptyInputSheetFields, guiLogger, config.getEmptyInputSheetConfig());
         emptyInputSheetConfigUpdater = new EmptyInputSheetConfigUpdater(this, config.getEmptyInputSheetConfig());
+        emptyInputSheetFields.getSampleSortingMethodChoiceBox().setStatus(FieldStatus.READY);
+        emptyInputSheetFields.getSampleLabelingRadioButtons().setStatus(FieldStatus.READY);
         setupErrorLabelsOutputSheet();
         setupErrorLabelsEmptyInputSheet();
     }
@@ -293,4 +297,6 @@ public class MainApplicationController extends AbstractController {
     public void handleIncludeBaselineColumn() { emptyInputSheetConfigUpdater.handleIncludeBaselineColumn(); }
 
     public void updateOutputFilenameEmptyInputSheet(KeyEvent keyEvent) { emptyInputSheetConfigUpdater.updateOutputFilename(keyEvent); }
+
+    public Control getControlByID(String id) { return (Control) tabPane.getScene().lookup("#" + id); }
 }
