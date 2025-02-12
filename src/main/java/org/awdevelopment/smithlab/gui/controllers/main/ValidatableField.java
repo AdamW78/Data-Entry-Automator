@@ -2,43 +2,31 @@ package org.awdevelopment.smithlab.gui.controllers.main;
 
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import org.awdevelopment.smithlab.gui.controllers.AbstractLabelController;
 
 public class ValidatableField {
 
     private final Control control;
     private final Label errorLabel;
     private final Control[] controls;
-    private boolean beenTouched = false;
-    private boolean failedEmptyCheck = false;
     private final FieldType fieldType;
+    private FieldStatus fieldStatus;
 
-    public ValidatableField(Control control, Label errorLabel, FieldType fieldType) {
+    private ValidatableField(Control control, Control[] controls, Label errorLabel, FieldType fieldType, FieldStatus fieldStatus) {
         this.control = control;
-        controls = null;
+        this.controls = controls;
         this.errorLabel = errorLabel;
         this.fieldType = fieldType;
+        this.fieldStatus = fieldStatus;
+    }
+
+    public ValidatableField(Control control, Label errorLabel, FieldType fieldType) {
+        this(control, null, errorLabel, fieldType, FieldStatus.UNTOUCHED);
     }
 
     public ValidatableField(Control[] controls, Label errorLabel, FieldType fieldType) {
-        this.controls = controls;
-        control = null;
-        this.errorLabel = errorLabel;
-        this.fieldType = fieldType;
+        this(null, controls, errorLabel, fieldType, FieldStatus.UNTOUCHED);
     }
-
-    public void reset() { resetTouch(); resetFailedEmptyCheck(); }
-
-    public void touch() { beenTouched = true; }
-
-    public void resetTouch() { beenTouched = false; }
-
-    public void failedEmptyCheck() { failedEmptyCheck = true; }
-
-    public void resetFailedEmptyCheck() { failedEmptyCheck = false; }
-
-    public boolean beenTouched() { return beenTouched; }
-
-    public boolean hasFailedEmptyCheck() { return failedEmptyCheck; }
 
     public Control getControl() { return control; }
 
@@ -47,4 +35,9 @@ public class ValidatableField {
     public Label getErrorLabel() { return errorLabel; }
 
     public FieldType getFieldType() { return fieldType; }
+
+    public FieldStatus status() { return fieldStatus; }
+
+    public void setStatus(FieldStatus fieldStatus) { this.fieldStatus = fieldStatus; }
+
 }

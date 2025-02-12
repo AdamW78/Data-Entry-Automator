@@ -35,13 +35,13 @@ public class MainApplicationController extends AbstractController {
     @FXML protected HBox conditionsHBox;
     @FXML protected TextField numTimepointsTextField;
     @FXML protected TextField numReplicatesEmptyInputSheetTextField;
-    @FXML protected TextField outputFilenameEmptyInputSheetsTextField;
+    @FXML protected TextField outputFilenameEmptyInputSheetTextField;
     @FXML protected RadioButton conditionLabelingRadioButton;
     @FXML protected RadioButton strainLabelingRadioButton;
     @FXML protected RadioButton conditionAndStrainLabelingRadioButton;
     @FXML protected CheckBox includeBaselineColumnCheckbox;
     @FXML protected ChoiceBox<SortOption> sampleSortingMethodEmptyInputSheetChoiceBox;
-    @FXML protected Label statusLabelEmptyInputSheets;
+    @FXML protected Label statusLabelEmptyInputSheet;
     @FXML protected Label timepointsAddedLabel;
     protected RadioButton[] sampleLabelingRadioButtons;
     protected TimepointsController timepointsController;
@@ -71,7 +71,7 @@ public class MainApplicationController extends AbstractController {
     @FXML protected CheckBox addSheetsToInputFileCheckbox;
     @FXML protected TextField numReplicatesTextField;
     @FXML protected ChoiceBox<SortOption> sampleSortingMethodChoiceBox;
-    public RadioButton[] radioButtons;
+    protected RadioButton[] outputStyleRadioButtons;
 
     private Mode mode = ConfigDefaults.MODE;
     GUILogger guiLogger;
@@ -89,6 +89,9 @@ public class MainApplicationController extends AbstractController {
     public void setup() {
         config = new ConfigManager(getLogger());
         guiLogger = new GUILogger(getLogger());
+        // Set up the radio buttons and choice boxes
+        radioButtonSetup();
+        choiceBoxSetup();
         // Initialize support classes for generating output sheets
         outputSheetFields = new OutputSheetFields(this);
         outputSheetValidator = new OutputSheetValidator(outputSheetFields, guiLogger, config.getOutputSheetsConfig());
@@ -97,10 +100,8 @@ public class MainApplicationController extends AbstractController {
         emptyInputSheetFields = new EmptyInputSheetFields(this);
         emptyInputSheetValidator = new EmptyInputSheetValidator(emptyInputSheetFields, guiLogger, config.getEmptyInputSheetConfig());
         emptyInputSheetConfigUpdater = new EmptyInputSheetConfigUpdater(this, config.getEmptyInputSheetConfig());
-        // Set up the radio buttons and choice boxes
-        radioButtonSetup();
-        choiceBoxSetup();
         setupErrorLabelsOutputSheet();
+        setupErrorLabelsEmptyInputSheet();
     }
 
     private void choiceBoxSetup() {
@@ -111,7 +112,7 @@ public class MainApplicationController extends AbstractController {
     }
 
     private void radioButtonSetup() {
-        radioButtons = new RadioButton[] {
+        outputStyleRadioButtons = new RadioButton[] {
                 outputStylePrismRadioButton,
                 outputStyleTestsRadioButton,
                 outputStyleRawRadioButton,
@@ -124,20 +125,27 @@ public class MainApplicationController extends AbstractController {
         };
     }
 
+    private void setupErrorLabel(Label label) {
+        label.setText("");
+        label.setStyle("");
+    }
+
+    private void setupErrorLabels(Label... labels) {
+        for (Label label : labels) setupErrorLabel(label);
+    }
+
     private void setupErrorLabelsOutputSheet() {
-        replicatesErrorLabelOutputSheet.setText("");
-        outputStyleErrorLabel.setText("");
-        outputFilenameErrorLabel.setText("");
-        inputFileExistsLabel.setText("");
-        statusLabelOutputSheet.setText("");
-        replicatesErrorLabelOutputSheet.setStyle("");
-        outputStyleErrorLabel.setStyle("");
-        outputFilenameErrorLabel.setStyle("");
-        inputFileExistsLabel.setStyle("");
-        statusLabelOutputSheet.setStyle("");
+        setupErrorLabels(replicatesErrorLabelOutputSheet, outputStyleErrorLabel, outputFilenameErrorLabel,
+                inputFileExistsLabel, statusLabelOutputSheet);
+    }
+
+    private void setupErrorLabelsEmptyInputSheet() {
+        setupErrorLabels(numConditionsErrorLabel, numTimepointsErrorLabel, numStrainErrorLabel,
+                numReplicatesErrorLabelEmptyInputSheet, statusLabelEmptyInputSheet);
     }
 
     public void generateOutput() {
+        getLogger().atDebug("Mode: " + mode);
         switch (mode) {
             case GENERATE_OUTPUT_SHEETS -> {
                 if (!outputSheetValidator.fieldsValid()) return;
@@ -147,15 +155,13 @@ public class MainApplicationController extends AbstractController {
                 if (!emptyInputSheetValidator.fieldsValid()) return;
                 generateEmptyInputSheet();
             }
-            case IMAGE_RECOGNITION -> {
-                return;
-            }
+            case IMAGE_RECOGNITION -> {}
         }
     }
 
     private void generateOutputSheets() {
         getLogger().atDebug("FROM GUI: USER CLICKED GENERATE BUTTON");
-        getLogger().atInfo("Generating output...");
+        getLogger().atDebug("Generating output...");
         getLogger().atDebug(new String[] {
                 "Input file: " + config.getConfigValue(mode, ConfigOption.INPUT_FILE),
                 "Output file: " + config.getConfigValue(mode, ConfigOption.OUTPUT_FILE),
@@ -163,7 +169,6 @@ public class MainApplicationController extends AbstractController {
                 "Write to different file: " + config.getConfigValue(mode, ConfigOption.WRITE_TO_DIFFERENT_FILE),
                 "Sort option: " + config.getConfigValue(mode, ConfigOption.SORT_OPTION),
                 "Number of replicates: " + config.getConfigValue(mode, ConfigOption.NUMBER_OF_REPLICATES),
-                "Empty input sheet name: " + config.getConfigValue(mode, ConfigOption.EMPTY_INPUT_SHEET_NAME)
         });
         InputReader reader = new InputReader(config.getOutputSheetsConfig(), getLogger());
         getLogger().atDebug("Successfully initialized InputReader -  reading experiment data...");
@@ -200,7 +205,7 @@ public class MainApplicationController extends AbstractController {
 
     public void updateNumReplicates(KeyEvent keyEvent) { outputSheetConfigUpdater.updateNumReplicates(keyEvent); }
 
-    public void updateSampleSortingMethod() { outputSheetConfigUpdater.updateSampleSortingMethod(); }
+    public void updateSampleSortingMethod() { if (outputSheetConfigUpdater != null) outputSheetConfigUpdater.updateSampleSortingMethod(); }
 
     public void updateOutputReplicatesFields() {
         outputSheetConfigUpdater.updateNumReplicates(null);
@@ -225,6 +230,11 @@ public class MainApplicationController extends AbstractController {
 //        else if (tabPane.getSelectionModel().getSelectedItem() == imageRecognitionTab) {
 //            mode = Mode.IMAGE_RECOGNITION;
 //        }
+        switch (mode) {
+            case GENERATE_OUTPUT_SHEETS -> { if (outputSheetConfigUpdater != null) updateFieldsOutputSheets();}
+            case GENERATE_EMPTY_INPUT_SHEET -> { if (emptyInputSheetConfigUpdater != null) updateFieldsEmptyInputSheet(); }
+            case IMAGE_RECOGNITION -> {}
+        }
     }
 
     private void generateEmptyInputSheet() {
@@ -232,58 +242,41 @@ public class MainApplicationController extends AbstractController {
         try {
             outputGenerator = new OutputGenerator(config.getEmptyInputSheetConfig());
         } catch (NoDaysException | NoStrainsOrConditionsException e) {
-            guiLogger.errorOccurred(statusLabelEmptyInputSheets, e.getMessage());
+            guiLogger.errorOccurred(statusLabelEmptyInputSheet, e.getMessage());
             return;
         }
         try {
             outputGenerator.generateEmptyInputSheet();
         } catch (OutputException e) {
-            guiLogger.errorOccurred(statusLabelEmptyInputSheets, e.getMessage());
+            guiLogger.errorOccurred(statusLabelEmptyInputSheet, e.getMessage());
             return;
         }
-        statusLabelEmptyInputSheets.setText("Successfully generated output!");
-        statusLabelEmptyInputSheets.setStyle("-fx-text-fill: green");
+        statusLabelEmptyInputSheet.setText("Successfully generated output!");
+        statusLabelEmptyInputSheet.setStyle("-fx-text-fill: green");
     }
 
-    public void emptyInputValidateFields() {
-        String focusID = (outputFilenameEmptyInputSheetsTextField.getScene().getFocusOwner().getId());
-        if (timepointsController != null) {
-            config.getEmptyInputSheetConfig().setUsingNumDays(timepointsController.usingNumDays());
-            config.getEmptyInputSheetConfig().setDays(timepointsController.getDays());
-        }
-        if (strainsController != null) {
-            config.getEmptyInputSheetConfig().setUsingNumStrains(strainsController.usingNumStrains());
-            config.getEmptyInputSheetConfig().setStrains(strainsController.getStrains());
-        }
-        if (conditionsController != null) {
-            config.getEmptyInputSheetConfig().setUsingNumConditions(conditionsController.usingNumConditions());
-            config.getEmptyInputSheetConfig().setConditions(conditionsController.getConditions());
-        }
-        if (focusID == null || focusID.isEmpty()) focusID = "default";
-        switch (focusID) {
-            case "numReplicatesEmptyInputSheetTextField" -> emptyInputSheetValidator.fieldsValidExceptNumReplicates();
-            case "numTimepointsTextField" -> emptyInputSheetValidator.fieldsValidExceptNumTimepoints();
-            case "outputFilenameEmptyInputSheetsTextField" -> emptyInputSheetValidator.fieldsValidExceptOutputFilename();
-            case "numConditionsTextField" -> emptyInputSheetValidator.fieldsValidExceptNumConditions();
-            case "numStrainsTextField" -> emptyInputSheetValidator.fieldsValidExceptNumStrains();
-            default -> emptyInputSheetValidator.fieldsValid();
-        }
+    public void updateFieldsEmptyInputSheet() {
+        emptyInputSheetConfigUpdater.updateFields();
+        emptyInputSheetValidator.preliminaryFieldsValid();
     }
 
-    public void updateFieldsOutputSheets() { outputSheetConfigUpdater.updateFields(); }
+    public void updateFieldsOutputSheets() {
+        outputSheetConfigUpdater.updateFields();
+        outputSheetValidator.preliminaryFieldsValid();
+    }
 
     public void openConditionsFXML() {
-        emptyInputValidateFields();
+        updateFieldsEmptyInputSheet();
         conditionsController = (ConditionsController) SceneLoader.loadScene(new Stage(), FXMLResourceType.CONDITIONS, getLogger(), config.getEmptyInputSheetConfig());
     }
 
     public void openStrainsFXML() {
-        emptyInputValidateFields();
+        updateFieldsEmptyInputSheet();
         strainsController = (StrainsController) SceneLoader.loadScene(new Stage(), FXMLResourceType.STRAINS, getLogger(), config.getEmptyInputSheetConfig());
     }
 
     public void openTimepointsFXML() {
-        emptyInputValidateFields();
+        updateFieldsEmptyInputSheet();
         timepointsController = (TimepointsController) SceneLoader.loadScene(new Stage(), FXMLResourceType.TIMEPOINTS, getLogger(), config.getEmptyInputSheetConfig());
     }
 
@@ -298,4 +291,6 @@ public class MainApplicationController extends AbstractController {
     public void updateNumTimepointsEmptyInputSheet(KeyEvent keyEvent) { emptyInputSheetConfigUpdater.updateNumTimepoints(keyEvent); }
 
     public void handleIncludeBaselineColumn() { emptyInputSheetConfigUpdater.handleIncludeBaselineColumn(); }
+
+    public void updateOutputFilenameEmptyInputSheet(KeyEvent keyEvent) { emptyInputSheetConfigUpdater.updateOutputFilename(keyEvent); }
 }

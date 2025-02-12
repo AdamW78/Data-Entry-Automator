@@ -1,25 +1,24 @@
 package org.awdevelopment.smithlab.gui.controllers.main;
 
 import javafx.scene.control.*;
-import org.awdevelopment.smithlab.config.SortOption;
 
 public class OutputSheetFields extends AbstractFields{
 
-    private ValidatableField inputFileTextField;
-    private ValidatableField outputFileTextField;
-    private ValidatableField numReplicatesTextField;
-    private ValidatableField sampleSortingMethodChoiceBox;
-    private ValidatableField outputStyleRadioButtons;
+    private final ValidatableField inputFileTextField;
+    private final ValidatableField outputFileTextField;
+    private final ValidatableField numReplicatesTextField;
+    private final ValidatableField sampleSortingMethodChoiceBox;
+    private final ValidatableField outputStyleRadioButtons;
 
     private final MainApplicationController controller;
 
     OutputSheetFields(MainApplicationController controller) {
         this.controller = controller;
-        this.inputFileTextField = new ValidatableField(controller.inputFileTextField);
-        this.outputFileTextField = new ValidatableField(controller.outputFileTextField);
-        this.numReplicatesTextField = new ValidatableField(controller.numReplicatesTextField);
-        this.sampleSortingMethodChoiceBox = new ValidatableField(controller.sampleSortingMethodChoiceBox);
-        this.outputStyleRadioButtons = new ValidatableField(controller.radioButtons);
+        this.inputFileTextField = new ValidatableField(controller.inputFileTextField, controller.inputFileExistsLabel, FieldType.EXISTING_FILE);
+        this.outputFileTextField = new ValidatableField(controller.outputFileTextField, controller.outputFilenameErrorLabel, FieldType.FILENAME);
+        this.numReplicatesTextField = new ValidatableField(controller.numReplicatesTextField, controller.replicatesErrorLabelOutputSheet, FieldType.BYTE);
+        this.sampleSortingMethodChoiceBox = new ValidatableField(controller.sampleSortingMethodChoiceBox, controller.statusLabelOutputSheet, FieldType.CHOICE_BOX);
+        this.outputStyleRadioButtons = new ValidatableField(controller.outputStyleRadioButtons, controller.outputStyleErrorLabel, FieldType.RADIO_BUTTONS);
     }
 
     public Label getStatusLabelOutputSheet() {
@@ -36,18 +35,6 @@ public class OutputSheetFields extends AbstractFields{
 
     public Label getOutputFilenameErrorLabel() {
         return controller.outputFilenameErrorLabel;
-    }
-
-    public TabPane getTabPane() {
-        return controller.tabPane;
-    }
-
-    public Tab getOutputSheetsTab() {
-        return controller.outputSheetsTab;
-    }
-
-    public Tab getEmptyInputSheetTab() {
-        return controller.emptyInputSheetTab;
     }
 
     public RadioButton getOutputStylePrismRadioButton() { return controller.outputStylePrismRadioButton; }
@@ -92,6 +79,15 @@ public class OutputSheetFields extends AbstractFields{
 
     public ValidatableField getRadioButtons() {
         return outputStyleRadioButtons;
+    }
+
+    public RadioButton getSelectedRadioButton() {
+        for (RadioButton radioButton : ((RadioButton[]) outputStyleRadioButtons.getControls())) {
+            if (radioButton.isSelected()) {
+                return radioButton;
+            }
+        }
+        return null;
     }
 }
 

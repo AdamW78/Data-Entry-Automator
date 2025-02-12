@@ -14,6 +14,7 @@ public class EmptyInputSheetConfig extends AbstractConfig {
         super(logger);
         super.addConfigEntry(new ConfigEntry<>(ConfigOption.SORT_OPTION, ConfigDefaults.SORT_OPTION));
         super.addConfigEntry(new ConfigEntry<>(ConfigOption.NUMBER_OF_REPLICATES, ConfigDefaults.NUMBER_OF_REPLICATES));
+        super.addConfigEntry(new ConfigEntry<>(ConfigOption.OUTPUT_FILE, ConfigDefaults.OUTPUT_FILENAME));
         super.addConfigEntry(new ConfigEntry<>(ConfigOption.EMPTY_INPUT_SHEET_NAME, ConfigDefaults.EMPTY_INPUT_SHEET_NAME));
         super.addConfigEntry(new ConfigEntry<>(ConfigOption.CONDITIONS, ConfigDefaults.CONDITIONS));
         super.addConfigEntry(new ConfigEntry<>(ConfigOption.STRAINS, ConfigDefaults.STRAINS));

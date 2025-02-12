@@ -2,10 +2,8 @@ package org.awdevelopment.smithlab.gui.controllers.main;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import org.awdevelopment.smithlab.config.ConfigOption;
@@ -21,15 +19,14 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
     MainApplicationController controller;
     private final OutputSheetsConfig config;
     private final OutputSheetFields fields;
-    private final OutputSheetValidator validator;
     private final GUILogger guiLogger;
     private final LoggerHelper LOGGER;
 
     OutputSheetConfigUpdater(MainApplicationController controller, OutputSheetsConfig config) {
+        super(config, controller.outputSheetValidator);
         this.controller = controller;
         this.config = config;
         this.fields = controller.outputSheetFields;
-        this.validator = controller.outputSheetValidator;
         this.guiLogger = controller.guiLogger;
         this.LOGGER = config.LOGGER();
     }
@@ -40,8 +37,9 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
         fileChooser.setTitle("Select Input File (ending in .xlsx)");
         File inputFile = fileChooser.showOpenDialog(fields.getInputFileBrowseButton().getScene().getWindow());
         if (inputFile != null) {
-            LOGGER.atDebug("Selected input file: " + inputFile.getAbsolutePath());
+            LOGGER.atDebug("Selected input file with path: \"" + inputFile.getAbsolutePath() + "\"");
             ((TextField) fields.getInputFileTextField().getControl()).setText(inputFile.getAbsolutePath());
+            fields.getInputFileTextField().setStatus(FieldStatus.EDITED_NOT_VALIDATED);
             updateInputFile(null);
         }
     }
@@ -55,7 +53,7 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
         else if (fields.getOutputStyleTestsRadioButton().isSelected()) config.setOutputType(OutputType.STATISTICAL_TESTS);
         else if (fields.getOutputStyleRawRadioButton().isSelected()) config.setOutputType(OutputType.RAW);
         else if (fields.getOutputStyleBothRadioButton().isSelected()) config.setOutputType(OutputType.BOTH);
-        LOGGER.atTrace("Radio button press ActionEvent caught: Switched from OutputType \""
+        LOGGER.atDebug("Radio button press ActionEvent caught: Switched from OutputType \""
                 + oldOutputType +"\" to new OutputType \"" + radioButton.getText() + "\".");
     }
 
@@ -67,56 +65,23 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
             config.setOutputFilename(((TextField) fields.getInputFileTextField().getControl()).getText());
             if (!fields.getOutputFilenameErrorLabel().getText().isEmpty())
                 guiLogger.clearError(fields.getOutputFilenameErrorLabel());
+            LOGGER.atDebug("Add sheets to input file checkbox selected - output file text field disabled.");
         } else {
             fields.getOutputFileTextField().getControl().setDisable(false);
             config.setWriteToDifferentFile(true);
             config.setOutputFilename(((TextField) fields.getOutputFileTextField().getControl()).getText());
+            LOGGER.atDebug("Add sheets to input file checkbox deselected - output file text field enabled.");
         }
     }
 
-    void updateTextField(TextField textField, ConfigOption option, KeyEvent keyEvent, Label errorLabel, boolean failedBoolean, boolean byteParse, boolean fileExists) {
-        if (!byteParse && !fileExists) config.set(option, textField.getText());
-        if (textField.getText().isEmpty() && !failedBoolean) guiLogger.clearError(errorLabel);
-        if (keyEvent == null
-                || !(textField.getScene().focusOwnerProperty().get().getId().equals(textField.getId()))
-                || keyEvent.getCode() == KeyCode.ENTER
-                || keyEvent.getCode() == KeyCode.TAB
-        ) {
-            boolean validatedSuccessfully = switch (textField.getId()) {
-                case "numReplicatesTextField" -> validator.numReplicatesTextFieldValid(failedBoolean);
-                case "outputFileTextField" -> validator.outputFilenameTextFieldValid(failedBoolean);
-                case "inputFileTextField" -> validator.inputFileTextFieldValid(failedBoolean);
-                default -> throw new IllegalStateException("Unexpected value: " + textField.getId());
-            };
-            if (byteParse && validatedSuccessfully) config.set(option, Byte.parseByte(textField.getText()));
-            if (fileExists && validatedSuccessfully) config.set(option, textField.getText());
-        }
-    }
+    public void updateNumReplicates(KeyEvent keyEvent) { updateTextField(fields.getNumReplicatesTextField(), ConfigOption.NUMBER_OF_REPLICATES, keyEvent); }
 
-    public void updateNumReplicates(KeyEvent keyEvent) {
-        updateTextField(((TextField) fields.getNumReplicatesTextField().getControl()), ConfigOption.NUMBER_OF_REPLICATES, keyEvent,
-                fields.getReplicatesErrorLabelOutputSheet(), validator.failedEmptyReplicates(),
-                true, false);
-    }
+    public void updateOutputFilename(KeyEvent keyEvent) { updateTextField(fields.getOutputFileTextField(), ConfigOption.OUTPUT_FILE, keyEvent); }
 
-
-    public void updateOutputFilename(KeyEvent keyEvent) {
-        updateTextField(((TextField) fields.getOutputFileTextField().getControl()), ConfigOption.OUTPUT_FILE, keyEvent,
-                fields.getOutputFilenameErrorLabel(), validator.failedEmptyOutputFilename(),
-                false, false);
-    }
-
-    public void updateInputFile(KeyEvent keyEvent) {
-        updateTextField(((TextField) fields.getInputFileTextField().getControl()), ConfigOption.INPUT_FILE, keyEvent,
-                fields.getInputFileExistsLabel(), validator.failedEmptyInputFile(),
-                false, true);
-    }
-
+    public void updateInputFile(KeyEvent keyEvent) { updateTextField(fields.getInputFileTextField(), ConfigOption.INPUT_FILE, keyEvent); }
 
     @SuppressWarnings("unchecked")
-    public void updateSampleSortingMethod() {
-        config.set(ConfigOption.SORT_OPTION, ((ChoiceBox<SortOption>) fields.getSampleSortingMethodChoiceBox().getControl()).getValue());
-    }
+    public void updateSampleSortingMethod() { config.set(ConfigOption.SORT_OPTION, ((ChoiceBox<SortOption>) fields.getSampleSortingMethodChoiceBox().getControl()).getValue()); }
 
     public void updateFields() {
         updateNumReplicates(null);

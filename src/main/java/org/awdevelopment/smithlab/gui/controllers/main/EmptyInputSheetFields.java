@@ -2,7 +2,6 @@ package org.awdevelopment.smithlab.gui.controllers.main;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import org.awdevelopment.smithlab.config.SortOption;
 import org.awdevelopment.smithlab.gui.controllers.ConditionsController;
 import org.awdevelopment.smithlab.gui.controllers.StrainsController;
 import org.awdevelopment.smithlab.gui.controllers.TimepointsController;
@@ -24,10 +23,10 @@ public class EmptyInputSheetFields extends AbstractFields {
         this.numTimepointsTextField = new ValidatableField(controller.numTimepointsTextField, controller.timepointsAddedLabel, FieldType.BYTE);
         this.numConditionsTextField = new ValidatableField(controller.numConditionsTextField, controller.numConditionsErrorLabel, FieldType.BYTE);
         this.numStrainsTextField = new ValidatableField(controller.numStrainsTextField, controller.numStrainErrorLabel, FieldType.BYTE);
-        this.numReplicatesTextField = new ValidatableField(controller.numReplicatesTextField, controller.numReplicatesErrorLabelEmptyInputSheet, FieldType.BYTE);
-        this.outputFilenameTextField = new ValidatableField(controller.outputFileTextField, controller.outputFilenameErrorLabel, FieldType.FILENAME);
-        this.sampleLabelingRadioButtons = new ValidatableField(controller.sampleLabelingRadioButtons, controller.statusLabelEmptyInputSheets, FieldType.RADIO_BUTTONS);
-        this.sampleSortingMethodChoiceBox = new ValidatableField(controller.sampleSortingMethodChoiceBox, controller.statusLabelEmptyInputSheets, FieldType.CHOICE_BOX);
+        this.numReplicatesTextField = new ValidatableField(controller.numReplicatesEmptyInputSheetTextField, controller.numReplicatesErrorLabelEmptyInputSheet, FieldType.BYTE);
+        this.outputFilenameTextField = new ValidatableField(controller.outputFilenameEmptyInputSheetTextField, controller.statusLabelEmptyInputSheet, FieldType.FILENAME);
+        this.sampleLabelingRadioButtons = new ValidatableField(controller.sampleLabelingRadioButtons, controller.statusLabelEmptyInputSheet, FieldType.RADIO_BUTTONS);
+        this.sampleSortingMethodChoiceBox = new ValidatableField(controller.sampleSortingMethodEmptyInputSheetChoiceBox, controller.statusLabelEmptyInputSheet, FieldType.CHOICE_BOX);
     }
 
     public ValidatableField getNumTimepointsTextField() { return numTimepointsTextField; }
@@ -47,9 +46,14 @@ public class EmptyInputSheetFields extends AbstractFields {
     public RadioButton getStrainLabelingRadioButton() { return controller.strainLabelingRadioButton; }
     public RadioButton getConditionAndStrainLabelingRadioButton() { return controller.conditionAndStrainLabelingRadioButton; }
     public CheckBox getIncludeBaselineColumnCheckbox() { return controller.includeBaselineColumnCheckbox; }
-    public Label getStatusLabel() { return controller.statusLabelEmptyInputSheets; }
+    public Label getStatusLabel() { return controller.statusLabelEmptyInputSheet; }
     public Label getTimepointsAddedLabel() { return controller.timepointsAddedLabel; }
     public TimepointsController getTimepointsController() { return controller.timepointsController; }
     public StrainsController getStrainsController() { return controller.strainsController; }
     public ConditionsController getConditionsController() { return controller.conditionsController; }
+    public RadioButton getSelectedRadioButton() {
+        for (RadioButton radioButton : ((RadioButton[]) sampleLabelingRadioButtons.getControls()))
+            if (radioButton.isSelected()) return radioButton;
+        return null;
+    }
 }
