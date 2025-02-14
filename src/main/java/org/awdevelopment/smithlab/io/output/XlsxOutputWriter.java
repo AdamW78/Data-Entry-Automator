@@ -28,7 +28,7 @@ public class XlsxOutputWriter {
 
     private int getNumberOfSheets() {
         return switch (outputStyle.getOutputType()) {
-            case PRISM, RAW, STATISTICAL_TESTS -> 1;
+            case PRISM, RAW, OASIS -> 1;
             case BOTH -> 2;
         };
     }
@@ -59,7 +59,7 @@ public class XlsxOutputWriter {
                 setSheetName(sheets[lastSheetIndex - 1].getWorkbook(), sheets[lastSheetIndex - 1], "PRISM");
                 setSheetName(sheets[lastSheetIndex].getWorkbook(), sheets[lastSheetIndex], "OTHER");
             }
-            case STATISTICAL_TESTS -> setSheetName(sheets[lastSheetIndex].getWorkbook(), sheets[lastSheetIndex], "OTHER");
+            case OASIS -> setSheetName(sheets[lastSheetIndex].getWorkbook(), sheets[lastSheetIndex], "OASIS");
         }
     }
 

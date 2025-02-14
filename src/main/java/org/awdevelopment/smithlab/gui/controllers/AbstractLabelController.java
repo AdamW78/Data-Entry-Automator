@@ -1,18 +1,18 @@
 package org.awdevelopment.smithlab.gui.controllers;
 
-import org.awdevelopment.smithlab.config.Config;
+import org.awdevelopment.smithlab.config.EmptyInputSheetConfig;
 
-public class AbstractLabelController extends AbstractController {
+public abstract class AbstractLabelController extends AbstractController {
 
-    private Config config;
+    private EmptyInputSheetConfig config;
 
     public AbstractLabelController() { super(); }
 
-    public void setConfig(Config config) {
+    public void setConfig(EmptyInputSheetConfig config) {
         this.config = config;
     }
 
-    public Config config() {
+    public EmptyInputSheetConfig config() {
         return config;
     }
 }

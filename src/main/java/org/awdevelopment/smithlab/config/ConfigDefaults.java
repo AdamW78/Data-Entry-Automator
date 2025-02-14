@@ -8,10 +8,12 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ConfigDefault {
+public class ConfigDefaults {
 
     public static final byte NUM_DAYS = 0;
+    public static final Object GUI = Boolean.TRUE;
     private static final String DEFAULT_FILENAME = "Spreadsheet Formatter Output.xlsx";
+    public static final String EMPTY_INPUT_SHEET_FILENAME = "Empty Data Entry Sheet.xlsx";
     public static final OutputType OUTPUT_TYPE = OutputType.BOTH;
     public static final String OUTPUT_FILENAME = DEFAULT_FILENAME;
     public static final Mode MODE = Mode.GENERATE_OUTPUT_SHEETS;

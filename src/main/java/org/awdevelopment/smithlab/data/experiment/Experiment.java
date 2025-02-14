@@ -11,7 +11,6 @@ public class Experiment extends AbstractExperiment {
     private final Set<Sample> samples;
     private Sample[] sortedSamplesAlphabetically;
     private Sample[] sortedSamplesReverseAlphabetically;
-    private Sample[] sortedSamplesBySampleNumber;
     private short[] sortedDayNumbers;
     private short numReplicates;
 
@@ -33,12 +32,10 @@ public class Experiment extends AbstractExperiment {
     }
 
     public Sample getSampleNumber(int sampleNumber) {
-        if (sortedSamplesBySampleNumber == null) {
-            sortedSamplesBySampleNumber = samples.stream()
-                    .sorted(Comparator.comparing(Sample::getNumber))
-                    .toArray(Sample[]::new);
+        for (Sample sample : samples) {
+            if (sample.getNumber() == sampleNumber) return sample;
         }
-        return sortedSamplesBySampleNumber[sampleNumber];
+        return null;
     }
 
     public Sample getSampleByAlphabeticalOrder(int sampleNumber) {

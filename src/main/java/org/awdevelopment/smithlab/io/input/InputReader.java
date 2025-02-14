@@ -1,17 +1,17 @@
 package org.awdevelopment.smithlab.io.input;
 
-import org.awdevelopment.smithlab.config.Config;
+import org.awdevelopment.smithlab.config.OutputSheetsConfig;
 import org.awdevelopment.smithlab.data.experiment.Experiment;
 import org.awdevelopment.smithlab.io.exceptions.InputFileException;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 public class InputReader {
 
-    private final Config config;
+    private final OutputSheetsConfig config;
     private final LoggerHelper LOGGER;
 
 
-    public InputReader(Config config, LoggerHelper logger) {
+    public InputReader(OutputSheetsConfig config, LoggerHelper logger) {
         this.config = config;
         this.LOGGER = logger;
     }

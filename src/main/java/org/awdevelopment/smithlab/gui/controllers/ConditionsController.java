@@ -15,6 +15,9 @@ public class ConditionsController extends AbstractLabelController {
         conditions = new HashSet<>();
     }
 
+    @Override
+    public void setup() {}
+
     public boolean usingNumConditions() { return usingNumConditions; }
 
     public void setUsingNumConditions(boolean usingNumConditions) {

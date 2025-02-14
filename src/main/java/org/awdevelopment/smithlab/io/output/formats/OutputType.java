@@ -1,7 +1,7 @@
 package org.awdevelopment.smithlab.io.output.formats;
 
 public enum OutputType {
-    PRISM, STATISTICAL_TESTS, RAW, BOTH;
+    PRISM, OASIS, RAW, BOTH;
 
     @Override
     public String toString() { return formatString(this.name()); }

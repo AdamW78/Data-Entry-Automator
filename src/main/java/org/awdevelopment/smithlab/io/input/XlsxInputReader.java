@@ -249,6 +249,7 @@ public class XlsxInputReader {
     }
 
     public Experiment readExperimentData() throws InputFileException {
+        LOGGER.atDebug("Reading in experiment data from file: "+xlsxFile);
         XSSFSheet sheet = getWorkbook().getSheetAt(INPUT_SHEET_INDEX);
         Headers headers = readHeaders(sheet);
         Experiment experiment = new Experiment();
