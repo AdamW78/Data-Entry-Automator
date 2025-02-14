@@ -52,7 +52,40 @@ public class EmptyInputSheetConfigUpdater extends AbstractConfigUpdater {
     }
 
     public void updateSampleLabelingRadioButtons(ActionEvent actionEvent) {
-        RadioButton selectedRadioButton = fields.getSelectedRadioButton();
+        RadioButton selectedRadioButton = actionEvent.getSource() instanceof RadioButton ? (RadioButton) actionEvent.getSource() : null;
+        if (selectedRadioButton == null) {
+            RadioButton previousSelectedRadioButton =
+                    switch (config.sampleLabelingType()) {
+                case CONDITION -> fields.getConditionLabelingRadioButton();
+                case STRAIN -> fields.getStrainLabelingRadioButton();
+                case CONDITION_AND_STRAIN -> fields.getConditionAndStrainLabelingRadioButton();
+            };
+            RadioButton[] selectedRadioButtons = new RadioButton[3];
+            if (fields.getConditionLabelingRadioButton().isSelected()) selectedRadioButtons[0] = fields.getConditionLabelingRadioButton();
+            if (fields.getStrainLabelingRadioButton().isSelected()) selectedRadioButtons[1] = fields.getStrainLabelingRadioButton();
+            if (fields.getConditionAndStrainLabelingRadioButton().isSelected()) selectedRadioButtons[2] = fields.getConditionAndStrainLabelingRadioButton();
+            if (selectedRadioButtons[0] == null && selectedRadioButtons[1] == null && selectedRadioButtons[2] == null) {
+                LOGGER().atWarn("No radio button selected, setting previous radio button to selected.");
+                selectedRadioButton = previousSelectedRadioButton;
+            } else if (!(selectedRadioButtons[0] != null ^ selectedRadioButtons[1] != null ^ selectedRadioButtons[2] != null)) {
+                LOGGER().atFatal("ERROR: More than one radio button selected, exiting...");
+                System.exit(1);
+                return;
+            } else {
+                for (RadioButton radioButton : selectedRadioButtons) {
+                    if (radioButton != null) {
+                        selectedRadioButton = radioButton;
+                        break;
+                    }
+                }
+                if (selectedRadioButton == null) {
+                    // This should never happen
+                    LOGGER().atFatal("ERROR: No radio button selected, exiting...");
+                    System.exit(1);
+                    return;
+                }
+            }
+        }
         RadioButton[] radioButtons = new RadioButton[] { fields.getConditionLabelingRadioButton(), fields.getStrainLabelingRadioButton(), fields.getConditionAndStrainLabelingRadioButton() };
         for (RadioButton radioButton : radioButtons) {
             if (radioButton.getId().equals(selectedRadioButton.getId())) {
@@ -83,12 +116,13 @@ public class EmptyInputSheetConfigUpdater extends AbstractConfigUpdater {
 
     @SuppressWarnings("unchecked")
     public void updateSampleSortingMethod() {
-        String id = "sampleSortingMethodChoiceBox";
+        String id = "sampleSortingMethodEmptyInputSheetChoiceBox";
         ChoiceBox<SortOption> choiceBox;
         try {
             choiceBox = (ChoiceBox<SortOption>) fields.getControlByIDAndMode(id, config.mode());
         } catch (IllegalFieldAccessException e) {
             LOGGER().atFatal("Error occurred while updating sample sorting method choice box.", e);
+            LOGGER().atFatal(e.getMessage());
             System.exit(1);
             return;
         }

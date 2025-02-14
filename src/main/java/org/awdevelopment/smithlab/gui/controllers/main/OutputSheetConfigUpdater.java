@@ -3,7 +3,6 @@ package org.awdevelopment.smithlab.gui.controllers.main;
 import javafx.event.ActionEvent;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import org.awdevelopment.smithlab.config.ConfigOption;
@@ -23,7 +22,7 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
     private final LoggerHelper LOGGER;
 
     OutputSheetConfigUpdater(MainApplicationController controller, OutputSheetsConfig config) {
-        super(config, controller.outputSheetValidator);
+        super(config, controller.outputSheetValidator, controller.outputSheetFields);
         this.controller = controller;
         this.config = config;
         this.fields = controller.outputSheetFields;
@@ -38,7 +37,7 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
         File inputFile = fileChooser.showOpenDialog(fields.getInputFileBrowseButton().getScene().getWindow());
         if (inputFile != null) {
             LOGGER.atDebug("Selected input file with path: \"" + inputFile.getAbsolutePath() + "\"");
-            ((TextField) fields.getInputFileTextField().getControlID()).setText(inputFile.getAbsolutePath());
+            getTextField(fields.getInputFileTextField()).setText(inputFile.getAbsolutePath());
             fields.getInputFileTextField().setStatus(FieldStatus.EDITED_NOT_VALIDATED);
             updateInputFile(null);
         }
@@ -47,7 +46,8 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
     public void handleRadioButtonPressOutputSheets(ActionEvent actionEvent) {
         updateFields();
         RadioButton radioButton = (RadioButton) actionEvent.getSource();
-        for (RadioButton otherRadioButton : ((RadioButton[]) fields.getRadioButtons().getControlIDs())) if (!otherRadioButton.equals(radioButton)) otherRadioButton.setSelected(false);
+        RadioButton[] radioButtons = new RadioButton[] { fields.getOutputStylePrismRadioButton(), fields.getOutputStyleTestsRadioButton(), fields.getOutputStyleRawRadioButton(), fields.getOutputStyleBothRadioButton() };
+        for (RadioButton otherRadioButton : radioButtons) if (!otherRadioButton.equals(radioButton)) otherRadioButton.setSelected(false);
         OutputType oldOutputType = config.outputType();
         if (fields.getOutputStylePrismRadioButton().isSelected()) config.setOutputType(OutputType.PRISM);
         else if (fields.getOutputStyleTestsRadioButton().isSelected()) config.setOutputType(OutputType.STATISTICAL_TESTS);
@@ -60,16 +60,16 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
     public void handleAddSheetsCheckbox() {
         updateFields();
         if (fields.getAddSheetsToInputFileCheckbox().isSelected()) {
-            fields.getOutputFileTextField().getControlID().setDisable(true);
+            getTextField(fields.getOutputFileTextField()).setDisable(true);
             config.setWriteToDifferentFile(false);
-            config.setOutputFilename(((TextField) fields.getInputFileTextField().getControlID()).getText());
+            config.setOutputFilename(getTextField(fields.getInputFileTextField()).getText());
             if (!fields.getOutputFilenameErrorLabel().getText().isEmpty())
                 guiLogger.clearError(fields.getOutputFilenameErrorLabel());
             LOGGER.atDebug("Add sheets to input file checkbox selected - output file text field disabled.");
         } else {
-            fields.getOutputFileTextField().getControlID().setDisable(false);
+            getTextField(fields.getOutputFileTextField()).setDisable(false);
             config.setWriteToDifferentFile(true);
-            config.setOutputFilename(((TextField) fields.getOutputFileTextField().getControlID()).getText());
+            config.setOutputFilename(getTextField(fields.getOutputFileTextField()).getText());
             LOGGER.atDebug("Add sheets to input file checkbox deselected - output file text field enabled.");
         }
     }
@@ -81,7 +81,15 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
     public void updateInputFile(KeyEvent keyEvent) { updateTextField(fields.getInputFileTextField(), ConfigOption.INPUT_FILE, keyEvent); }
 
     @SuppressWarnings("unchecked")
-    public void updateSampleSortingMethod() { config.set(ConfigOption.SORT_OPTION, ((ChoiceBox<SortOption>) fields.getSampleSortingMethodChoiceBox().getControlID()).getValue()); }
+    public void updateSampleSortingMethod() {
+        try {
+            config.set(ConfigOption.SORT_OPTION, ((ChoiceBox<SortOption>) fields.getControlByIDAndMode(fields.getSampleSortingMethodChoiceBox().getControlID(), config.mode())).getValue());
+        } catch (IllegalFieldAccessException e) {
+            LOGGER.atFatal("Error occurred while updating sample sorting method choice box.", e);
+            LOGGER.atFatal(e.getMessage());
+            System.exit(1);
+        }
+    }
 
     public void updateFields() {
         updateNumReplicates(null);

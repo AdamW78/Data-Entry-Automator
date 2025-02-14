@@ -21,7 +21,7 @@ public abstract class AbstractFields {
                      "outputFilenameErrorLabel", "tabPane", "outputSheetsTab", "emptyInputSheetTab",
                      "outputStylePrismRadioButton", "inputFileTextField", "inputFileBrowseButton",
                      "inputFileExistsLabel", "outputStyleTestsRadioButton", "outputStyleRawRadioButton",
-                     "outputStyleBothRadioButton", "Field outputFileTextField", "addSheetsToInputFileCheckbox",
+                     "outputStyleBothRadioButton", "outputFileTextField", "addSheetsToInputFileCheckbox",
                      "numReplicatesTextField", "sampleSortingMethodChoiceBox" -> controller.getControlByID(id);
                 default -> throw new IllegalFieldAccessException(mode, id);
             };

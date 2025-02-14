@@ -8,6 +8,8 @@ import org.awdevelopment.smithlab.config.AbstractConfig;
 import org.awdevelopment.smithlab.config.ConfigOption;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
+import java.io.File;
+
 public abstract class AbstractConfigUpdater {
 
     private final AbstractConfig config;
@@ -33,15 +35,15 @@ public abstract class AbstractConfigUpdater {
         try {
             field = fields.getControlByIDAndMode(validatableField.getControlID(), config.mode());
             textField = getTextField(validatableField);
-
         } catch (IllegalFieldAccessException | ClassCastException e) {
             LOGGER.atFatal("Error while trying to update text field with id \"" + validatableField.getControlID() + "\": ", e);
+            LOGGER.atFatal(e.getMessage());
             System.exit(1);
             return;
         }
         boolean fieldIsFocused = field.isFocused();
         if (validatableField.status() == FieldStatus.EDITED_NOT_VALIDATED && (fieldIsFocused
-                && !(((TextField) field).getText().isEmpty()) && keyEvent.getCode() != KeyCode.ENTER
+                && !(((TextField) field).getText().isEmpty()) && keyEvent != null && keyEvent.getCode() != KeyCode.ENTER
                 && keyEvent.getCode() != KeyCode.TAB)) return;
         LOGGER.atDebug("");
         LOGGER.atDebug("Begin process of updating stored value for field with id: \"" + validatableField.getControlID() + "\"...");
@@ -117,7 +119,8 @@ public abstract class AbstractConfigUpdater {
             LOGGER.atDebug("Field was validated successfully, updating stored value...");
             switch (field.getFieldType()) {
                 case BYTE -> config.set(option, Byte.parseByte(getTextField(field).getText()));
-                case FILENAME, STRING, EXISTING_FILE -> config.set(option, getTextField(field).getText());
+                case FILENAME, STRING -> config.set(option, getTextField(field).getText());
+                case EXISTING_FILE -> config.set(option, new File(getTextField(field).getText()));
                 default -> throw new IllegalStateException("Unexpected value: " + field.getFieldType());
             }
             LOGGER.atDebug("Stored value updated successfully.");
