@@ -27,7 +27,7 @@ java -jar data-entry-automator.jar -i <input file> [options]
 
 
 #### Recommended
-Run the program by installing the app using one of releases on the [releases](https://github.com/AdamW78/Data-Entry-Automator/releases) page. Once installed, navigate to the installation location (or create a desktop shortcut) and open the application to access the GUI. The program should look something like:
+Run the program by installing the app using one of releases on the [releases](https://github.com/AdamW78/Data-Entry-Automator/releases/tag/latest) page. Once installed, navigate to the installation location (or create a desktop shortcut) and open the application to access the GUI. The program should look something like:
 ![GUI Example](images/GUI_screenshot.png)
 
 ### Input
