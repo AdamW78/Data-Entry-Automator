@@ -8,16 +8,12 @@ The data entry automator is a tool that allows you to automate the process of en
 The program can currently be run from either the command line or via a GUI. 
 
 ### Running the Program
-##### Not Recommended
+#### Not Recommended
 Run the program using the following command:
 ```bash
 java -jar data-entry-automator.jar -i <input file> [options]
 ```
-
-##### Recommended
-Run the program by installing the app using one of releases on the (releases)[https://github.com/AdamW78/Data-Entry-Automator/releases] page. Once installed, navigate to the install location (or create a desktop shortcut) and open the application to access the GUI. The program should look something like:
-
-#### Options
+##### Options
 
 | Argument        | Short Form | Usage                  | Description                                                   | Default Value                         |
 |-----------------|------------|------------------------|---------------------------------------------------------------|---------------------------------------|
@@ -28,6 +24,11 @@ Run the program by installing the app using one of releases on the (releases)[ht
 | `--output`      | `-o`       | `--output <filepath>`  | Output file name                                              | `"Spreadsheet Formatter Output.xlsx"` |
 | `--verbose`     | `-v`       | `--verbose`            | Whether or not verbose output should be printed               | `false`                               |
 | `--help`        | `-h`       | `--help`               | Whether or not helpful usage information should be printed    | `false`                               |
+
+
+#### Recommended
+Run the program by installing the app using one of releases on the [releases](https://github.com/AdamW78/Data-Entry-Automator/releases) page. Once installed, navigate to the installation location (or create a desktop shortcut) and open the application to access the GUI. The program should look something like:
+![GUI Example](images/GUI_screenshot.png)
 
 ### Input
 The input to the data entry automator is a `.xlsx` file with the following columns:

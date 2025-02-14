@@ -15,7 +15,7 @@ jlink {
         name = 'DataEntryAutomation'
         jpackage {
             imageName = 'Data Entry Automator'
-            skipInstaller = true
+            // skipInstaller = true
             outputDir = "${layout.buildDirectory.get().asFile}"
             vendor = "Adam Wojciak"
             appVersion = project.version
