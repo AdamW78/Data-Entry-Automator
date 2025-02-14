@@ -5,13 +5,18 @@ The data entry automator is a tool that allows you to automate the process of en
 
 ## Usage
 
-The program can currently only be run from the command line, though a GUI is planned for the future. 
+The program can currently be run from either the command line or via a GUI. 
 
 ### Running the Program
+##### Not Recommended
 Run the program using the following command:
 ```bash
 java -jar data-entry-automator.jar -i <input file> [options]
 ```
+
+##### Recommended
+Run the program by installing the app using one of releases on the (releases)[https://github.com/AdamW78/Data-Entry-Automator/releases] page. Once installed, navigate to the install location (or create a desktop shortcut) and open the application to access the GUI. The program should look something like:
+
 #### Options
 
 | Argument        | Short Form | Usage                  | Description                                                   | Default Value                         |
