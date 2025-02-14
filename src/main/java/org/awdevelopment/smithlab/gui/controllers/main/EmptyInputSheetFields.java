@@ -5,6 +5,8 @@ import javafx.scene.layout.HBox;
 import org.awdevelopment.smithlab.gui.controllers.ConditionsController;
 import org.awdevelopment.smithlab.gui.controllers.StrainsController;
 import org.awdevelopment.smithlab.gui.controllers.TimepointsController;
+import org.awdevelopment.smithlab.gui.controllers.main.validatable_field.FieldType;
+import org.awdevelopment.smithlab.gui.controllers.main.validatable_field.ValidatableField;
 
 public class EmptyInputSheetFields extends AbstractFields {
 

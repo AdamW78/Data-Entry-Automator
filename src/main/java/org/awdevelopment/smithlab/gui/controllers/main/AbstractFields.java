@@ -2,6 +2,7 @@ package org.awdevelopment.smithlab.gui.controllers.main;
 
 import javafx.scene.control.*;
 import org.awdevelopment.smithlab.config.Mode;
+import org.awdevelopment.smithlab.gui.controllers.main.validatable_field.ValidatableField;
 
 public abstract class AbstractFields {
 

@@ -8,7 +8,9 @@ import javafx.stage.FileChooser;
 import org.awdevelopment.smithlab.config.ConfigOption;
 import org.awdevelopment.smithlab.config.OutputSheetsConfig;
 import org.awdevelopment.smithlab.config.SortOption;
+import org.awdevelopment.smithlab.gui.controllers.main.validatable_field.FieldStatus;
 import org.awdevelopment.smithlab.io.output.formats.OutputType;
+import org.awdevelopment.smithlab.logging.GUILogger;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 import java.io.File;
@@ -50,7 +52,7 @@ public class OutputSheetConfigUpdater extends AbstractConfigUpdater {
         for (RadioButton otherRadioButton : radioButtons) if (!otherRadioButton.equals(radioButton)) otherRadioButton.setSelected(false);
         OutputType oldOutputType = config.outputType();
         if (fields.getOutputStylePrismRadioButton().isSelected()) config.setOutputType(OutputType.PRISM);
-        else if (fields.getOutputStyleTestsRadioButton().isSelected()) config.setOutputType(OutputType.STATISTICAL_TESTS);
+        else if (fields.getOutputStyleTestsRadioButton().isSelected()) config.setOutputType(OutputType.OASIS);
         else if (fields.getOutputStyleRawRadioButton().isSelected()) config.setOutputType(OutputType.RAW);
         else if (fields.getOutputStyleBothRadioButton().isSelected()) config.setOutputType(OutputType.BOTH);
         LOGGER.atDebug("Radio button press ActionEvent caught: Switched from OutputType \""

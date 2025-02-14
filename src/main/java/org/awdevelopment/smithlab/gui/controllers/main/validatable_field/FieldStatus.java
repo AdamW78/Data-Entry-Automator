@@ -1,4 +1,4 @@
-package org.awdevelopment.smithlab.gui.controllers.main;
+package org.awdevelopment.smithlab.gui.controllers.main.validatable_field;
 
 public enum FieldStatus {
     READY,

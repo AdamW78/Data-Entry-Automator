@@ -1,6 +1,8 @@
 package org.awdevelopment.smithlab.gui.controllers.main;
 
 import javafx.scene.control.*;
+import org.awdevelopment.smithlab.gui.controllers.main.validatable_field.FieldType;
+import org.awdevelopment.smithlab.gui.controllers.main.validatable_field.ValidatableField;
 
 public class OutputSheetFields extends AbstractFields{
 

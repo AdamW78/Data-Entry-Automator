@@ -6,6 +6,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import org.awdevelopment.smithlab.config.AbstractConfig;
 import org.awdevelopment.smithlab.config.ConfigOption;
+import org.awdevelopment.smithlab.gui.controllers.main.validatable_field.FieldStatus;
+import org.awdevelopment.smithlab.gui.controllers.main.validatable_field.ValidatableField;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 import java.io.File;
@@ -78,19 +80,17 @@ public abstract class AbstractConfigUpdater {
             }
             case INVALID -> {
                 LOGGER.atDebug("Field status: Invalid.");
-                if (!fieldIsFocused) {
-                    LOGGER.atDebug("Field will remain invalid.");
-                } else if (keyEvent != null && !keyEvent.getText().isEmpty()) {
-                    LOGGER.atDebug("Key event is not null and is non-empty, validating field...");
-                    validator.validateTextFieldByID(validatableField.getControlID());
-                    updateIfValidated(validatableField, option);
-                }
+                if (!fieldIsFocused) LOGGER.atDebug("Field will remain invalid.");
+                else if (keyEvent != null && (!keyEvent.getText().isEmpty() || keyEvent.getCode() == KeyCode.BACK_SPACE || keyEvent.getCode() == KeyCode.DELETE)) {
+                    LOGGER.atDebug("Key event is not null and is non-empty or is a backspace/delete, setting field status to edited but not validated.");
+                    validatableField.setStatus(FieldStatus.EDITED_NOT_VALIDATED);
+                } else LOGGER.atDebug("Key event is null or empty, field status remains invalid.");
             }
             case READY -> {
                 LOGGER.atDebug("Field status: Ready.");
                 if (fieldIsFocused) {
-                    if (keyEvent != null && !keyEvent.getText().isEmpty()) {
-                        LOGGER.atDebug("Key event is not null and is non-empty, setting field status to edited but not validated.");
+                    if (keyEvent != null && (!keyEvent.getText().isEmpty() || keyEvent.getCode() == KeyCode.BACK_SPACE || keyEvent.getCode() == KeyCode.DELETE)) {
+                        LOGGER.atDebug("Key event is not null and is non-empty or is a backspace/delete, setting field status to edited but not validated.");
                         validatableField.setStatus(FieldStatus.EDITED_NOT_VALIDATED);
                     } else {
                         LOGGER.atDebug("Key event is null or empty, field status remains ready.");

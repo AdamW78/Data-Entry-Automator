@@ -13,8 +13,8 @@
         </File>
     </Appenders>
     <Loggers>
-        <Root level="DEBUG">
-            <AppenderRef ref="CONSOLE" level="DEBUG"/>
+        <Root level="INFO">
+            <AppenderRef ref="CONSOLE" level="WARN"/>
             <AppenderRef ref="FILE"/>
         </Root>
     </Loggers>

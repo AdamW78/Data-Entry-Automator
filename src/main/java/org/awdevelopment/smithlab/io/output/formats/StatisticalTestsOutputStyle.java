@@ -14,7 +14,7 @@ public class StatisticalTestsOutputStyle extends OutputStyle {
     private final short numberOfReplicates;
 
     public StatisticalTestsOutputStyle(SortOption sortOption, short numberOfReplicates) {
-        super(OutputType.STATISTICAL_TESTS, sortOption);
+        super(OutputType.OASIS, sortOption);
         this.numberOfReplicates = numberOfReplicates;
     }
 

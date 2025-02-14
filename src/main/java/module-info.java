@@ -23,4 +23,7 @@ module org.awdevelopment.smithlab {
     opens org.awdevelopment.smithlab.config to javafx.controls, javafx.fxml, javafx.graphics;
     exports org.awdevelopment.smithlab.gui.controllers.main;
     opens org.awdevelopment.smithlab.gui.controllers.main to javafx.controls, javafx.fxml, javafx.graphics;
+    exports org.awdevelopment.smithlab.gui.controllers.main.validatable_field;
+    opens org.awdevelopment.smithlab.gui.controllers.main.validatable_field to javafx.controls, javafx.fxml, javafx.graphics;
+    opens org.awdevelopment.smithlab.logging to javafx.controls, javafx.fxml, javafx.graphics;
 }

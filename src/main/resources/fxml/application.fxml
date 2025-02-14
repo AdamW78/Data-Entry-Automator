@@ -13,10 +13,10 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.awdevelopment.smithlab.gui.controllers.main.MainApplicationController">
+<AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.awdevelopment.smithlab.gui.controllers.main.MainApplicationController">
    <HBox alignment="CENTER" minHeight="40.0" minWidth="600.0" prefHeight="400.0" prefWidth="600.0">
       <TabPane fx:id="tabPane" centerShape="false" prefHeight="40.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE">
-         <Tab fx:id="outputSheetsTab" onSelectionChanged="#updateMode" text="Generate Output Sheet">
+         <Tab fx:id="outputSheetsTab" closable="false" onSelectionChanged="#updateMode" text="Generate Output Sheet">
             <AnchorPane minHeight="0.0" minWidth="0.0" onMouseClicked="#updateFieldsOutputSheets" prefHeight="302.0" prefWidth="600.0">
                <HBox layoutX="1.0" layoutY="-1.0" onMouseClicked="#updateFieldsOutputSheets" prefHeight="374.0" prefWidth="600.0">
                   <VBox prefHeight="374.0" prefWidth="601.0" spacing="10.0">
@@ -53,9 +53,9 @@
                                  <Insets left="30.0" />
                               </padding>
                               <RadioButton fx:id="outputStylePrismRadioButton" mnemonicParsing="false" onAction="#handleRadioButtonPressOutputSheets" text="Prism" />
-                              <RadioButton fx:id="outputStyleTestsRadioButton" mnemonicParsing="false" onAction="#handleRadioButtonPressOutputSheets" text="Statistical Tests" />
+                              <RadioButton fx:id="outputStyleTestsRadioButton" mnemonicParsing="false" onAction="#handleRadioButtonPressOutputSheets" text="Oasis" />
                               <RadioButton fx:id="outputStyleRawRadioButton" mnemonicParsing="false" onAction="#handleRadioButtonPressOutputSheets" text="Raw" />
-                              <RadioButton fx:id="outputStyleBothRadioButton" mnemonicParsing="false" onAction="#handleRadioButtonPressOutputSheets" selected="true" text="Prism + Statistical Tests" />
+                              <RadioButton fx:id="outputStyleBothRadioButton" mnemonicParsing="false" onAction="#handleRadioButtonPressOutputSheets" selected="true" text="Prism + Oasis" />
                            </HBox>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
@@ -108,7 +108,7 @@
                </HBox>
             </AnchorPane>
          </Tab>
-         <Tab fx:id="emptyInputSheetTab" onSelectionChanged="#updateMode" text="Generate Empty Input Sheet">
+         <Tab fx:id="emptyInputSheetTab" closable="false" disable="true" onSelectionChanged="#updateMode" text="Generate Empty Input Sheet">
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="302.0" prefWidth="600.0">
                <HBox layoutX="1.0" layoutY="-1.0" prefHeight="374.0" prefWidth="600.0">
                   <VBox prefHeight="374.0" prefWidth="601.0">

@@ -2,6 +2,10 @@ package org.awdevelopment.smithlab.gui.controllers.main;
 
 import javafx.scene.control.TextField;
 import org.awdevelopment.smithlab.config.Mode;
+import org.awdevelopment.smithlab.gui.controllers.main.validatable_field.FieldStatus;
+import org.awdevelopment.smithlab.gui.controllers.main.validatable_field.FieldType;
+import org.awdevelopment.smithlab.gui.controllers.main.validatable_field.ValidatableField;
+import org.awdevelopment.smithlab.logging.GUILogger;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 import java.io.File;
@@ -37,6 +41,8 @@ public abstract class AbstractValidator {
                     || field.getFieldType() == FieldType.STRING || field.getFieldType() == FieldType.FILENAME
                     || field.getFieldType() == FieldType.EXISTING_FILE)) {
                 field.setStatus(FieldStatus.EMPTY);
+                validateTextFieldByID(field.getControlID());
+            } else if (field.status() == FieldStatus.EDITED_NOT_VALIDATED) {
                 validateTextFieldByID(field.getControlID());
             }
             if (field.status() == FieldStatus.INVALID || field.status() == FieldStatus.EMPTY) {

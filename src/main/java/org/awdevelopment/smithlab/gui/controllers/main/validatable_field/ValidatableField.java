@@ -1,4 +1,4 @@
-package org.awdevelopment.smithlab.gui.controllers.main;
+package org.awdevelopment.smithlab.gui.controllers.main.validatable_field;
 
 import javafx.scene.Node;
 import javafx.scene.control.Control;

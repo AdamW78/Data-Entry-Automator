@@ -3,6 +3,8 @@ package org.awdevelopment.smithlab.gui.controllers.main;
 import javafx.scene.control.ChoiceBox;
 import org.awdevelopment.smithlab.config.OutputSheetsConfig;
 import org.awdevelopment.smithlab.config.SortOption;
+import org.awdevelopment.smithlab.gui.controllers.main.validatable_field.FieldStatus;
+import org.awdevelopment.smithlab.logging.GUILogger;
 
 public class OutputSheetValidator extends AbstractValidator {
 

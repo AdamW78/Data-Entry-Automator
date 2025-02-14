@@ -29,7 +29,7 @@ public class OutputGenerator {
         LOGGER = config.LOGGER();
         outputStyle = switch (config.outputType()) {
             case PRISM -> new PrismOutputStyle(config.sortOption());
-            case STATISTICAL_TESTS -> new StatisticalTestsOutputStyle(config.sortOption(), config.numberOfReplicates());
+            case OASIS -> new StatisticalTestsOutputStyle(config.sortOption(), config.numberOfReplicates());
             case RAW -> new RawOutputStyle(config.sortOption());
             case BOTH -> new BothOutputStyle(config.sortOption(), config.numberOfReplicates());
         };

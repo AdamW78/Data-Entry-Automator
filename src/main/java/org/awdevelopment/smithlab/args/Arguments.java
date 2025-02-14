@@ -160,7 +160,7 @@ public class Arguments {
             }
         }
         if (replicateNumber == -1) {
-            if (outputType == OutputType.BOTH || outputType == OutputType.STATISTICAL_TESTS) {
+            if (outputType == OutputType.BOTH || outputType == OutputType.OASIS) {
                 throw new NoReplicatesProvidedException(outputType);
             } else {
                 LOGGER.atWarn("No replicate number provided. " +
