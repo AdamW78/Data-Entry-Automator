@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane minWidth="1000.0" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.awdevelopment.smithlab.gui.controllers.ImageRecognitionController">
+   <children>
+      <HBox prefHeight="600.0" prefWidth="1000.0">
+         <children>
+            <VBox prefHeight="500.0" prefWidth="300.0">
+               <children>
+                  <Label text="Image Files" />
+                  <ScrollPane hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" vbarPolicy="ALWAYS" />
+                  <HBox alignment="CENTER" spacing="30.0">
+                     <children>
+                        <Button mnemonicParsing="false" text="Open Images..." />
+                        <Button mnemonicParsing="false" text="Delete Image" />
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" top="5.0" />
+                     </padding>
+                  </HBox>
+                  <Separator prefWidth="200.0" />
+                  <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="5.0">
+                     <children>
+                        <Label text="Image Recognition Options" />
+                        <Label text="Intensity Threshold" />
+                        <Slider blockIncrement="0.001" majorTickUnit="1.0" max="1.0" minorTickCount="0" showTickLabels="true" value="1.0" />
+                        <Label text="Spheroid SizeThreshold" />
+                        <Slider majorTickUnit="99.0" max="200.0" min="1.0" minorTickCount="0" showTickLabels="true" value="100.0" />
+                        <Label text="Window Size" />
+                        <Slider majorTickUnit="500.0" max="500.0" min="20.0" minorTickCount="0" showTickLabels="true" value="100.0" />
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+            <VBox prefHeight="500.0" prefWidth="700.0">
+               <children>
+                  <HBox prefHeight="225.0" prefWidth="800.0" spacing="20.0">
+                     <children>
+                        <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label text="Raw Image" />
+                              <ImageView fitHeight="225.0" fitWidth="350.0" pickOnBounds="true" preserveRatio="true" styleClass="imageview" />
+                           </children>
+                        </VBox>
+                        <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label text="Image with Spheroids Highlighted" />
+                              <ImageView fitHeight="225.0" fitWidth="350.0" pickOnBounds="true" preserveRatio="true" styleClass="imageview" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <VBox>
+                     <children>
+                        <HBox alignment="TOP_CENTER">
+                           <children>
+                              <VBox alignment="TOP_CENTER">
+                                 <children>
+                                    <Label text="Close-up Spheroid Viewer" />
+                                    <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                                 </children>
+                              </VBox>
+                              <VBox alignment="TOP_CENTER">
+                                 <children>
+                                    <Label text="Detected Spheroids" />
+                                    <ScrollPane hbarPolicy="NEVER" prefHeight="150.0" prefWidth="300.0" vbarPolicy="ALWAYS" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label text="Spheroid Controls" />
+                              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" text="Remove Selected Spheroid..." />
+                                    <Button mnemonicParsing="false" text="Count Slelected Spheroid As..." />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+               </children></VBox>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>
