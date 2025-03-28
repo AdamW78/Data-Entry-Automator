@@ -4,10 +4,13 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.awdevelopment.smithlab.config.SortOption;
+import org.awdevelopment.smithlab.data.DayOutOfBoundsException;
 import org.awdevelopment.smithlab.data.experiment.Experiment;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.awdevelopment.smithlab.data.Sample;
 import org.awdevelopment.smithlab.io.exceptions.NoStrainsOrConditionsException;
+
+import java.util.logging.Logger;
 
 public class StatisticalTestsOutputStyle extends OutputStyle {
 
@@ -125,9 +128,16 @@ public class StatisticalTestsOutputStyle extends OutputStyle {
                         case SAMPLE_NUMBER -> experiment.getSampleNumber(sampleCounter + 1);
                     };
                     String sheetName = sample.getBaselineCell().getSheet().getSheetName();
-                    String timepointCellAddress = getStringCellAddress(sample.getTimepointByDay(experiment.getDayNumbers()[j]).originalCell());
-                    String dilutionCellAddress = getStringCellAddress(sample.getTimepointByDay(experiment.getDayNumbers()[j]).dilutionCell());
-                    String cellFormula = "'" + sheetName + "'!" + timepointCellAddress + "*" + "'" + sheetName + "'!" + dilutionCellAddress;
+                    String timepointCellAddress, dilutionCellAddress;
+                    try {
+                        timepointCellAddress = getStringCellAddress(sample.getTimepointByDay(experiment.getDayNumbers()[j]).originalCell());
+                        dilutionCellAddress = getStringCellAddress(sample.getTimepointByDay(experiment.getDayNumbers()[j]).dilutionCell());
+                    } catch (DayOutOfBoundsException d) {
+                        Logger.getLogger(StatisticalTestsOutputStyle.class.getName()).warning("Day " + experiment.getDayNumbers()[j] + " is out of bounds for sample " + sample.getOutputName() + ". Skipping...");
+                        continue;
+                    }
+                    String dilutionMultiplierFormula = "IF('" + sheetName + "'!" + dilutionCellAddress + "=\"x1000\",1,IF('" + sheetName + "'!" + dilutionCellAddress + "=\"x100\",0.1,IF('" + sheetName + "'!" + dilutionCellAddress + "=\"x10\",0.01," + dilutionCellAddress + ")))";
+                    String cellFormula = "'" + sheetName + "'!" + timepointCellAddress + "*" + dilutionMultiplierFormula;
                     cell.setCellFormula(cellFormula);
                 }
                 cell.setCellStyle(sheet.getWorkbook().createCellStyle());

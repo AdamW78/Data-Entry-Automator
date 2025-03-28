@@ -50,6 +50,11 @@ public class Headers {
         }
     }
 
+    public Optional<Header> getConditionColumn() {
+        if (!conditionColumn) return Optional.empty();
+        return headers.stream().filter(header -> header.type() == HeaderType.CONDITION).findFirst();
+    }
+
     public void addDay(short dayNumber, int index) {
         for (short i = 0; i < 3; i++) {
             days.add(new Day(dayNumber, index + i, i));
