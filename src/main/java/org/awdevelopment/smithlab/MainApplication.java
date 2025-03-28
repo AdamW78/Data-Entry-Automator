@@ -19,7 +19,10 @@ public class MainApplication extends javafx.application.Application {
     private static final FXMLResourceType DEFAULT_FXML_RESOURCE = FXMLResourceType.APPLICATION;
 
     public static void main(String[] args) {
-        if (args.length == 0) launch();
+        if (args.length == 0) {
+            launch();
+
+        }
         else {
             Arguments arguments = new Arguments(args, LOGGER);
             try {
