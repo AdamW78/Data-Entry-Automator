@@ -16,6 +16,10 @@ public class XlsxHeaderReader {
         int rowZeroWidth = sheet.getRow(0).getLastCellNum();
         for (int i = 0; i < rowZeroWidth; i++) {
             XSSFCell cell = sheet.getRow(0).getCell(i);
+            if (cell == null) {
+                LOGGER.atWarn("Cell in header row at zero-indexed column "+i+" is null, skipping...");
+                continue;
+            }
             CellType cellType = cell.getCellType();
             if (cellType == CellType._NONE || cellType == CellType.BLANK || cellType == CellType.ERROR) {
                 LOGGER.atWarn("Cell in header row at zero-indexed column "+i
