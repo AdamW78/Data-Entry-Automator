@@ -27,6 +27,7 @@ public class XlsxInputReader {
     private final HashSet<Strain> strains;
     private final HashSet<Condition> conditions;
     private final LoggerHelper LOGGER;
+    private static final Condition DEFAULT_CONDITION = new Condition("Unknown");
 
     public XlsxInputReader(File xlsxFile, LoggerHelper logger) {
         this.xlsxFile = xlsxFile;
@@ -75,7 +76,13 @@ public class XlsxInputReader {
                     }
                     case HeaderType.STRAIN -> {
                         try {
-                            strainOptional = Optional.of(readStrain(curCell));
+                            Condition condition;
+                            if (conditionOptional.isEmpty()) {
+                                LOGGER.atWarn("Strain cell \"" + curCell.getRawValue() + "\" is missing a condition label! Labeling with \"Unknown\"");
+                                condition = DEFAULT_CONDITION;
+                            }
+                            else condition = conditionOptional.get();
+                            strainOptional = Optional.of(readStrain(curCell, condition));
                         } catch (InvalidStrainValueException e) {
                             LOGGER.atWarn(e + ": " + e.getMessage());
                             strainOptional = Optional.empty();
@@ -190,8 +197,29 @@ public class XlsxInputReader {
     }
 
     private Dilution readDilution(XSSFCell cell) throws InvalidDilutionValueException {
-        if (cell.getCellType() != CellType.NUMERIC) throw new InvalidDilutionValueException(cell.getRawValue(), cell.getRowIndex(), cell.getColumnIndex());
-        double cellValue = cell.getNumericCellValue();
+        double cellValue = -1.0;
+        LOGGER.atFatal("Reading dilution from cell with raw content: \""+cell.getRawValue()+"\"");
+        LOGGER.atFatal("Cell string value: \""+cell.getStringCellValue()+"\"");
+        LOGGER.atFatal("Cell address: "+cell.getAddress());
+        LOGGER.atFatal("Cell type: "+cell.getCellType());
+        if (cell.getCellType() == CellType.NUMERIC) {
+            cellValue = cell.getNumericCellValue();
+        } else if (cell.getCellType() == CellType.STRING) {
+            String cellContent = cell.getStringCellValue();
+            if (cellContent.equalsIgnoreCase("x1000")) {
+                return Dilution.x1000;
+            } else if (cellContent.equalsIgnoreCase("x100")) {
+                return Dilution.x100;
+            } else if (cellContent.equalsIgnoreCase("x10")) {
+                return Dilution.x10;
+            } else if (cellContent.equalsIgnoreCase("1")) {
+                return Dilution.x1000;
+            } else if (cellContent.equalsIgnoreCase("0.1")) {
+                return Dilution.x100;
+            } else if (cellContent.equalsIgnoreCase("0.01")) {
+                return Dilution.x10;
+            }
+        }
         if (Math.abs(cellValue - 1) < DELTA) {
             return Dilution.x1000;
         } else if (Math.abs(cellValue - 0.1) < DELTA) {
@@ -225,7 +253,7 @@ public class XlsxInputReader {
         }
     }
 
-    private Strain readStrain(XSSFCell cell) throws InvalidStrainValueException {
+    private Strain readStrain(XSSFCell cell, Condition condition) throws InvalidStrainValueException {
         CellType cellType = cell.getCellType();
         if (cellType == CellType.STRING) {
             String cellContent = cell.getStringCellValue();
@@ -233,6 +261,7 @@ public class XlsxInputReader {
                 if (strain.getName().equalsIgnoreCase(cellContent)) return strain;
             }
             Strain newStrain = new Strain(cellContent);
+            newStrain.setCondition(condition);
             strains.add(newStrain);
             return newStrain;
         } else if (cellType == CellType.BLANK || cellType == CellType._NONE) {
@@ -240,7 +269,7 @@ public class XlsxInputReader {
             int colIndex = cell.getColumnIndex();
             for (int i = rowIndex - 1; i > 1; i--) {
                 XSSFCell nextCell = cell.getSheet().getRow(i).getCell(colIndex);
-                if (nextCell.getCellType() == CellType.STRING) return readStrain(nextCell);
+                if (nextCell.getCellType() == CellType.STRING) return readStrain(nextCell, condition);
             }
         throw new InvalidStrainValueException(cell.getRawValue(), cell.getRowIndex(), cell.getColumnIndex());
         } else {

@@ -7,6 +7,7 @@ module org.awdevelopment.smithlab {
     requires javafx.graphics;
     requires javafx.controls;
     requires org.apache.commons.compress;
+    requires java.logging;
     exports org.awdevelopment.smithlab;
     exports org.awdevelopment.smithlab.gui;
     exports org.awdevelopment.smithlab.gui.controllers;
