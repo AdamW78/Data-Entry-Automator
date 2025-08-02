@@ -2,7 +2,6 @@ package org.awdevelopment.smithlab.data.experiment;
 
 import org.awdevelopment.smithlab.data.Condition;
 import org.awdevelopment.smithlab.data.Strain;
-import org.awdevelopment.smithlab.io.exceptions.NoDaysException;
 
 import java.util.Set;
 
@@ -17,85 +16,20 @@ public class EmptyExperiment extends AbstractExperiment {
     private final byte numDays;
     private final boolean usingNumDays;
 
-    public EmptyExperiment(Set<Strain> strains, Set<Condition> conditions, byte numReplicates, byte[] days, byte numDays) throws NoDaysException {
+    public EmptyExperiment(Set<Condition> conditions, Set<Strain> strains, byte numReplicates, byte numConditions,
+                           byte numStrains, boolean usingNumConditions, boolean usingNumStrains, byte[] days,
+                           byte numDays, boolean usingNumDays) {
         super(conditions, strains);
-        this.usingNumConditions = false;
-        this.usingNumStrains = false;
-        this.numConditions = (byte) conditions.size();
-        this.numStrains = (byte) strains.size();
         this.numReplicates = numReplicates;
-        if (numDays <= 0 && days.length == 0) throw new NoDaysException();
-        else {
-            usingNumDays = numDays > 0;
-            if (usingNumDays) {
-                this.days = new byte[numDays];
-                this.numDays = numDays;
-            } else {
-                this.days = days;
-                this.numDays = (byte) days.length;
-            }
-        }
-    }
-
-    public EmptyExperiment(byte numStrains, byte numConditions, byte numReplicates, byte[] days, byte numDays) throws NoDaysException {
-        super(null, null);
-        this.usingNumConditions = true;
-        this.usingNumStrains = true;
         this.numConditions = numConditions;
         this.numStrains = numStrains;
-        this.numReplicates = numReplicates;
-        if (numDays <= 0 && days.length == 0) throw new NoDaysException();
-        else {
-            usingNumDays = numDays > 0;
-            if (usingNumDays) {
-                this.days = new byte[numDays];
-                this.numDays = numDays;
-            } else {
-                this.days = days;
-                this.numDays = (byte) days.length;
-            }
-        }
+        this.usingNumConditions = usingNumConditions;
+        this.usingNumStrains = usingNumStrains;
+        this.days = days;
+        this.numDays = numDays;
+        this.usingNumDays = usingNumDays;
     }
 
-    public EmptyExperiment(Set<Strain> strains, byte numConditions, byte numReplicates, byte[] days, byte numDays) throws NoDaysException {
-        super(null, strains);
-        this.usingNumConditions = false;
-        this.usingNumStrains = true;
-        this.numConditions = numConditions;
-        this.numStrains = (byte) strains.size();
-        this.numReplicates = numReplicates;
-        if (numDays <= 0 && days.length == 0) throw new NoDaysException();
-        else {
-            usingNumDays = numDays > 0;
-            if (usingNumDays) {
-                this.days = new byte[numDays];
-                this.numDays = numDays;
-            } else {
-                this.days = days;
-                this.numDays = (byte) days.length;
-            }
-        }
-    }
-
-    public EmptyExperiment(byte numStrains, Set<Condition> conditions, byte numReplicates, byte[] days, byte numDays) throws NoDaysException {
-        super(conditions, null);
-        this.usingNumConditions = true;
-        this.usingNumStrains = false;
-        this.numConditions = (byte) conditions.size();
-        this.numStrains = numStrains;
-        this.numReplicates = numReplicates;
-        if (numDays <= 0 && days.length == 0) throw new NoDaysException();
-        else {
-            usingNumDays = numDays > 0;
-            if (usingNumDays) {
-                this.days = new byte[numDays];
-                this.numDays = numDays;
-            } else {
-                this.days = days;
-                this.numDays = (byte) days.length;
-            }
-        }
-    }
 
     public byte getNumReplicates() { return numReplicates; }
     public boolean hasNoDays() { return days.length == 0 && !usingNumDays; }
@@ -106,4 +40,37 @@ public class EmptyExperiment extends AbstractExperiment {
     public boolean usingNumStrains() { return usingNumStrains; }
     public byte getNumConditions() { return numConditions; }
     public byte getNumStrains() { return numStrains; }
+
+    public String readableExperiment() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Experiment with ");
+        if (usingNumStrains) {
+            sb.append(numStrains).append(" strains, ");
+        } else {
+            StringBuilder strainsList = new StringBuilder();
+            for (Strain strain : strains()) { strainsList.append(strain.getName()).append(", "); }
+            strainsList.setLength(Math.max(strainsList.length() - 2, 0)); // Remove trailing comma and space, if any
+            sb.append(strains().size()).append(" strains (").append(strainsList).append("), ");
+        }
+        if (usingNumConditions) {
+            sb.append(numConditions).append(" conditions, ");
+        } else {
+            StringBuilder conditionsList = new StringBuilder();
+            for (Condition condition : conditions()) { conditionsList.append(condition.getName()).append(", "); }
+            conditionsList.setLength(Math.max(conditionsList.length() - 2, 0)); // Remove trailing comma and space, if any
+            sb.append(conditions().size()).append(" conditions (").append(conditionsList).append("), ");
+        }
+        sb.append(numReplicates).append(" replicates");
+        if (usingNumDays) {
+            sb.append(", ").append(numDays).append(" days.");
+        } else if (days.length > 0) {
+            sb.append(", days: ");
+            for (byte day : days) {
+                sb.append(day).append(" ");
+            }
+        } else {
+            sb.append(".");
+        }
+        return sb.toString();
+    }
 }

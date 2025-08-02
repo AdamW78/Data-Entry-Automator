@@ -79,6 +79,14 @@ public abstract class AbstractConfig {
     @Override
     public abstract String toString();
 
+    public String readableConfig() {
+        StringBuilder sb = new StringBuilder();
+        for  (ConfigEntry<?> entry : config) {
+            sb.append("Option: ").append(entry.option()).append("\tValue: ").append(entry.value()).append("\n");
+        }
+        return sb.toString();
+    }
+
     public abstract Mode mode();
 
     public LoggerHelper LOGGER() { return LOGGER; }

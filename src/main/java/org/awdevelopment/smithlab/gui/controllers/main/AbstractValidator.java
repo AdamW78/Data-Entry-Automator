@@ -44,6 +44,10 @@ public abstract class AbstractValidator {
                 validateTextFieldByID(field.getControlID());
             } else if (field.status() == FieldStatus.EDITED_NOT_VALIDATED) {
                 validateTextFieldByID(field.getControlID());
+            } else if (field.status() == FieldStatus.UNUSED) {
+                LOGGER.atDebug("Field with id: \"" +  field.getControlID() + "\" is unused.");
+                LOGGER.atDebug("Field status: \"" + field.status());
+                LOGGER.atDebug("Continuing field validation...");
             }
             if (field.status() == FieldStatus.INVALID || field.status() == FieldStatus.EMPTY) {
                 LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is invalid or empty.");
@@ -62,11 +66,12 @@ public abstract class AbstractValidator {
         TextField textField = getTextField(field);
         if (textField.getText().isEmpty()) {
             field.setStatus(FieldStatus.INVALID);
-            guiLogger.errorOccurred(field.getErrorLabel(), "Error: Please enter a value");
             LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is empty.");
+            LOGGER.atDebug("Error Label: Label object with ID \"" + field.getErrorLabel().getAccessibleHelp() + "\"");
+            guiLogger.errorOccurred(field.getErrorLabel(), "Error: Please enter a value");
         } else {
-            guiLogger.clearError(field.getErrorLabel());
             LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is not empty.");
+            guiLogger.clearError(field.getErrorLabel());
             field.setStatus(FieldStatus.READY);
         }
     }
@@ -104,7 +109,6 @@ public abstract class AbstractValidator {
     }
 
     void validateTextFieldByte(ValidatableField field) {
-        if (field.status() == FieldStatus.UNTOUCHED) return;
         validateTextFieldNotEmpty(field);
         TextField textField = getTextField(field);
         try {

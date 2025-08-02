@@ -78,6 +78,7 @@ public class EmptyInputSheetConfig extends AbstractConfig {
 
     @Override
     public String toString() { return "Empty Input Sheet Configuration"; }
+
     @Override
     public Mode mode() { return MODE; };
 }
