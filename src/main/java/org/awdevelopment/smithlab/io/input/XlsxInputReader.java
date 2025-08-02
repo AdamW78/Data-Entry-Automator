@@ -253,7 +253,27 @@ public class XlsxInputReader {
         }
     }
 
+    private boolean isCellInMergedRegion(XSSFCell cell) {
+        XSSFSheet sheet = cell.getSheet();
+        int rowIndex = cell.getRowIndex();
+        int colIndex = cell.getColumnIndex();
+        return sheet.getMergedRegions().stream().anyMatch(region -> region.isInRange(rowIndex, colIndex));
+    }
+
     private Strain readStrain(XSSFCell cell, Condition condition) throws InvalidStrainValueException {
+        int rowIndex = cell.getRowIndex();
+        int colIndex = cell.getColumnIndex();
+        // Check if the cell is in a merged region
+        if (cell == null || isCellInMergedRegion(cell)) {
+            while (cell == null || cell.getCellType() == CellType.BLANK || cell.getCellType() == CellType.ERROR) {
+                if (rowIndex == 0) break;
+                rowIndex--;
+                cell = cell.getSheet().getRow(rowIndex).getCell(colIndex);
+                rowIndex = cell.getRowIndex();
+                colIndex = cell.getColumnIndex();
+            }
+        }
+
         CellType cellType = cell.getCellType();
         if (cellType == CellType.STRING) {
             String cellContent = cell.getStringCellValue();
@@ -265,8 +285,6 @@ public class XlsxInputReader {
             strains.add(newStrain);
             return newStrain;
         } else if (cellType == CellType.BLANK || cellType == CellType._NONE) {
-            int rowIndex = cell.getRowIndex();
-            int colIndex = cell.getColumnIndex();
             for (int i = rowIndex - 1; i > 1; i--) {
                 XSSFCell nextCell = cell.getSheet().getRow(i).getCell(colIndex);
                 if (nextCell.getCellType() == CellType.STRING) return readStrain(nextCell, condition);
