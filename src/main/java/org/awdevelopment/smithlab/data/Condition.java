@@ -1,18 +1,22 @@
 package org.awdevelopment.smithlab.data;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class Condition {
 
-    private final String name;
+    private String name;
     private final Set<Strain> strains;
     private final Set<Sample> samples;
 
     public Condition(String name) {
         this.name = name;
-        this.strains = new HashSet<>();
-        this.samples = new HashSet<>();
+        this.strains = new LinkedHashSet<>();
+        this.samples = new LinkedHashSet<>();
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void addStrain(Strain strain) {
@@ -37,4 +41,6 @@ public class Condition {
     public String toString() {
         return name;
     }
+
+
 }

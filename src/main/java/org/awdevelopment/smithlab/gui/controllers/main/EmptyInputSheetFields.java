@@ -21,7 +21,7 @@ public class EmptyInputSheetFields extends AbstractFields {
     private final ValidatableField sampleSortingMethodChoiceBox;
 
     EmptyInputSheetFields(MainApplicationController controller) {
-        super(controller, new ValidatableField[] { new ValidatableField(controller.numTimepointsTextField, controller.timepointsAddedLabel, FieldType.BYTE),
+        super(controller, new ValidatableField[] { new ValidatableField(controller.numTimepointsTextField, controller.numTimepointsErrorLabel, FieldType.BYTE),
                 new ValidatableField(controller.numConditionsTextField, controller.numConditionsErrorLabel, FieldType.BYTE),
                 new ValidatableField(controller.numStrainsTextField, controller.numStrainErrorLabel, FieldType.BYTE),
                 new ValidatableField(controller.numReplicatesEmptyInputSheetTextField, controller.numReplicatesErrorLabelEmptyInputSheet, FieldType.BYTE),

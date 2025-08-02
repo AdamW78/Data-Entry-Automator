@@ -32,7 +32,7 @@ public class EmptyInputSheetConfigUpdater extends AbstractConfigUpdater {
     }
 
     public void updateOutputFilename(KeyEvent keyEvent) {
-        updateTextField(fields.getOutputFilenameTextField(), ConfigOption.OUTPUT_FILE, keyEvent);
+        updateTextField(fields.getOutputFilenameTextField(), ConfigOption.EMPTY_INPUT_SHEET_NAME, keyEvent);
     }
 
     public void updateNumReplicates(KeyEvent keyEvent) {
@@ -40,15 +40,15 @@ public class EmptyInputSheetConfigUpdater extends AbstractConfigUpdater {
     }
 
     public void updateNumTimepoints(KeyEvent keyEvent) {
-        updateTextField(fields.getNumTimepointsTextField(), ConfigOption.NUM_DAYS, keyEvent);
+        config.setUsingNumDays(updateControllerConnectedField(fields.getNumTimepointsTextField(), ConfigOption.NUM_DAYS, keyEvent));
     }
 
     public void updateNumConditions(KeyEvent keyEvent) {
-        updateTextField(fields.getNumConditionsTextField(), ConfigOption.NUM_CONDITIONS, keyEvent);
+        config.setUsingNumConditions(updateControllerConnectedField(fields.getNumConditionsTextField(), ConfigOption.NUM_CONDITIONS, keyEvent));
     }
 
     public void updateNumStrains(KeyEvent keyEvent) {
-        updateTextField(fields.getNumStrainsTextField(), ConfigOption.NUM_STRAINS, keyEvent);
+        config.setUsingNumStrains(updateControllerConnectedField(fields.getNumStrainsTextField(), ConfigOption.NUM_STRAINS, keyEvent));
     }
 
     public void updateSampleLabelingRadioButtons(ActionEvent actionEvent) {

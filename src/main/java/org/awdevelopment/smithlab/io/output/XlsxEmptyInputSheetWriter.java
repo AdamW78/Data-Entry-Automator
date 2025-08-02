@@ -41,8 +41,8 @@ public class XlsxEmptyInputSheetWriter {
         LOGGER.atInfo("Writing empty input sheet \"" + emptyInputSheetName + "\"...");
         try (XSSFWorkbook workbook = new XSSFWorkbook()) {
             XlsxEmptyInputSheetHeaderWriter headerWriter;
-            if (usingNumDays) headerWriter = new XlsxEmptyInputSheetHeaderWriter(LOGGER, conditions, strains, numDays, includeBaselineColumn);
-            else headerWriter = new XlsxEmptyInputSheetHeaderWriter(LOGGER, conditions, strains, days, includeBaselineColumn);
+            if (usingNumDays) headerWriter = new XlsxEmptyInputSheetHeaderWriter(LOGGER, conditions, strains, numDays, includeBaselineColumn, numReplicates);
+            else headerWriter = new XlsxEmptyInputSheetHeaderWriter(LOGGER, conditions, strains, days, includeBaselineColumn, numReplicates);
             headerWriter.generateHeaders(workbook.createSheet());
             try {
                 workbook.write(new FileOutputStream(emptyInputSheetName));

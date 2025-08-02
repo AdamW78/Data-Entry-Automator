@@ -1,6 +1,7 @@
 package org.awdevelopment.smithlab.gui.controllers.main;
 
 import org.awdevelopment.smithlab.config.EmptyInputSheetConfig;
+import org.awdevelopment.smithlab.config.SampleLabelingType;
 import org.awdevelopment.smithlab.gui.controllers.AbstractLabelController;
 import org.awdevelopment.smithlab.gui.controllers.ConditionsController;
 import org.awdevelopment.smithlab.gui.controllers.StrainsController;
@@ -20,6 +21,17 @@ public class EmptyInputSheetValidator extends AbstractValidator {
         this.fields = fields;
         this.guiLogger = guiLogger;
         this.config = config;
+    }
+
+    @Override
+    public boolean fieldsValid() {
+        if (!config.usingNumConditions() || config.sampleLabelingType() == SampleLabelingType.STRAIN) {
+            fields.getNumConditionsTextField().setStatus(FieldStatus.UNUSED);
+        }
+        if (!config.usingNumStrains() || config.sampleLabelingType() == SampleLabelingType.CONDITION) {
+            fields.getNumStrainsTextField().setStatus(FieldStatus.UNUSED);
+        }
+        return super.fieldsValid();
     }
 
     void validateNumTimepoints() { validateControllerConnectedField(fields.getNumTimepointsTextField(), fields.getTimepointsController()); }
@@ -73,7 +85,9 @@ public class EmptyInputSheetValidator extends AbstractValidator {
         switch (controller) {
             case null -> { }
             case TimepointsController timepointsController -> {
-                if (timepointsController.usingNumDays()) validateTextFieldByte(field);
+                if (timepointsController.usingNumDays()) {
+                    validateTextFieldByte(field);
+                }
                 else {
                     guiLogger.clearError(field.getErrorLabel());
                     config.setUsingNumDays(timepointsController.usingNumDays());

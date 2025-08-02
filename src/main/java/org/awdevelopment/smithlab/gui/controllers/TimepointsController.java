@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class TimepointsController extends AbstractLabelController {
 
-    private boolean usingNumDays = false;
+    private boolean usingNumDays = true; // Default to using num days
     private final Set<Byte> days;
 
     public TimepointsController() {

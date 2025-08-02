@@ -113,18 +113,47 @@ public abstract class AbstractConfigUpdater {
         }
     }
 
+    boolean updateControllerConnectedField(ValidatableField field, ConfigOption option, KeyEvent keyEvent) {
+        LOGGER.atDebug("Updating controller connected field with id: \"" + field.getControlID() + "\"...");
+        updateTextField(field, option, keyEvent);
+        // If the field is not unused and has been validated, return true - this indicates that we are using the number of conditions/strains/days
+        if (field.status() != FieldStatus.UNUSED) {
+            return true;
+        }
+        // If the field is unused, return false - this indicates that we are not using the number of conditions/strains/days
+        LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is unused, returning false.");
+        return false;
+    }
+
     void updateIfValidated(ValidatableField field, ConfigOption option) {
         LOGGER.atDebug("Checking if field was validated successfully...");
         if (field.status() == FieldStatus.READY) {
             LOGGER.atDebug("Field was validated successfully, updating stored value...");
             switch (field.getFieldType()) {
-                case BYTE -> config.set(option, Byte.parseByte(getTextField(field).getText()));
+                case BYTE -> {
+                    config.set(option, Byte.parseByte(getTextField(field).getText()));
+                    if (config.get(option) == ConfigOption.NUM_DAYS) {
+                        config.set(ConfigOption.USING_NUM_DAYS, true);
+
+                    } else if (config.get(option) == ConfigOption.NUM_CONDITIONS) {
+                        config.set(ConfigOption.USING_NUM_CONDITIONS, true);
+                    } else if (config.get(option) == ConfigOption.NUM_STRAINS) {
+                        config.set(ConfigOption.USING_NUM_STRAINS, true);
+                    }
+                }
                 case FILENAME, STRING -> config.set(option, getTextField(field).getText());
                 case EXISTING_FILE -> config.set(option, new File(getTextField(field).getText()));
                 default -> throw new IllegalStateException("Unexpected value: " + field.getFieldType());
             }
             LOGGER.atDebug("Stored value updated successfully.");
-        } else {
+        } else if (field.status() == FieldStatus.UNUSED) {
+            if (option == ConfigOption.NUM_DAYS) {
+                config.set(ConfigOption.USING_NUM_DAYS, false);
+            } else if (option == ConfigOption.NUM_CONDITIONS) {
+                config.set(ConfigOption.USING_NUM_CONDITIONS, false);
+            } else if (option == ConfigOption.NUM_STRAINS) {
+                config.set(ConfigOption.USING_NUM_STRAINS, false);
+            }
             LOGGER.atDebug("Field was not validated successfully, not updating stored value.");
         }
     }

@@ -7,7 +7,7 @@ import java.util.Set;
 public class Strain {
 
     private Condition condition;
-    private final String name;
+    private String name;
     private final Set<Sample> samples;
 
     public Strain(String name) {
@@ -15,6 +15,7 @@ public class Strain {
         samples = new HashSet<>();
     }
 
+    public void setName(String name) { this.name = name; }
     public String getName() {
         return name;
     }
@@ -40,11 +41,18 @@ public class Strain {
             return false;
         }
         Strain strain = (Strain) obj;
-        return name.equals(strain.name) && condition.equals(strain.condition);
+        if (condition == null) {
+            if (strain.condition != null) {
+                return false;
+            }
+        } else if (!condition.equals(strain.condition)) {
+            return false;
+        }
+        return name.equals(strain.name);
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode() + condition.hashCode();
+        return name.hashCode() + (condition != null ? condition.hashCode() : 0);
     }
 }

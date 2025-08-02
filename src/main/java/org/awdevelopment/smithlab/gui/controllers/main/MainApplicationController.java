@@ -7,6 +7,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.awdevelopment.smithlab.config.*;
+import org.awdevelopment.smithlab.data.Condition;
+import org.awdevelopment.smithlab.data.Strain;
 import org.awdevelopment.smithlab.data.experiment.Experiment;
 import org.awdevelopment.smithlab.gui.FXMLResourceType;
 import org.awdevelopment.smithlab.gui.SceneLoader;
@@ -22,6 +24,8 @@ import org.awdevelopment.smithlab.io.exceptions.OutputException;
 import org.awdevelopment.smithlab.io.input.InputReader;
 import org.awdevelopment.smithlab.io.output.OutputGenerator;
 import org.awdevelopment.smithlab.logging.GUILogger;
+
+import java.util.Set;
 
 public class MainApplicationController extends AbstractController {
     private ConfigManager config;
@@ -108,6 +112,18 @@ public class MainApplicationController extends AbstractController {
         emptyInputSheetFields.getSampleLabelingRadioButtons().setStatus(FieldStatus.READY);
         setupErrorLabelsOutputSheet();
         setupErrorLabelsEmptyInputSheet();
+        setupSubControllers();
+    }
+
+    private void setupSubControllers() {
+        // Initialize sub-controllers for conditions, strains, and timepoints
+        conditionsController = new ConditionsController();
+        strainsController = new StrainsController();
+        timepointsController = new TimepointsController();
+        // Set up the sub-controllers
+        conditionsController.setup();
+        strainsController.setup();
+        timepointsController.setup();
     }
 
     private void choiceBoxSetup() {
@@ -134,6 +150,11 @@ public class MainApplicationController extends AbstractController {
     private void setupErrorLabel(Label label) {
         label.setText("");
         label.setStyle("");
+        label.setDisable(false);
+        label.setVisible(true);
+        label.setManaged(true);
+        label.setWrapText(true);
+        label.setAccessibleText(label.getId());
     }
 
     private void setupErrorLabels(Label... labels) {
@@ -151,7 +172,7 @@ public class MainApplicationController extends AbstractController {
     }
 
     public void generateOutput() {
-        getLogger().atDebug("Mode: " + mode);
+        getLogger().atFatal("Mode: " + mode);
         switch (mode) {
             case GENERATE_OUTPUT_SHEETS -> {
                 guiLogger.clearError(statusLabelOutputSheet);
@@ -160,7 +181,10 @@ public class MainApplicationController extends AbstractController {
             }
             case GENERATE_EMPTY_INPUT_SHEET -> {
                 guiLogger.clearError(statusLabelEmptyInputSheet);
-                if (!emptyInputSheetValidator.fieldsValid()) return;
+                if (!emptyInputSheetValidator.fieldsValid()) {
+                    return;
+                }
+                getLogger().atFatal("Fields are valid, generating empty input sheet...");
                 generateEmptyInputSheet();
             }
             case IMAGE_RECOGNITION -> {}
@@ -247,21 +271,35 @@ public class MainApplicationController extends AbstractController {
 
     private void generateEmptyInputSheet() {
         OutputGenerator outputGenerator;
+        if (config.getEmptyInputSheetConfig().sampleLabelingType() == SampleLabelingType.STRAIN) {
+            getLogger().atDebug("Using strain labeling type for empty input sheet.");
+        } else if (config.getEmptyInputSheetConfig().sampleLabelingType() == SampleLabelingType.CONDITION) {
+            getLogger().atDebug("Using condition labeling type for empty input sheet.");
+        } else {
+            getLogger().atDebug("Using condition and strain labeling type for empty input sheet.");
+        }
+        config.getEmptyInputSheetConfig().setUsingNumDays(timepointsController.usingNumDays());
+        getLogger().atDebug("CONFIG:\n" + config.getEmptyInputSheetConfig().readableConfig());
         try {
             outputGenerator = new OutputGenerator(config.getEmptyInputSheetConfig());
+            getLogger().atDebug("CREATE OUTPUT GENERATOR - SUCCESS");
         } catch (NoDaysException | NoStrainsOrConditionsException e) {
             guiLogger.errorOccurred(statusLabelEmptyInputSheet, e.getMessage());
             return;
         }
+        getLogger().atDebug("GENERATE EMPTY INPUT SHEET - START");
         try {
             outputGenerator.generateEmptyInputSheet();
+            getLogger().atDebug("GENERATE EMPTY INPUT SHEET - SUCCESS");
         } catch (OutputException e) {
             guiLogger.errorOccurred(statusLabelEmptyInputSheet, e.getMessage());
             return;
         }
+
         statusLabelEmptyInputSheet.setText("Successfully generated output!");
         statusLabelEmptyInputSheet.setStyle("-fx-text-fill: green");
     }
+
 
     public void updateFieldsEmptyInputSheet() {
         emptyInputSheetConfigUpdater.updateFields();
@@ -275,18 +313,27 @@ public class MainApplicationController extends AbstractController {
 
     public void openConditionsFXML() {
         updateFieldsEmptyInputSheet();
-        conditionsController = (ConditionsController) SceneLoader.loadScene(new Stage(), FXMLResourceType.CONDITIONS, getLogger(), config.getEmptyInputSheetConfig());
+        Stage stage = new Stage();
+        conditionsController = (ConditionsController)
+                SceneLoader.loadScene(stage, FXMLResourceType.CONDITIONS, getLogger(), config.getEmptyInputSheetConfig(), this);
+        conditionsController.loadConditions(config.getEmptyInputSheetConfig().conditions());
     }
 
     public void openStrainsFXML() {
         updateFieldsEmptyInputSheet();
-        strainsController = (StrainsController) SceneLoader.loadScene(new Stage(), FXMLResourceType.STRAINS, getLogger(), config.getEmptyInputSheetConfig());
+        Stage stage = new Stage();
+        strainsController = (StrainsController)
+                SceneLoader.loadScene(stage, FXMLResourceType.STRAINS, getLogger(), config.getEmptyInputSheetConfig(), this);
+        strainsController.loadStrains(config.getEmptyInputSheetConfig().strains());
     }
 
     public void openTimepointsFXML() {
         updateFieldsEmptyInputSheet();
-        timepointsController = (TimepointsController) SceneLoader.loadScene(new Stage(), FXMLResourceType.TIMEPOINTS, getLogger(), config.getEmptyInputSheetConfig());
+        Stage stage = new Stage();
+        timepointsController = (TimepointsController)
+                SceneLoader.loadScene(stage, FXMLResourceType.TIMEPOINTS, getLogger(), config.getEmptyInputSheetConfig(), this);
     }
+
 
     public void updateSampleLabelingRadioButtons(ActionEvent actionEvent) { emptyInputSheetConfigUpdater.updateSampleLabelingRadioButtons(actionEvent); }
 
@@ -303,4 +350,54 @@ public class MainApplicationController extends AbstractController {
     public void updateOutputFilenameEmptyInputSheet(KeyEvent keyEvent) { emptyInputSheetConfigUpdater.updateOutputFilename(keyEvent); }
 
     public Control getControlByID(String id) { return (Control) tabPane.getScene().lookup("#" + id); }
+
+    public void disableNumConditions() {
+        this.numConditionsErrorLabel.setDisable(true);
+        this.numConditionsTextField.setDisable(true);
+        this.emptyInputSheetFields.getNumConditionsTextField().setStatus(FieldStatus.UNUSED);
+    }
+
+    public void enableNumConditions() {
+        this.numConditionsErrorLabel.setDisable(false);
+        this.numConditionsTextField.setDisable(false);
+        if (this.numConditionsTextField.getText().isEmpty()) {
+            this.emptyInputSheetFields.getNumConditionsTextField().setStatus(FieldStatus.UNTOUCHED);
+        } else {
+            this.emptyInputSheetFields.getNumConditionsTextField().setStatus(FieldStatus.EDITED_NOT_VALIDATED);
+        }
+    }
+
+    public void disableNumStrains() {
+        this.numStrainErrorLabel.setDisable(true);
+        this.numStrainsTextField.setDisable(true);
+        this.emptyInputSheetFields.getNumStrainsTextField().setStatus(FieldStatus.UNUSED);
+    }
+
+    public void enableNumStrains() {
+        this.numStrainErrorLabel.setDisable(false);
+        this.numStrainsTextField.setDisable(false);
+        if (this.numStrainsTextField.getText().isEmpty()) {
+            this.emptyInputSheetFields.getNumStrainsTextField().setStatus(FieldStatus.UNTOUCHED);
+        }
+        else {
+            this.emptyInputSheetFields.getNumStrainsTextField().setStatus(FieldStatus.EDITED_NOT_VALIDATED);
+        }
+    }
+
+    public void disableNumReplicates() {
+        this.numReplicatesErrorLabelEmptyInputSheet.setDisable(true);
+        this.numReplicatesEmptyInputSheetTextField.setDisable(true);
+        this.emptyInputSheetFields.getNumReplicatesTextField().setStatus(FieldStatus.UNUSED);
+    }
+
+    public void enableNumReplicates() {
+        this.numReplicatesErrorLabelEmptyInputSheet.setDisable(false);
+        this.numReplicatesEmptyInputSheetTextField.setDisable(false);
+        if (this.numReplicatesEmptyInputSheetTextField.getText().isEmpty()) {
+            this.emptyInputSheetFields.getNumReplicatesTextField().setStatus(FieldStatus.UNTOUCHED);
+        } else {
+            this.emptyInputSheetFields.getNumReplicatesTextField().setStatus(FieldStatus.EDITED_NOT_VALIDATED);
+        }
+    }
+
 }

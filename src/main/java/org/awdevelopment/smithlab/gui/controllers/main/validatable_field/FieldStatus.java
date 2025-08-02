@@ -5,5 +5,6 @@ public enum FieldStatus {
     INVALID,
     UNTOUCHED,
     EMPTY,
-    EDITED_NOT_VALIDATED
+    EDITED_NOT_VALIDATED,
+    UNUSED
 }
