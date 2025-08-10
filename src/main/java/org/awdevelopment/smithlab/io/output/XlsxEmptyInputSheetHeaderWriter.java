@@ -63,23 +63,39 @@ public class XlsxEmptyInputSheetHeaderWriter {
         if (usingNumDays) {
             for (int i = 0; i < numDays; i++) {
                 XSSFCell dayHeaderCell = headerRow.createCell(++lastUsedColumn);
-                dayHeaderCell.setCellValue("0");
-                CellStyle dayHeaderCellStyle = headerRow.getSheet().getWorkbook().createCellStyle();
-                dayHeaderCellStyle.setDataFormat(headerRow.getSheet().getWorkbook().createDataFormat().getFormat("\\D\\a\\y 0"));
-                headerRow.createCell(++lastUsedColumn);
-                headerRow.createCell(++lastUsedColumn);
-                CellRangeAddress mergeRange = new CellRangeAddress(0, 0, lastUsedColumn - 2, lastUsedColumn);
-                headerRow.getSheet().addMergedRegion(mergeRange);
-                dayHeaderCell.setCellType(CellType.NUMERIC);
-                dayHeaderCell.setCellStyle(dayHeaderCellStyle);
-                XSSFCell subHeaderCell = subHeaderRow.createCell(lastUsedColumn - 2);
-                subHeaderCell.setCellValue("Colonies");
-                subHeaderCell = subHeaderRow.createCell(lastUsedColumn - 1);
-                subHeaderCell.setCellValue("Dilution");
-                subHeaderCell = subHeaderRow.createCell(lastUsedColumn);
-                subHeaderCell.setCellValue("% of Initial Value");
+                dayHeaderCell.setCellValue(i + 1);
+                lastUsedColumn = createSingleDayHeaderMerge(headerRow, subHeaderRow, lastUsedColumn, dayHeaderCell);
+            }
+        } else {
+            assert days != null;
+            for (byte day : days) {
+                XSSFCell dayHeaderCell = headerRow.createCell(++lastUsedColumn);
+                dayHeaderCell.setCellValue(day);
+                lastUsedColumn = createSingleDayHeaderMerge(headerRow, subHeaderRow, lastUsedColumn, dayHeaderCell);
             }
         }
+    }
+
+    private byte createSingleDayHeaderMerge(XSSFRow headerRow, XSSFRow subHeaderRow, byte lastUsedColumn, XSSFCell dayHeaderCell) {
+        CellStyle dayHeaderCellStyle = headerRow.getSheet().getWorkbook().createCellStyle();
+        dayHeaderCellStyle.setDataFormat(headerRow.getSheet().getWorkbook().createDataFormat().getFormat("\\D\\a\\y 0"));
+        headerRow.createCell(++lastUsedColumn);
+        headerRow.createCell(++lastUsedColumn);
+        CellRangeAddress mergeRange = new CellRangeAddress(0, 0, lastUsedColumn - 2, lastUsedColumn);
+        headerRow.getSheet().addMergedRegion(mergeRange);
+        createDayHeader(subHeaderRow, lastUsedColumn, dayHeaderCell, dayHeaderCellStyle);
+        return lastUsedColumn;
+    }
+
+    private void createDayHeader(XSSFRow subHeaderRow, byte lastUsedColumn, XSSFCell dayHeaderCell, CellStyle dayHeaderCellStyle) {
+        dayHeaderCell.setCellType(CellType.NUMERIC);
+        dayHeaderCell.setCellStyle(dayHeaderCellStyle);
+        XSSFCell subHeaderCell = subHeaderRow.createCell(lastUsedColumn - 2);
+        subHeaderCell.setCellValue("Colonies");
+        subHeaderCell = subHeaderRow.createCell(lastUsedColumn - 1);
+        subHeaderCell.setCellValue("Dilution");
+        subHeaderCell = subHeaderRow.createCell(lastUsedColumn);
+        subHeaderCell.setCellValue("% of Initial Value");
     }
 
     private byte generateStrainConditionLabels(XSSFRow headerRow) throws NoStrainsOrConditionsException {

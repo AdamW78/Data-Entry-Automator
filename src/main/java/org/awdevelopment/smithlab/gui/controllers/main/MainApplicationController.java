@@ -332,6 +332,7 @@ public class MainApplicationController extends AbstractController {
         Stage stage = new Stage();
         timepointsController = (TimepointsController)
                 SceneLoader.loadScene(stage, FXMLResourceType.TIMEPOINTS, getLogger(), config.getEmptyInputSheetConfig(), this);
+        timepointsController.loadDays(config.getEmptyInputSheetConfig().days());
     }
 
 
@@ -384,19 +385,19 @@ public class MainApplicationController extends AbstractController {
         }
     }
 
-    public void disableNumReplicates() {
-        this.numReplicatesErrorLabelEmptyInputSheet.setDisable(true);
-        this.numReplicatesEmptyInputSheetTextField.setDisable(true);
-        this.emptyInputSheetFields.getNumReplicatesTextField().setStatus(FieldStatus.UNUSED);
+    public void disableNumDays() {
+        this.numTimepointsErrorLabel.setDisable(true);
+        this.numTimepointsTextField.setDisable(true);
+        this.emptyInputSheetFields.getNumTimepointsTextField().setStatus(FieldStatus.UNUSED);
     }
 
-    public void enableNumReplicates() {
-        this.numReplicatesErrorLabelEmptyInputSheet.setDisable(false);
-        this.numReplicatesEmptyInputSheetTextField.setDisable(false);
-        if (this.numReplicatesEmptyInputSheetTextField.getText().isEmpty()) {
-            this.emptyInputSheetFields.getNumReplicatesTextField().setStatus(FieldStatus.UNTOUCHED);
+    public void enableNumDays() {
+        this.numTimepointsErrorLabel.setDisable(false);
+        this.numTimepointsTextField.setDisable(false);
+        if (this.numTimepointsTextField.getText().isEmpty()) {
+            this.emptyInputSheetFields.getNumTimepointsTextField().setStatus(FieldStatus.UNTOUCHED);
         } else {
-            this.emptyInputSheetFields.getNumReplicatesTextField().setStatus(FieldStatus.EDITED_NOT_VALIDATED);
+            this.emptyInputSheetFields.getNumTimepointsTextField().setStatus(FieldStatus.EDITED_NOT_VALIDATED);
         }
     }
 

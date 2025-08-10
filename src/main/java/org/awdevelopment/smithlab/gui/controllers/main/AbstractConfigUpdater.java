@@ -114,14 +114,15 @@ public abstract class AbstractConfigUpdater {
     }
 
     boolean updateControllerConnectedField(ValidatableField field, ConfigOption option, KeyEvent keyEvent) {
-        LOGGER.atDebug("Updating controller connected field with id: \"" + field.getControlID() + "\"...");
+        LOGGER.atDebug("Updating controller-connected field with id: \"" + field.getControlID() + "\"...");
         updateTextField(field, option, keyEvent);
         // If the field is not unused and has been validated, return true - this indicates that we are using the number of conditions/strains/days
-        if (field.status() != FieldStatus.UNUSED) {
+        if (field.status() != FieldStatus.UNUSED && field.status() != FieldStatus.EMPTY && field.status() != FieldStatus.UNTOUCHED) {
+            LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is being used and is not empty or untouched, returning true.");
             return true;
         }
         // If the field is unused, return false - this indicates that we are not using the number of conditions/strains/days
-        LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is unused, returning false.");
+        LOGGER.atDebug("Field with id: \"" + field.getControlID() + "\" is unused, untouched, or empty - returning false.");
         return false;
     }
 

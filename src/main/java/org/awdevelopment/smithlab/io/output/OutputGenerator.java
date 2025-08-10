@@ -14,10 +14,7 @@ import org.awdevelopment.smithlab.io.output.formats.*;
 import org.awdevelopment.smithlab.logging.LoggerHelper;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 public class OutputGenerator {
 
@@ -86,6 +83,7 @@ public class OutputGenerator {
         else if (this.emptyExperiment.usingNumDays()) {
             LOGGER.atInfo("No days specified. Using number of days and leaving day numbers blank in empty input sheet.");
         }
+        LOGGER.atDebug("DAYS: " + Arrays.toString(emptyExperiment.getDays()));
         LOGGER.atDebug("WRITING EMPTY INPUT SHEET WITH NAME: " + emptyInputSheetName);
         emptyInputSheetWriter = new XlsxEmptyInputSheetWriter(emptyInputSheetName, LOGGER, includeBaselineColumn, emptyExperiment);
         LOGGER.atDebug("SUCCESSFULLY CREATED EMPTY INPUT SHEET WRITER");
@@ -155,15 +153,21 @@ public class OutputGenerator {
                     throw new IllegalArgumentException("Invalid sample labeling type: " + config.sampleLabelingType());
         }
         if (config.usingNumDays()) {
-            usingNumDays = true;
             if (config.numDays() <= 0) throw new NoDaysException();
             numDays = config.numDays();
             days = new byte[numDays];
             for (int i = 0; i < numDays; i++) { days[i] = (byte) (i + 1); }
         } else {
             if (config.days().isEmpty()) throw new NoDaysException();
-            Byte[] daysByteArray = config.days().toArray(new Byte[0]);
+            Byte[] daysByteArray = new Byte[config.days().size()];
+            Iterator<Byte> iterator = config.days().iterator();
+            for (int i = 0; i < config.days().size(); i++) {
+                daysByteArray[i] = iterator.next();
+            }
             days = new byte[daysByteArray.length];
+            for (int i = 0; i < daysByteArray.length; i++) {
+                days[i] = daysByteArray[i];
+            }
             numDays = (byte) days.length;
         }
         numReplicates = config.numReplicates();

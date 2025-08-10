@@ -14,9 +14,11 @@ public class EmptyInputSheetConfigUpdater extends AbstractConfigUpdater {
     private final EmptyInputSheetConfig config;
     private final EmptyInputSheetFields fields;
     private final EmptyInputSheetValidator validator;
+    private final MainApplicationController controller;
 
     EmptyInputSheetConfigUpdater(MainApplicationController controller, EmptyInputSheetConfig config) {
         super(config, controller.emptyInputSheetValidator, controller.emptyInputSheetFields);
+        this.controller = controller;
         this.config = config;
         this.fields = controller.emptyInputSheetFields;
         this.validator = controller.emptyInputSheetValidator;
@@ -40,15 +42,37 @@ public class EmptyInputSheetConfigUpdater extends AbstractConfigUpdater {
     }
 
     public void updateNumTimepoints(KeyEvent keyEvent) {
-        config.setUsingNumDays(updateControllerConnectedField(fields.getNumTimepointsTextField(), ConfigOption.NUM_DAYS, keyEvent));
+        boolean usingNumDays = updateControllerConnectedField(fields.getNumTimepointsTextField(), ConfigOption.NUM_DAYS, keyEvent);
+        if (usingNumDays) {
+            LOGGER().atDebug("Number of timepoints field is not unused and is not empty/untouched, setting usingNumDays to true.");
+        } else {
+            LOGGER().atDebug("Number of timepoints field is unused, untouched or empty, setting usingNumDays to false.");
+        }
+        config.setUsingNumDays(usingNumDays);
+        controller.timepointsController.setUsingNumDays(usingNumDays);
+
     }
 
     public void updateNumConditions(KeyEvent keyEvent) {
-        config.setUsingNumConditions(updateControllerConnectedField(fields.getNumConditionsTextField(), ConfigOption.NUM_CONDITIONS, keyEvent));
+        boolean usingNumConditions = updateControllerConnectedField(fields.getNumConditionsTextField(), ConfigOption.NUM_CONDITIONS, keyEvent);
+        if (usingNumConditions) {
+            LOGGER().atDebug("Number of conditions field is not unused and is not empty/untouched, setting usingNumConditions to true.");
+        } else {
+            LOGGER().atDebug("Number of conditions field is unused, untouched or empty, setting usingNumConditions to false.");
+        }
+        config.setUsingNumConditions(usingNumConditions);
+        controller.conditionsController.setUsingNumConditions(usingNumConditions);
     }
 
     public void updateNumStrains(KeyEvent keyEvent) {
-        config.setUsingNumStrains(updateControllerConnectedField(fields.getNumStrainsTextField(), ConfigOption.NUM_STRAINS, keyEvent));
+        boolean usingNumStrains = updateControllerConnectedField(fields.getNumStrainsTextField(), ConfigOption.NUM_STRAINS, keyEvent);
+        if (usingNumStrains) {
+            LOGGER().atDebug("Number of strains field is not unused and is not empty/untouched, setting usingNumStrains to true.");
+        } else {
+            LOGGER().atDebug("Number of strains field is unused, untouched or empty, setting usingNumStrains to false.");
+        }
+        config.setUsingNumStrains(usingNumStrains);
+        controller.strainsController.setUsingNumStrains(usingNumStrains);
     }
 
     public void updateSampleLabelingRadioButtons(ActionEvent actionEvent) {
